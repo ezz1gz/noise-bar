@@ -1797,7 +1797,7 @@ window.initGarnishScreen = function(){
   renderSteps('stepsGarnish', 5);
 
   runFontMix(document.getElementById('heroMixGarnish'), '5.GaRiSh').then(() => {
-    runKoreanCopy(document.getElementById('krCopyGarnish'), ['토핑들을', '움직여', '잔 안에 넣어주세요'], 550);
+    runKoreanCopy(document.getElementById('krCopyGarnish'), ['토핑들을', '잔 안에 넣어','당신의 소리에 남을', '조각을 추가해주세요'], 550);
   });
 
   // ── 배경 셰이더 (항상 원 안에만 보이는 상태로 시작) ──
@@ -2539,7 +2539,7 @@ function noizebarGoToGarnish(){
   renderSteps('stepsBuild', 1);
   runFontMix(document.getElementById('heroMixBuild'), '1.BuilD').then(() => {
     runKoreanCopy(document.getElementById('krCopyBuild'),
-      ['WHITE 화이트','PINK 핑크','BLUE 블루','BROWN 브라운','네 가지 소음을','조절해 베이스를 쌓아주세요.'], 420);
+      ['WHITE 화이트','PINK 핑크','BLUE 블루','BROWN 브라운','네 가지 소음을 조절해','지금의 감각에 맞는' '베이스를 만들어 주세요.'], 420);
   });
 
   document.getElementById('soundBtnBuild').addEventListener('click', () => window.noizebarToggleMute());
