@@ -298,7 +298,7 @@ canvas#bgGarnish{
 .garnish-shape.in-glass{
   mix-blend-mode:soft-light;opacity:.55;filter:none;cursor:default;pointer-events:none;
 }
-.garnish-shape.floating{
+  .garnish-shape.floating{
   animation:garnishFloat 6s ease-in-out infinite;
 }
 @keyframes garnishFloat{
@@ -1254,6 +1254,9 @@ window.initPourScreen = function(){
     const y = (innerHeight - 1080 * s) / 2;
     stage.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
   }
+
+  #deployTest{position:fixed;right:18px;bottom:18px;z-index:99999;padding:9px 13px;border-radius:999px;background:#111;color:#fff;font:600 12px/1 -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em}
+
   window.addEventListener('resize', fitStage);
   fitStage();
 
@@ -2102,5 +2105,6 @@ function noizebarGoToGarnish(){
   }
 })();
 </script>
+<div id="deployTest">DEPLOY TEST</div>
 </body>
 </html>
