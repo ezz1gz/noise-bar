@@ -1527,7 +1527,7 @@ window.initPourScreen = function(){
   renderSteps('stepsPour', 4);
 
   runFontMix(document.getElementById('heroMixPour'), '4.PouR').then(() => {
-    runKoreanCopy(document.getElementById('krCopyPour'), ['잔을 기울여', '칵테일을', '글라스에 따라주세요.'], 550);
+    runKoreanCopy(document.getElementById('krCopyPour'), ['잔을 기울여', '칵테일을', '글라스에 채워주세요.'], 550);
   });
 
   // ── 선택한 잔 불러오기 (이전 화면 select에서 저장) ──
@@ -2361,7 +2361,7 @@ function noizebarGoToGarnish(){
   renderSteps('stepsChoose', 3);
 
   runFontMix(document.getElementById('heroMix'), '3.Choose').then(() => {
-    runKoreanCopy(document.getElementById('krCopy'), ['칵테일을 담을', '글라스를', '선택해주세요.'], 550);
+    runKoreanCopy(document.getElementById('krCopy'), ['만들어진 소음 칵테일을', '담을 글라스를', '선택해주세요.'], 550);
   });
 
   // ── 잔 선택: 옆의 잔을 클릭하면 그 방향으로 순서 전체가 한 칸씩 회전 ──
@@ -2708,7 +2708,7 @@ window.initMixScreen = function(){
   renderSteps('stepsMix', 2);
   runFontMix(document.getElementById('heroMixMix'), '2.Mix').then(() => {
     runKoreanCopy(document.getElementById('krCopyMix'),
-      ['베이스가 든', '쉐이커를 손에 들고', '위아래로 흔들어', '소리를 하나의 흐름으로', '섞어주세요'], 480);
+      ['베이스가 든', '쉐이커를 손에 들고', '위아래로 흔들어', '소리를 하나의 흐름으로', '만들어주세요.'], 480);
   });
 
   document.getElementById('soundBtnMix').addEventListener('click', () => window.noizebarToggleMute());
