@@ -7,7 +7,8 @@
   var iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var AC = window.AudioContext || window.webkitAudioContext;
   function route(c) {
-    if (!iOS || c.__nbOut || !c.createMediaStreamDestination) return;
+    if (c.__nbOut) return;
+    if (!iOS || !c.createMediaStreamDestination) { try { var o = c.createGain(); o.__nbReal = true; o.connect(c.destination); c.__nbOut = o; } catch (e) {} return; }
     try {
       var out = c.createGain(), direct = c.createGain(), ms = c.createMediaStreamDestination();
       out.__nbReal = true; direct.__nbReal = true;
@@ -72,6 +73,39 @@
     } catch (e) {}
   }
   addEventListener('click', media, true); addEventListener('touchend', media, true);
+
+  // ── 전체 소리 끄기: 어느 단계에서든 상단 스피커 = 모든 소리(베이스·리큐르·가니시) 켜기/끄기, 단계를 넘어가도 유지
+  function getM() { try { return !!window.top.__nbMuted; } catch (e) { return !!window.__nbMuted; } }
+  function setM(v) { try { window.top.__nbMuted = v; } catch (e) { window.__nbMuted = v; } apply(); }
+  var lastM = null;
+  function apply() {
+    var m = getM();
+    list.forEach(function (c) { if (c.__nbOut && c.__nbM !== m) { c.__nbM = m; try { c.__nbOut.gain.setTargetAtTime(m ? 0 : 1, c.currentTime, .04); } catch (e) { c.__nbOut.gain.value = m ? 0 : 1; } } });
+    if (m === lastM) return; lastM = m;
+    document.documentElement.classList.toggle('nb-muted', m);
+    var st = document.getElementById('stage'); if (st) st.classList.toggle('muted', m);
+    if (document.getElementById('vol') && document.body) document.body.classList.toggle('muted', m);
+    ['gVol', 'snd', 'vol'].forEach(function (id) { var b = document.getElementById(id); if (b) { b.setAttribute('aria-pressed', String(!m)); b.setAttribute('aria-label', m ? '소리 켜기' : '소리 끄기'); } });
+  }
+  setInterval(apply, 150);
+  window.__nbToggleMute = function () { setM(!getM()); unlock(); };
+  addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('#gVol,#snd,#vol,.nbspk');
+    if (!b) return; e.preventDefault(); e.stopImmediatePropagation(); window.__nbToggleMute();
+  }, true);
+  // 스피커 버튼이 그림으로만 있는 화면(믹스·글라스·가니시)에 누를 자리 + 꺼짐 표시를 붙임
+  var OFF = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>';
+  document.addEventListener('DOMContentLoaded', function () {
+    var ph = document.getElementById('ph'); if (!ph || document.getElementById('vol')) return;
+    var mix = /mix\.html/.test(location.pathname);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'hit nbspk'; b.setAttribute('aria-label', '소리 끄기');
+    b.style.cssText = 'left:338px;top:58px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:' + (mix ? '#fff' : '#000') + ';z-index:30';
+    b.innerHTML = '<span class="off">' + OFF + '</span>'; b.dataset.band = mix ? 'top' : 'art';
+    ph.appendChild(b); try { window.nbFit && window.nbFit(); } catch (e) {}
+    var st = document.createElement('style');
+    st.textContent = '.nbspk .off{display:none;' + (mix ? 'mix-blend-mode:difference;' : 'background:#fff;border-radius:50%;padding:4px;') + '}html.nb-muted .nbspk .off{display:block}' + (mix ? 'html.nb-muted .gnb svg:last-child{visibility:hidden}' : '');
+    document.head.appendChild(st); lastM = null; apply();
+  });
   window.__nbUnlock = unlock;
 })();
 

@@ -7,17 +7,16 @@ function barText(){const b=document.getElementById('bar');if(!b)return;b.innerHT
 // 화면 맞춤: 폰에서는 가로를 꽉 채우고(393 기준), 세로는 화면 높이만큼 늘이거나 줄여요.
 // 위쪽(제목·뒤로)은 위에 붙고, 아래 바는 화면 바닥에 붙고, 잔·그림(art)은 남는 높이에 맞춰 비율 유지로 줄어요.
 function nbFit(){const ph=document.getElementById('ph');if(!ph)return;
+  if(!ph.__b){ph.__b=[ph.offsetWidth||393,ph.offsetHeight||852];}const BW=ph.__b[0],BH=ph.__b[1];
   const Wv=innerWidth,Hv=innerHeight,mob=Wv<500||window.parent!==window;
-  let k,vh;if(mob){k=Wv/393;vh=Hv/k;}else{k=Math.min(1,(Hv-24)/852,(Wv-24)/393);vh=852;}
-  const dy=vh-852,s=Math.min(1,vh/852),ax=(393-393*s)/2;
-  const ph0=ph.offsetHeight||852;[...ph.children].forEach(el=>{if(el.dataset.band||el.tagName==='SCRIPT'||el.tagName==='STYLE')return;const t=el.offsetTop!=null?el.offsetTop:parseFloat(el.getAttribute('y')||0),h=el.offsetHeight!=null?el.offsetHeight:parseFloat(el.getAttribute('height')||0);
-    el.dataset.band=(el.classList.contains('layer')||h>=ph0*.9)?(el.tagName==='CANVAS'?'full':'art'):(t>=690?'bot':'top');});
+  let k,vh;if(mob){k=Wv/BW;vh=Hv/k;}else{k=Math.min(1,(Hv-24)/BH,(Wv-24)/BW);vh=BH;}
+  const dy=vh-BH,s=Math.min(1,vh/BH),ax=(BW-BW*s)/2;
+  [...ph.children].forEach(el=>{if(el.dataset.band||el.tagName==='SCRIPT'||el.tagName==='STYLE')return;const t=el.offsetTop!=null?el.offsetTop:parseFloat(el.getAttribute('y')||0),h=el.offsetHeight!=null?el.offsetHeight:parseFloat(el.getAttribute('height')||0);
+    el.dataset.band=(el.classList.contains('layer')||h>=BH*.9)?(el.tagName==='CANVAS'?'full':'art'):(t>=BH*.81?'bot':'top');});
   ph.style.height=vh+'px';ph.style.borderRadius=mob?'0':'44px';
   if(mob){ph.style.position='fixed';ph.style.left='0';ph.style.top='0';ph.style.transformOrigin='0 0';}
   ph.style.transform=`scale(${k})`;
-  [...ph.children].forEach(el=>{if(el.tagName==='SCRIPT'||el.tagName==='STYLE')return;
-    let b=el.dataset.band;if(!b){const t=el.offsetTop!=null?el.offsetTop:parseFloat(el.getAttribute('y')||0),h=el.offsetHeight!=null?el.offsetHeight:parseFloat(el.getAttribute('height')||0);
-      b=h>=800?(el.tagName==='CANVAS'?'full':'art'):(t>=690?'bot':'top');el.dataset.band=b;}
+  [...ph.children].forEach(el=>{const b=el.dataset.band;if(!b)return;
     if(b==='bot'){el.style.translate=`0 ${dy}px`;}
     else if(b==='full'){el.style.height=vh+'px';}
     else if(b==='art'){el.style.transformOrigin=`${-(el.offsetLeft||0)}px ${-(el.offsetTop||0)}px`;el.style.scale=String(s);el.style.translate=`${ax}px 0`;}});

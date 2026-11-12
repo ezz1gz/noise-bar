@@ -16,15 +16,15 @@
 #gw{position:absolute;left:0;top:0;width:393px;height:852px;transform-origin:193px 700px;filter:drop-shadow(0 0 1px rgba(255,255,255,.35));will-change:transform;touch-action:none}
 #liq{position:absolute;left:0;top:0;width:393px;height:500px}
 #gw>svg{position:absolute;left:0;top:0}
-#glow{-webkit-mask:linear-gradient(#000 40%,transparent 92%);mask:linear-gradient(#000 40%,transparent 92%);background:radial-gradient(60% 70% at 70% 60%,var(--g1),transparent 70%),radial-gradient(60% 80% at 25% 70%,var(--g2),transparent 70%);filter:blur(18px);opacity:.75}
+
 .hint{position:absolute;left:50%;top:478px;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,.7);white-space:nowrap;pointer-events:none;transition:opacity .5s}
 .toast{position:absolute;left:50%;top:110px;transform:translateX(-50%);background:rgba(20,20,24,.78);color:#fff;font-size:12px;padding:7px 12px;border-radius:14px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:9}.toast.on{opacity:1}
 .ph{background:#3a1a55}
 </style></head><body><div class="ph" id="ph">
-<div class="layer" id="ply"><svg width="402" height="874" viewBox="0 0 402 874" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<div class="layer" id="ply"><canvas id="bgc" width="268" height="583" style="position:absolute;left:0;top:0;width:402px;height:874px;display:block;filter:blur(6px);transform:scale(1.04);transform-origin:center"></canvas><svg style="position:absolute;left:0;top:0" width="402" height="874" viewBox="0 0 402 874" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g clip-path="url(#clip0_26_9523)">
-<rect width="402" height="874" fill="#262626"/>
-<foreignObject x="0" y="0" width="402" height="874"><canvas xmlns="http://www.w3.org/1999/xhtml" id="bgc" width="268" height="583" style="width:402px;height:874px;display:block;filter:blur(6px);transform:scale(1.04);transform-origin:center"></canvas></foreignObject>
+<rect width="402" height="874" fill="none"/>
+
 <g clip-path="url(#clip1_26_9523)">
 <circle class="dt" style="--d:0.87s" cx="120.338" cy="378.932" r="2.5835" fill="#D9D9D9"/>
 <circle class="dt" style="--d:1.28s" cx="98.8088" cy="542.553" r="2.5835" fill="#D9D9D9"/>
@@ -193,7 +193,7 @@
 <rect width="402" height="874" fill="black"/>
 <path class="gs" d="M209.473 560C216.473 560 222.902 562.441 227.958 566.518C230.502 568.57 234.137 568.965 237.265 568.017C241.755 566.657 246.777 567.092 251.154 569.635C259.524 574.497 262.366 585.224 257.504 593.594C256.3 595.666 254.736 597.399 252.938 598.76C249.99 600.992 247.964 604.807 248.137 608.501C248.329 612.604 247.382 616.808 245.165 620.624C239.029 631.186 225.492 634.774 214.93 628.638C211.904 626.88 209.45 624.514 207.634 621.785C206.431 619.977 204.605 618.625 202.494 618.113C189.585 614.979 180 603.347 180 589.474C180 573.196 193.195 560 209.473 560Z" fill="#D9D9D9" fill-opacity="0.1"/>
 <path class="gs" d="M12.5831 451.425C13.4901 449.126 16.7445 449.126 17.6515 451.425L26.8779 474.819C27.1548 475.521 27.7105 476.077 28.4126 476.354L51.8064 485.58C54.106 486.487 54.106 489.742 51.8064 490.649L28.4126 499.875C27.7105 500.152 27.1548 500.708 26.8779 501.41L17.6515 524.804C16.7445 527.103 13.4901 527.103 12.5831 524.804L3.35673 501.41C3.07983 500.708 2.52409 500.152 1.82202 499.875L-21.5718 490.649C-23.8714 489.742 -23.8714 486.487 -21.5718 485.58L1.82202 476.354C2.52409 476.077 3.07983 475.521 3.35672 474.819L12.5831 451.425Z" fill="#D9D9D9" fill-opacity="0.1"/>
-<foreignObject x="-28" y="-92" width="480" height="330"><div xmlns="http://www.w3.org/1999/xhtml" id="glow" style="width:480px;height:330px"></div></foreignObject>
+<g id="glow"><defs><filter id="nbGlB" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter><radialGradient id="nbG1" gradientUnits="userSpaceOnUse" cx="308" cy="106" r="288" gradientTransform="translate(308 106) scale(1 .8) translate(-308 -106)"><stop offset="0" style="stop-color:var(--g1)"/><stop offset=".7" style="stop-color:var(--g1);stop-opacity:0"/></radialGradient><radialGradient id="nbG2" gradientUnits="userSpaceOnUse" cx="92" cy="139" r="288" gradientTransform="translate(92 139) scale(1 .917) translate(-92 -139)"><stop offset="0" style="stop-color:var(--g2)"/><stop offset=".7" style="stop-color:var(--g2);stop-opacity:0"/></radialGradient><linearGradient id="nbGM" gradientUnits="userSpaceOnUse" x1="0" y1="-92" x2="0" y2="238"><stop offset=".4" stop-color="#fff"/><stop offset=".92" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="nbGMk" maskUnits="userSpaceOnUse" x="-80" y="-140" width="580" height="430"><rect x="-80" y="-140" width="580" height="430" fill="url(#nbGM)"/></mask></defs><g mask="url(#nbGMk)" opacity=".75"><g filter="url(#nbGlB)"><rect x="-28" y="-92" width="480" height="330" fill="url(#nbG1)"/><rect x="-28" y="-92" width="480" height="330" fill="url(#nbG2)"/></g></g></g>
 <path class="gs" d="M364.463 542.863C364.463 553.514 355.829 562.148 345.178 562.148C340.666 562.148 336.517 560.599 333.231 558.003C329.946 560.599 325.797 562.148 321.285 562.148C310.634 562.148 302 553.514 302 542.863C302 538.423 303.502 534.334 306.023 531.074C303.502 527.815 302 523.726 302 519.286C302 508.635 310.634 500 321.285 500C325.797 500 329.946 501.55 333.231 504.146C336.516 501.55 340.666 500 345.178 500C355.829 500 364.463 508.635 364.463 519.286C364.463 523.726 362.962 527.815 360.44 531.074C362.962 534.334 364.463 538.423 364.463 542.863Z" fill="white" fill-opacity="0.2"/>
 <g opacity="0.7">
 <g clip-path="url(#clip3_26_9588)">
@@ -690,4 +690,29 @@ addEventListener('pagehide',()=>{try{P_().__nbPreview(null);P_().__nbSolo(-1);}c
 addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gtBtn').click();});
 })();
 </script>
-</body></html>
+</body></html><style id="nb-play-info">
+/* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
+#nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
+#nbInfo b{font-weight:600;color:#fff}
+#nbInfo .row{display:flex;gap:8px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nbInfo i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:1px}
+.paused path[d^="M303.562 780.125"],.paused path[d^="M314.438 780.125"]{opacity:0}
+#nbPlayIco{position:absolute;left:302px;top:779px;width:22px;height:24px;pointer-events:none;opacity:0;transition:opacity .15s}
+.paused #nbPlayIco{opacity:1}
+.listen #nbInfo{opacity:0}
+</style>
+<script>
+(()=>{const ply=document.getElementById('ply');if(!ply)return;const Q=new URLSearchParams(location.search);
+ const KR={white:'화이트',pink:'핑크',blue:'블루',brown:'브라운'},C={white:'#f4f1ec',pink:'#ff2294',blue:'#4583ff',brown:'#c95f19'};
+ const pk=(Q.get('pk')||'white,pink,blue,brown').split(','),sh=(Q.get('s')||'.25,.24,.26,.25').split(',').map(Number),tot=sh.reduce((a,b)=>a+b,0)||1;
+ const base=pk.map((k,i)=>`<span><i style="background:${C[k]||'#fff'}"></i>${KR[k]||k} <b>${Math.round(sh[i]/tot*100)}</b></span>`).join('');
+ const TH={breath:'숨',flow:'흐름',beat:'박자',scatter:'흩뿌림'};
+ const lq=(Q.get('lq')||'').split(',').filter(Boolean).map(x=>{const[t,v]=x.split(':');return (TH[t]||t)+' '+v;});
+ const liq=(Q.get('ln')?`<b>${Q.get('ln')}</b> ${Q.get('lv')||''}%`:'')+(lq.length>1?` 외 ${lq.length-1}개 · `+lq.join(' · '):'');
+ const gar=(Q.get('g')||'').split(',').filter(Boolean).map(x=>x.split('-')[0].toUpperCase()).filter((v,i,a)=>a.indexOf(v)===i).join(' · ');
+ const d=document.createElement('div');d.id='nbInfo';
+ d.innerHTML=`<div class="row">BASE&nbsp;${base}</div>`+(liq?`<div class="row">LIQUEUR&nbsp;${liq}</div>`:'')+(gar?`<div class="row">GARNISH&nbsp;${gar}</div>`:'');
+ ply.appendChild(d);
+ const p=document.createElement('div');p.id='nbPlayIco';p.innerHTML='<svg width="22" height="24" viewBox="0 0 22 24"><path d="M3 2.5v19a1 1 0 0 0 1.5.86l16-9.5a1 1 0 0 0 0-1.72l-16-9.5A1 1 0 0 0 3 2.5z" fill="#fff"/></svg>';ply.appendChild(p);
+})();
+</script>
