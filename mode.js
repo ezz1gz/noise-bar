@@ -19,6 +19,8 @@
     '.nb-user path[d^="M57.7583 20.7231"],.nb-user path[d^="M300.5"],.nb-user path[d^="M317.10"],' +
     '.nb-user path[d^="M340.172 33.5"],.nb-user path[d^="M359.672 25.28"],.nb-user path[d^="M335.672 26.5"],' +
     '.nb-user rect[width="144"][height="5"][rx="2.5"]{display:none!important}' +
+    // 안내 문구(토스트·힌트·미리듣기 라벨·리큐르 테마 설명 카드)
+    '.nb-user #toast,.nb-user #hint,.nb-user #listen,.nb-user #thb{display:none!important}' +
     // 플레이 화면의 '그래프 조절' 패널(부모 문서에 붙는 경우 포함)
     '.nb-user #gtHost{display:none!important}.nb-user body.gt-on{padding:0!important}';
   var s = document.createElement('style');
