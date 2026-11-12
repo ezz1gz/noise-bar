@@ -41,13 +41,22 @@ html body .dock{left:32px;right:auto;bottom:32px;width:min(440px,40%);padding:0}
 .labels .m{cursor:pointer;text-align:center}
 .labels .m .row{display:block!important}
 .labels .m .tag,.labels .m .by{display:none!important}
-.labels .m .dot{display:block!important;width:22px!important;height:22px!important;border-radius:50%;margin:0 auto!important;box-shadow:0 2px 10px rgba(30,10,40,.2)!important;border:0!important}
+.labels .m .dot{display:block!important;width:9px!important;height:9px!important;border-radius:50%;margin:0 auto!important;background:#fff!important;box-shadow:0 1px 6px rgba(30,10,40,.25)!important;border:0!important}
 .labels .m .name{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif!important;font-style:normal!important;font-weight:600!important;font-size:17px!important;letter-spacing:0!important;color:#fff!important;text-align:center;margin-top:7px!important;padding:0!important;text-shadow:0 1px 10px rgba(40,20,60,.4)}
 .labels .m.r .name,.labels .m .name{padding:0!important}
 .ear{position:absolute;left:0;top:0;border:1.5px solid #fff;border-radius:50%;pointer-events:none;box-shadow:0 0 0 1px rgba(40,20,60,.06),0 6px 30px rgba(40,20,60,.12);transition:opacity .4s}
 .clean .ear{opacity:.85}
 
 html body #detail{display:none!important}
+
+.vol{position:fixed;right:22px;bottom:22px;z-index:380;display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:20px;background:rgba(20,17,23,.28);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#fff;transition:opacity .4s}
+.idle .vol{opacity:0}
+.vol svg{flex:none}
+.vol input{-webkit-appearance:none;appearance:none;width:140px;height:20px;background:transparent;margin:0;--p:40%}
+.vol input::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(#fff,#fff) 0 0/var(--p) 100% no-repeat,rgba(255,255,255,.35)}
+.vol input::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;margin-top:-5.5px;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.vol input::-moz-range-track{height:3px;background:rgba(255,255,255,.35)}.vol input::-moz-range-progress{height:3px;background:#fff}.vol input::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:0}
+.vol output{font:500 11px 'Space Mono',monospace;min-width:24px;text-align:right}
 </style></head><body>
 <title>NØISE BAR · 소리의 바다</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -232,6 +241,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   <div class="grp"><b>현재 값</b><pre id="cfgOut"></pre><div class="act"><button type="button" class="pri" id="cfgCopy">값 복사</button></div></div>
 </aside>
 <button type="button" class="devT" id="devT" aria-pressed="false">수치 · 수정</button>
+<label class="vol" aria-label="전체 음량"><svg width="16" height="16" viewBox="0 0 18 18" fill="#fff"><path d="M2 6.5h3l4-3.5v12l-4-3.5H2z"/><path d="M12 6c1 .9 1 5.1 0 6M14.2 4c2.1 2 2.1 8 0 10" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg><input id="volR" type="range" min="0" max="100" value="40"><output id="volO">40</output></label>
 <section class="sheet tune" id="tune" aria-label="화면 조절">
       <div class="th"><b>TunE</b><span>값을 바꾸면 바로 반영돼요</span></div>
       <div class="presets" id="presets">
@@ -292,9 +302,9 @@ MIXES.forEach((m,i)=>{
 });
 
 // ── 조절값
-const DEF={spread:78,glow:45,goo:45,size:110,gap:92,flow:28,swirl:28,grain:38,sat:115,wash:50,washR:42};
+const DEF={spread:100,glow:100,goo:100,wash:35,washR:45,size:130,gap:85,flow:70,swirl:70,grain:0,sat:100};
 const PRESETS={
-  gradient:{...DEF},
+  gradient:{...DEF,zoom:200,drift:25},
   metaball:{spread:12,glow:8,goo:55,size:95,gap:100,flow:45,swirl:50,grain:12,sat:110,wash:15,washR:35},
   cloud:{spread:92,glow:85,goo:35,size:125,gap:95,flow:20,swirl:20,grain:60,sat:105,wash:75,washR:65},
   liquid:{spread:30,glow:25,goo:70,size:130,gap:85,flow:70,swirl:70,grain:20,sat:120,wash:35,washR:45}
@@ -477,11 +487,18 @@ function setText(on){withText=on;stage.classList.toggle('clean',!on);
 $('textTog').addEventListener('click',()=>setText(!withText));
 $('txtBtn').addEventListener('click',()=>{setText(!withText);toast(withText?'글자를 다시 보여요':'이미지만 보여요 · PNG 저장 시 글자 없이 저장');});
 
+
+// 전체 음량 (기본 40 · 예전 100의 약 40%) — 이 화면에 저장
+let VOLV=40;try{const v=+localStorage.getItem('nb-sea-vol');if(localStorage.getItem('nb-sea-vol')!==null&&!isNaN(v))VOLV=v;}catch(_){}
+function VOLK(){return .6*Math.pow(VOLV/100,1.6)*2.4;}
+{const r=document.getElementById('volR'),o=document.getElementById('volO');const put=()=>{r.value=VOLV;o.textContent=VOLV;r.style.setProperty('--p',VOLV+'%');};put();
+ r.addEventListener('input',()=>{VOLV=+r.value;put();try{localStorage.setItem('nb-sea-vol',VOLV);}catch(_){}if(master&&AC)master.gain.setTargetAtTime(soundOn?VOLK():0,AC.currentTime,.05);});
+ r.addEventListener('pointerdown',e=>e.stopPropagation());}
 // ── 오디오: 레시피의 베이스 비율대로 4가지 노이즈를 섞어 재생
 let AC=null,master=null,bufs=null,voices=[],playing=false,soundOn=true;
 function initAudio(){
   if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
-  master=AC.createGain();master.gain.value=soundOn?.6:0;master.connect(AC.destination);
+  master=AC.createGain();master.gain.value=soundOn?VOLK():0;master.connect(AC.destination);
   const sr=AC.sampleRate,len=sr*4;const mk=fn=>{const b=AC.createBuffer(1,len,sr),d=b.getChannelData(0);fn(d);return b;};
   bufs={
     PINK:mk(d=>{let b0=0,b1=0,b2=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;b0=.99765*b0+w*.099;b1=.963*b1+w*.2965;b2=.57*b2+w*1.0526;d[i]=(b0+b1+b2+w*.1848)*.11;}}),
@@ -502,7 +519,7 @@ function stopMix(quick){if(!AC)return;const now=AC.currentTime;voices.forEach(v=
 function setPlayIcon(){$('dPlay').innerHTML=playing?'<svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="9" y="1" width="4" height="14" rx="1"/></svg>':'<svg width="14" height="16" viewBox="0 0 14 16" fill="currentColor"><path d="M2 1l11 7-11 7z"/></svg>';$('dPlay').setAttribute('aria-label',playing?'일시정지':'재생');}
 setPlayIcon();
 $('sndBtn').addEventListener('click',()=>{initAudio();soundOn=!soundOn;$('sndBtn').classList.toggle('dark',soundOn);$('sndWaves').style.opacity=soundOn?1:.15;
-  $('sndBtn').setAttribute('aria-label',soundOn?'소리 끄기':'소리 켜기');if(master)master.gain.setTargetAtTime(soundOn?.6:0,AC.currentTime,.08);});
+  $('sndBtn').setAttribute('aria-label',soundOn?'소리 끄기':'소리 켜기');if(master)master.gain.setTargetAtTime(soundOn?VOLK():0,AC.currentTime,.08);});
 
 // ── 렌더
 let simT=0,last=performance.now()/1000;
@@ -554,7 +571,7 @@ function placeLabels(){
 }
 
 // ═══ 소리의 바다 (PC) · BuilD '수치 · 수정' 패널
-S.drift=25;DEF.drift=25;S.zoom=170;DEF.zoom=170;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=170;});
+S.drift=25;DEF.drift=25;S.zoom=200;DEF.zoom=200;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=200;});
 const CFGKEY='nb-sea-cfg2';
 try{const sv=JSON.parse(localStorage.getItem(CFGKEY)||'null');if(sv)for(const k in DEF)if(typeof sv[k]==='number')S[k]=sv[k];}catch(_){}
 const SL2=[['경계',[['spread','퍼짐',0,100],['glow','번짐',0,100],['goo','뭉침',0,100]]],['물듦',[['wash','물듦',0,100],['washR','물듦 범위',0,100]]],
@@ -722,7 +739,7 @@ function ambTick(dt,now){if(!AC||AC.state!=='running'){return;}ambInit();const Z
   const keys=new Set([...Object.keys(amb.liq),...Object.keys(lw)]);keys.forEach(k=>{const v=liqVoice(k);if(v)v.gain.setTargetAtTime((lw[k]||0)/nrm*1.4,t,.15);});
   MIXES.forEach(m=>{if(m.el)m.el.style.opacity=(.45+.55*Math.min(1,(m.hear||0)*1.4)).toFixed(2);});}
 // 라벨: 메타볼 한가운데에 점 + 이름
-placeLabels=function(){MIXES.forEach(m=>{const el=m.el;if(!m.vis||!m.sp){el.style.visibility='hidden';return;}el.style.visibility='';el.classList.remove('r');el.style.transform=`translate(${m.sp[0]}px,${m.sp[1]}px) translate(-50%,-11px)`;});
+placeLabels=function(){MIXES.forEach(m=>{const el=m.el;if(!m.vis||!m.sp){el.style.visibility='hidden';return;}el.style.visibility='';el.classList.remove('r');const k=1+.35*Math.pow(Math.min(1,(m.hear||0)*1.15),1.5);el.style.transform=`translate(${m.sp[0]}px,${m.sp[1]}px) translate(-50%,-5px) scale(${k.toFixed(3)})`;el.style.transformOrigin='50% 5px';el.style.zIndex=String(Math.round((m.hear||0)*100));});
   const dd=2*EAR.r;ear.style.width=ear.style.height=dd+'px';ear.style.transform=`translate(${EAR.x-EAR.r}px,${EAR.y-EAR.r}px)`;};
 // 듣는 원 움직이기: 마우스를 따라감 · 가만두면 화면 가운데로 · 믹스를 누르거나 새 믹스가 오면 그 믹스에 붙음
 stage.addEventListener('pointermove',e=>{const r=stage.getBoundingClientRect(),Zv=(r.width/1320)*((S.zoom||170)/170);EAR.tx=(e.clientX-r.left)/Zv;EAR.ty=(e.clientY-r.top)/Zv;EAR.last=performance.now()/1000;EAR.anchor=null;});
