@@ -636,7 +636,7 @@ button:focus-visible{outline:2px solid #e2468f;outline-offset:2px}
   addEventListener('resize',()=>{fit();},true);document.addEventListener('DOMContentLoaded',fit);window.__fit=fit;})();
 </script>
 <div class="wrap">
-<div class="stage s1 hs-jig" id="stage"><div id="flow" hidden><iframe title="글라스 · 가니쉬" allow="autoplay"></iframe></div>
+<div class="stage s1 hs-jig" id="stage"><div id="flow" hidden><iframe title="글라스 · 가니쉬" allow="autoplay; accelerometer; gyroscope; magnetometer"></iframe></div>
   <svg class="sbar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 54" width="393" height="54" fill="none" aria-hidden="true"><path d="M57.7583 20.7231C60.3149 20.7231 62.5396 22.541 62.5396 26.8574V26.874C62.5396 30.9082 60.7217 33.2988 57.7085 33.2988C55.5088 33.2988 53.8652 31.9956 53.4834 30.1611L53.4668 30.0698H55.5752L55.6001 30.1528C55.9155 30.9912 56.6543 31.5391 57.7085 31.5391C59.6094 31.5391 60.4146 29.6797 60.5059 27.3887C60.5059 27.2974 60.5142 27.2061 60.5142 27.1147H60.3481C59.9082 28.061 58.8623 28.8994 57.2188 28.8994C54.9194 28.8994 53.3091 27.2227 53.3091 24.9482V24.9316C53.3091 22.4995 55.1602 20.7231 57.7583 20.7231ZM57.75 27.2559C59.103 27.2559 60.1406 26.2764 60.1406 24.9233V24.9067C60.1406 23.5371 59.103 22.4663 57.7749 22.4663C56.4551 22.4663 55.4009 23.5205 55.4009 24.8569V24.8735C55.4009 26.2598 56.3887 27.2559 57.75 27.2559ZM66.3081 25.2388C65.5527 25.2388 64.9883 24.6577 64.9883 23.9272C64.9883 23.1885 65.5527 22.6157 66.3081 22.6157C67.0718 22.6157 67.6279 23.1885 67.6279 23.9272C67.6279 24.6577 67.0718 25.2388 66.3081 25.2388ZM66.3081 31.3979C65.5527 31.3979 64.9883 30.8252 64.9883 30.0864C64.9883 29.3477 65.5527 28.7749 66.3081 28.7749C67.0718 28.7749 67.6279 29.3477 67.6279 30.0864C67.6279 30.8252 67.0718 31.3979 66.3081 31.3979ZM75.8872 33V30.7007H70.0269V28.9492C71.5791 26.2515 73.2808 23.4956 74.9077 21.022H77.9375V28.9326H79.5479V30.7007H77.9375V33H75.8872ZM72.019 28.9824H75.9204V22.7319H75.7959C74.5674 24.6079 73.1812 26.8242 72.019 28.8579V28.9824ZM84.5283 33V23.1304H84.3872L81.4072 25.2388V23.2217L84.5366 21.022H86.6699V33H84.5283Z" fill="black"/></svg><img class="sbarW" src="assets/statusbar-wrapper.svg" width="79.6697" height="13" alt="" draggable="false">
   <canvas id="gl" aria-label="베이스 노이즈 비율. 색 띠 사이 경계를 위아래로 끌어 비율을 바꿔요."></canvas>
   <div id="labs"></div>
@@ -1258,7 +1258,7 @@ let LPAN=null,LSH=null,LLO=null;
 function listenChain(){if(!AC||LPAN)return;LPAN=AC.createStereoPanner?AC.createStereoPanner():AC.createGain();LSH=AC.createBiquadFilter();LSH.type='highshelf';LSH.frequency.value=2400;LLO=AC.createBiquadFilter();LLO.type='lowshelf';LLO.frequency.value=220;
   try{master.disconnect();}catch(_){}master.connect(LSH);LSH.connect(LLO);LLO.connect(LPAN);LPAN.connect(AC.destination);}
 addEventListener('message',e=>{const m=e.data||{};
-  if(m.nb==='tilt'){ensureAudio();listenChain();if(!LPAN)return;const t=AC.currentTime;if(LPAN.pan)LPAN.pan.setTargetAtTime(Math.max(-.85,Math.min(.85,m.cx*1.4+m.a*.5)),t,.08);
+  if(m.nb==='tilt'){window.__nbTilt=+m.a||0;ensureAudio();listenChain();if(!LPAN)return;const t=AC.currentTime;if(LPAN.pan)LPAN.pan.setTargetAtTime(Math.max(-.85,Math.min(.85,m.cx*1.4+m.a*.5)),t,.08);
     LSH.gain.setTargetAtTime(m.a*12,t,.1);LLO.gain.setTargetAtTime(-m.a*10,t,.1);Object.values(LG).forEach(g=>{if(g.lp)g.lp.frequency.setTargetAtTime(1800+Math.min(1,m.sp*3)*5000,t,.15);});}
   if(m.nb==='pause'&&AC){m.on?AC.suspend():AC.resume();}
   if(m.nb==='mute'){if(typeof m.on==='boolean'){if(muted!==m.on)$('snd').click();}else $('snd').click();}
@@ -1295,7 +1295,7 @@ const GEN={
 const LEN={wind:24,waves:16,rain:20,forest:20,fire:16,subway:9.2,street:24,cafe:20,clock:8,fridge:6};
 function ensureAudio(){
   if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
-  master=AC.createGain();master.gain.value=muted?0:.8;master.connect(AC.destination);
+  master=AC.createGain();master.gain.value=muted?0:.8;{const lim=AC.createDynamicsCompressor();lim.threshold.value=-8;lim.knee.value=6;lim.ratio.value=8;lim.attack.value=.004;lim.release.value=.2;master.connect(lim);lim.connect(AC.destination);}
   const NB={brown:genBuf(4,(d,sr,n)=>brownGen(d,n)),pink:genBuf(4,(d,sr,n)=>pinkGen(d,n)),white:genBuf(4,(d,sr,n)=>{for(let i=0;i<n;i++)d[i]=Math.random()*2-1;}),blue:genBuf(4,(d,sr,n)=>{pinkGen(d,n);for(let i=n-1;i>0;i--)d[i]=d[i]-d[i-1];})};const B=NOISE.map(n=>NB[n.k]);
   NG=B.map(b=>loop(b));
 }
@@ -1310,11 +1310,13 @@ window.__nbAudio=()=>({AC,NG,LG,keys:NOISE.map(n=>n.k),share:share.slice(),solo,
 window.__nbSolo=i=>{solo=i;};window.__nbWake=()=>wake();window.__nbPreview=k=>{preview=k?LBY[k]:null;};
 function wake(){ensureAudio();if(AC&&AC.state!=='running')AC.resume();}
 $('snd').addEventListener('click',()=>{muted=!muted;stage.classList.toggle('muted',muted);$('snd').setAttribute('aria-pressed',String(!muted));$('snd').setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');wake();if(master)master.gain.setTargetAtTime(muted?0:.8,AC.currentTime,.1);});
+// 청감 모드: 잔을 오른쪽으로 기울이면 높은 노이즈(화이트·블루), 왼쪽이면 낮은 노이즈(핑크·브라운)가 앞으로
+function tiltW(k){const a=window.__nbTilt||0,hi=(k==='white'||k==='blue');return Math.max(.15,Math.min(1.9,1+(hi?1:-1)*a*1.7));}
 function updAudio(){
   if(!AC)return;const t=AC.currentTime;
-  NG.forEach((g,i)=>g.gain.setTargetAtTime(share[i]*.32*(solo<0?1:solo===i?1.3:.05)*(liqSolo?.05:1),t,.08));
-  const want={},pos={},tt=performance.now()/1000;const NL=Math.max(1,lives().length);lives().forEach((d,i)=>{want[d.k]=.62*d.v*(liqSolo?(d===liveDrop()?1.3:.05):1)/Math.sqrt(NL*.8+.2);pos[d.k]={pan:Math.max(-.9,Math.min(.9,(d.x/W*2-1)*.45+.4*Math.sin(tt*2*Math.PI/11+i*2.1))),rate:rateOf(d)};});
-  if(preview&&!want[preview.k]){want[preview.k]=.45;pos[preview.k]={pan:0,rate:preview.rate||1};}
+  NG.forEach((g,i)=>g.gain.setTargetAtTime(share[i]*.2*tiltW(NOISE[i].k)*(solo<0?1:solo===i?1.3:.05)*(liqSolo?.05:1),t,.08));
+  const want={},pos={},tt=performance.now()/1000;const NL=Math.max(1,lives().length);lives().forEach((d,i)=>{want[d.k]=1.3*d.v*(liqSolo?(d===liveDrop()?1.3:.05):1)/Math.sqrt(NL*.8+.2);pos[d.k]={pan:Math.max(-.9,Math.min(.9,(d.x/W*2-1)*.45+.4*Math.sin(tt*2*Math.PI/11+i*2.1))),rate:rateOf(d)};});
+  if(preview&&!want[preview.k]){want[preview.k]=.95;pos[preview.k]={pan:0,rate:preview.rate||1};}
   LIQ.forEach(l=>{if(want[l.k]||LG[l.k]){const g=liqGain(l.k),p=pos[l.k];g.gain.setTargetAtTime(want[l.k]||0,t,.12);
     if(p){g.pn.pan.setTargetAtTime(p.pan,t,.08);g.sd.gain.setTargetAtTime(.12,t,.15);g.src.playbackRate.setTargetAtTime(p.rate,t,.2);}}});
 }
@@ -1556,3 +1558,21 @@ OV.textContent=css();
 
 </script>
 
+<style id="nb-tray-fix">
+/* 하단 바: 접힌 상태에서 잘 눌리게(넓은 터치 영역) + 열고 닫힐 때 튀지 않고 부드럽게 */
+#tray{transition:height .5s cubic-bezier(.32,.72,0,1),left .5s cubic-bezier(.32,.72,0,1),right .5s cubic-bezier(.32,.72,0,1),bottom .5s cubic-bezier(.32,.72,0,1),border-radius .5s cubic-bezier(.32,.72,0,1),background-color .3s!important;will-change:height}
+#tray.nodrag{transition:none!important}
+#tray .view{transition:opacity .16s ease,transform .5s cubic-bezier(.32,.72,0,1)!important;transform:translateY(6px)}
+#tray[data-state="idle"] .v-idle,#tray[data-state="drag"] .v-drag,#tray[data-state="open"] .v-open,#tray[data-state="liq"] .v-liq,#tray[data-state="liqopen"] .v-liq,#tray[data-state="liqcap"] .v-cap{transition:opacity .3s ease .12s,transform .5s cubic-bezier(.32,.72,0,1)!important;transform:none}
+.lqgrip{position:relative}
+.lqgrip::before{content:"";position:absolute;left:-160px;right:-160px;top:-16px;height:48px}
+#tray[data-state="idle"]{cursor:pointer}
+</style>
+<script>
+// 접힌 캡슐 탭 → 펼치기 (아이폰에서 click이 씹히는 경우를 대비해 손을 뗄 때 바로 판정)
+(()=>{const t=document.getElementById('tray');if(!t)return;let s=null;
+ t.addEventListener('pointerdown',e=>{s={x:e.clientX,y:e.clientY,t:performance.now(),st:t.dataset.state};},true);
+ t.addEventListener('pointerup',e=>{if(!s)return;const d=Math.hypot(e.clientX-s.x,e.clientY-s.y),dt=performance.now()-s.t,st=s.st;s=null;
+   if(d>10||dt>600)return;if(e.target.closest('button,.trk,input,#go'))return;
+   if(st==='idle'&&t.dataset.state==='idle'){const v=document.getElementById('vIdle');v&&v.click();}},true);})();
+</script>

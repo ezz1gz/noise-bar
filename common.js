@@ -10,15 +10,17 @@ function nbFit(){const ph=document.getElementById('ph');if(!ph)return;
   const Wv=innerWidth,Hv=innerHeight,mob=Wv<500||window.parent!==window;
   let k,vh;if(mob){k=Wv/393;vh=Hv/k;}else{k=Math.min(1,(Hv-24)/852,(Wv-24)/393);vh=852;}
   const dy=vh-852,s=Math.min(1,vh/852),ax=(393-393*s)/2;
+  const ph0=ph.offsetHeight||852;[...ph.children].forEach(el=>{if(el.dataset.band||el.tagName==='SCRIPT'||el.tagName==='STYLE')return;const t=el.offsetTop!=null?el.offsetTop:parseFloat(el.getAttribute('y')||0),h=el.offsetHeight!=null?el.offsetHeight:parseFloat(el.getAttribute('height')||0);
+    el.dataset.band=(el.classList.contains('layer')||h>=ph0*.9)?(el.tagName==='CANVAS'?'full':'art'):(t>=690?'bot':'top');});
   ph.style.height=vh+'px';ph.style.borderRadius=mob?'0':'44px';
   if(mob){ph.style.position='fixed';ph.style.left='0';ph.style.top='0';ph.style.transformOrigin='0 0';}
   ph.style.transform=`scale(${k})`;
   [...ph.children].forEach(el=>{if(el.tagName==='SCRIPT'||el.tagName==='STYLE')return;
-    let b=el.dataset.band;if(!b){const t=el.offsetTop,h=el.offsetHeight;
+    let b=el.dataset.band;if(!b){const t=el.offsetTop!=null?el.offsetTop:parseFloat(el.getAttribute('y')||0),h=el.offsetHeight!=null?el.offsetHeight:parseFloat(el.getAttribute('height')||0);
       b=h>=800?(el.tagName==='CANVAS'?'full':'art'):(t>=690?'bot':'top');el.dataset.band=b;}
     if(b==='bot'){el.style.translate=`0 ${dy}px`;}
     else if(b==='full'){el.style.height=vh+'px';}
-    else if(b==='art'){el.style.transformOrigin='0 0';el.style.scale=String(s);el.style.translate=`${ax}px 0`;}});
+    else if(b==='art'){el.style.transformOrigin=`${-(el.offsetLeft||0)}px ${-(el.offsetTop||0)}px`;el.style.scale=String(s);el.style.translate=`${ax}px 0`;}});
   window.__nbS=s;window.__nbVH=vh;}
 function fit(){nbFit();}
 const inFrame=window.parent!==window;

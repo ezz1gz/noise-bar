@@ -5,10 +5,11 @@
 (function(){
 const KEY='nb-graph-cfg';
 const DEF={
- base:{count:64,width:2.2,height:1,min:2,future:.55,window:10,head:.45,round:0,contrast:.85},
+ base:{count:36,width:3,height:1.7,min:10,future:.5,window:10,head:.47,round:0,contrast:.85,group:6,ggap:1.6},
  liq:{range:1,themes:{breath:{width:1.9,dash:0,gap:0,smooth:.7,alpha:.9},flow:{width:1.9,dash:10,gap:7,smooth:.6,alpha:.85},
                       beat:{width:1.9,dash:0,gap:0,step:.25,alpha:.9},scatter:{width:2.2,dash:0,gap:0,dot:1,alpha:.9}}},
- gar:{size:1,ring:.6,spread:.8,alpha:.95}};
+ gar:{size:1,ring:.35,spread:.8,alpha:.95,dots:1},
+ style:'ref'};
 const clone=o=>JSON.parse(JSON.stringify(o));
 function merge(d,s){if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]===undefined)continue;if(typeof d[k]==='object'&&d[k])merge(d[k],s[k]);else if(typeof s[k]===typeof d[k])d[k]=s[k];}return d;}
 function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}return merge(clone(DEF),s);}
@@ -53,14 +54,16 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  // ── 베이스: 섞인 노이즈들의 실제 크기 합 (독립 소리 → 제곱합의 제곱근)
  const base=live?A.NG.map(g=>srcOf(g,AC)).filter(Boolean):null;
  const lv=new Float32Array(N);let mx=0,mn=1e9;
- for(let i=0;i<N;i++){const t0=tOf(R.x0+i*W/N),t1=t0+dt;let s=0;
+ const G0=Math.max(1,Math.round(B.group||1)),gg0=B.ggap||0,uw0=W/(N+(Math.ceil(N/G0)-1)*gg0);
+ for(let i=0;i<N;i++){const t0=tOf(R.x0+(i+Math.floor(i/G0)*gg0)*uw0),t1=t0+dt;let s=0;
   if(live)base.forEach(S=>{if(S.gain<1e-4)return;const v=S.gain*pmax(S.pk,S.dur,S.pos(t0),S.pos(t1));s+=v*v;});
   else{const v=.35+.65*Math.pow(n1(t0*3.1),1.6)*(.6+.4*n1(t0*.4+9));s=v*v;}
   lv[i]=Math.sqrt(s);if(lv[i]>mx)mx=lv[i];if(lv[i]<mn)mn=lv[i];}
  PEAK.base+=(Math.max(mx,1e-4)-PEAK.base)*(mx>PEAK.base?.2:.01);PEAK.lo=(PEAK.lo===undefined?mn:PEAK.lo+(mn-PEAK.lo)*.05);const lo=Math.min(PEAK.lo,PEAK.base*.98)*B.contrast;
- for(let i=0;i<N;i++){const x=R.x0+(i+.5)*W/N,h=Math.max(B.min,Math.max(0,lv[i]-lo)/(PEAK.base-lo)*R.bh*2*B.height);ctx.globalAlpha=x<=phx?1:B.future;ctx.fillStyle='#fff';
+ const G=Math.max(1,Math.round(B.group||1)),gg=B.ggap||0,units=N+(Math.ceil(N/G)-1)*gg,uw=W/units,xOf=i=>R.x0+(i+Math.floor(i/G)*gg+.5)*uw;
+ for(let i=0;i<N;i++){const x=xOf(i),h=Math.max(B.min,Math.max(0,lv[i]-lo)/(PEAK.base-lo)*R.bh*2*B.height);ctx.globalAlpha=x<=phx?1:B.future;ctx.fillStyle='#fff';
   if(B.round>0){ctx.beginPath();ctx.roundRect(x-B.width/2,R.cy-h/2,B.width,h,Math.min(B.width/2,h/2));ctx.fill();}else ctx.fillRect(x-B.width/2,R.cy-h/2,B.width,h);}
- ctx.globalAlpha=.6;ctx.fillRect(phx-1.3,R.cy-R.bh*1.9,2.6,R.bh*3.8);ctx.globalAlpha=1;
+ ctx.globalAlpha=.5;ctx.fillRect(phx-1.8,R.cy-R.bh*2.4,3.6,R.bh*4.8);ctx.globalAlpha=1;
  // ── 리큐르: 각자 실제 크기 → 테마 모양
  let lqs=[];
  if(live){lqs=A.lives.map(d=>({th:d.th,S:srcOf(A.LG[d.k],AC)})).filter(o=>o.S);if(A.preview&&!A.lives.some(d=>d.k===A.preview)){const S=srcOf(A.LG[A.preview],AC);if(S)lqs.push({th:NBG.previewTheme||'flow',S});}}
@@ -71,6 +74,14 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
    v[m]=L.S?L.S.gain*slice(L.S.e,L.S.dur,L.S.pos(t),L.S.pos(t+win)):(.3+.7*n1(t*(L.th==='beat'?4:1.3)+j*7))*.05*(1-j*.2);if(v[m]>lmx)lmx=v[m];}return{L,P,v,win};});
  PEAK.liq+=(Math.max(lmx,1e-4)-PEAK.liq)*(lmx>PEAK.liq?.2:.01);
  const rng=R.lr*c.liq.range,taper=x=>{const u=(x-X0)/(X1-X0);return .35+.65*Math.pow(Math.sin(Math.PI*u),.5);};
+ if(c.style==='ref'){
+  // 참고 시안 스타일: 리큐르마다 크게 굽이치는 점선 하나 — 굽이의 크기 = 그 리큐르의 실제 크기, 모양의 출렁임 = 실제 크기 변화
+  rows.forEach(({L,v},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;const lvl=Math.min(1,mean/PEAK.liq);
+   const per=[7.5,5.2,9.6][j%3],ph=j*2.1;ctx.strokeStyle='#fff';ctx.lineWidth=1.7;ctx.lineCap='round';ctx.globalAlpha=.85;ctx.setLineDash([2.4,6.5]);ctx.beginPath();
+   for(let m=0;m<M;m++){const x=X0+m*STEP,t=tOf(x),wob=(v[m]-mean)/PEAK.liq;
+    const y=R.cy+R.lr*(.25+.75*lvl)*(.85*Math.sin(2*Math.PI*t/per+ph)+.35*wob)*taper(x)*1.55;m?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+   ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;});
+ }else
  rows.forEach(({L,P,v,win},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;
   ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=P.width;ctx.lineCap='round';ctx.lineJoin='round';ctx.globalAlpha=P.alpha;
   if(L.th==='scatter'){for(let m=0;m<M;m+=2){const x=X0+m*STEP,a=v[m]/PEAK.liq,up=v[m]>mean*1.08;if(!up&&m%6)continue;const y=R.cy-(v[m]-mean)/PEAK.liq*rng*1.6*taper(x)*(hs(m*3.3+j)>.5?1:-1);
@@ -84,8 +95,9 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  const tP=clock;NBG.gar().forEach(ev=>{const x=phx+(ev.t-tP)*pps;if(x<R.x0-30||x>R.x1+30)return;
   const rank=Math.max(0,(FAMC[ev.k]||[]).indexOf(ev.n))/3,side=ev.i%2?1:-1,y=R.cy-R.lr*c.gar.spread*(.25+.75*rank)*(rank>=.5?1:side)*.85;
   const age=tP-ev.t,pop=age>=0?Math.exp(-age*6):0,s=(.16+.26*ev.lv)*c.gar.size*(1+.35*pop);
-  ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.globalAlpha=c.gar.alpha*(age>=0?1:.6);ctx.fillStyle='#fff';ctx.fill(shape(ev.k,ev.n));ctx.restore();
-  if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,30*s*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
+  if(c.gar.dots){const r=(2.4+3.6*ev.lv)*c.gar.size*(1+.5*pop);ctx.globalAlpha=c.gar.alpha*(age>=0?.95:.55);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
+  else{ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.globalAlpha=c.gar.alpha*(age>=0?1:.6);ctx.fillStyle='#fff';ctx.fill(shape(ev.k,ev.n));ctx.restore();}
+  if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,(c.gar.dots?10:30*s)*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
 }
 NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now();
  (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();if(!on.paused)clock+=dt;NBG.clock=clock;

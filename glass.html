@@ -213,7 +213,7 @@ function fr(now){const t=(now-t0)/1000;acc+=Math.min(.05,(now-last)/1000);last=n
   requestAnimationFrame(fr);}
 requestAnimationFrame(fr);})();
 
-barText();fit();addEventListener('resize',fit);
+[...document.getElementById('ph').children].forEach(el=>{if(!el.dataset.band)el.dataset.band='art';});barText();fit();addEventListener('resize',fit);
 document.getElementById('bk').onclick=()=>back();
 document.getElementById('nx').onclick=()=>go('garnish.html');
 </script></body></html>

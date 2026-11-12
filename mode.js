@@ -23,6 +23,16 @@
   }
   ['touchend', 'click', 'keydown', 'pointerup'].forEach(function (ev) { addEventListener(ev, unlock, true); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) list.forEach(function (c) { try { if (c.state !== 'running') c.resume(); } catch (e) {} }); });
+  function media() {
+    try {
+      if (!('mediaSession' in navigator) || navigator.mediaSession.__nb) return;
+      var base = location.href.replace(/[^\/]*([?#].*)?$/, '');
+      navigator.mediaSession.metadata = new MediaMetadata({ title: 'NØISE BAR', artist: 'NØISE BAR', album: 'NØISE BAR',
+        artwork: [{ src: base + 'icon-512.png', sizes: '512x512', type: 'image/png' }, { src: base + 'icon-192.png', sizes: '192x192', type: 'image/png' }] });
+      navigator.mediaSession.__nb = true;
+    } catch (e) {}
+  }
+  addEventListener('click', media, true); addEventListener('touchend', media, true);
   window.__nbUnlock = unlock;
 })();
 
@@ -44,7 +54,8 @@
     '.nb-user .sbar,.nb-user .sbarW,.nb-user .stage::before,.nb-user .stage::after{display:none!important}' +
     '.nb-user .ph{box-shadow:none!important;border-radius:0!important}' +
     // 폰에서 위·아래 여백 없이 화면 끝까지
-    '@media (max-width:499px){html.nb-user,html.nb-user body{background:#fff!important}html.nb-user .wrap,html.nb-user .stage{height:100vh!important;height:100dvh!important}}' +
+    '@media (max-width:499px){html.nb-user,html.nb-user body{background:#fff!important;height:100vh!important;height:100lvh!important;min-height:100%}'+
+    'html.nb-user .wrap,html.nb-user .stage{height:100vh!important;height:100lvh!important;min-height:100%!important}}' +
     // 피그마에서 그대로 들어온 시계(9:41)·신호·와이파이·배터리 아이콘과 홈 인디케이터 막대
     '.nb-user path[d^="M57.7583 20.7231"],.nb-user path[d^="M300.5"],.nb-user path[d^="M317.10"],' +
     '.nb-user path[d^="M340.172 33.5"],.nb-user path[d^="M359.672 25.28"],.nb-user path[d^="M335.672 26.5"],' +

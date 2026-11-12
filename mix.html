@@ -190,9 +190,8 @@ const [GR,TN]=liqGrade(),drop={x:+(Q.get('dx')||.5),y:+(Q.get('dy')||.45),seed:M
 const P={stir:STIR,scale:.4,purity:.3};
 const ptr={down:false,x:0,y:0,vx:0,vy:0,t:0};const splat={on:false,x:0,y:0,vx:0,vy:0,r:.14};
 const shake={energy:0,ax:0,ay:0,last:null,on:false};
-function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;if(shake.last){const j=Math.hypot(a.x-shake.last.x,a.y-shake.last.y,(a.z||0)-shake.last.z),e2=Math.min(1,Math.max(0,(j-2.5)/16));if(e2>shake.energy){shake.energy=e2;shake.ax=a.x-shake.last.x;shake.ay=a.y-shake.last.y;}}shake.last={x:a.x,y:a.y,z:a.z||0};}
-function enableMotion(){if(shake.on)return;shake.on=true;try{if(window.DeviceMotionEvent&&DeviceMotionEvent.requestPermission)DeviceMotionEvent.requestPermission().then(r=>{if(r==='granted')addEventListener('devicemotion',onMotion);}).catch(()=>{});else addEventListener('devicemotion',onMotion);}catch(_){}}
-function simStep(dt,flow,relax){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,simW,simH);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
+function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;if(shake.last){const j=Math.hypot(a.x-shake.last.x,a.y-shake.last.y,(a.z||0)-shake.last.z),e2=Math.min(1,Math.max(0,(j-1.6)/11));if(e2>shake.energy){shake.energy=e2;shake.ax=a.x-shake.last.x;shake.ay=a.y-shake.last.y;}}shake.last={x:a.x,y:a.y,z:a.z||0};}
+function enableMotion(){if(shake.on||shake.asking)return;const go=()=>{if(shake.on)return;shake.on=true;addEventListener('devicemotion',onMotion);};try{if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){shake.asking=true;DeviceMotionEvent.requestPermission().then(r=>{shake.asking=false;if(r==='granted')go();}).catch(()=>{shake.asking=false;});}else go();}catch(_){shake.asking=false;}}['touchend','click'].forEach(ev=>addEventListener(ev,enableMotion,true));try{if(!(window.DeviceMotionEvent&&DeviceMotionEvent.requestPermission))enableMotion();}catch(_){}function simStep(dt,flow,relax){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,simW,simH);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
   gl.uniform1i(u.uPrev,0);gl.uniform2f(u.uSimRes,simW,simH);gl.uniform1f(u.uTime,simT);gl.uniform1f(u.uDt,dt);gl.uniform1f(u.uFlow,flow);gl.uniform1f(u.uScale,.8+P.scale*2.4);gl.uniform1f(u.uAsp,W/H);gl.uniform1f(u.uRelax,relax);
   gl.uniform1f(u.uPtrOn,splat.on?1:0);gl.uniform1f(u.uPtrR,splat.r);gl.uniform4f(u.uPtr,splat.x/W,1-splat.y/H,splat.vx/W*1.1,-splat.vy/H*1.1);gl.drawArrays(gl.TRIANGLES,0,3);[A,B]=[B,A];}
 let mixAmt=0,mixTarget=0,simT=0,dispT=0;const cuts=cutsT.slice();
@@ -216,13 +215,13 @@ const st=$('stir');const paint=()=>st.style.setProperty('--p',st.value+'%');st.v
 st.addEventListener('input',()=>{P.stir=st.value/100;$('so').textContent=st.value;paint();});
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1500);}
 // 처음: 솔리드로 잠깐 → 흔들기 시작(자동) — 휘젓기 정도가 클수록 빨리·크게 섞임
-setTimeout(()=>{mixTarget=1;},650);
+setTimeout(()=>{const touch=('ontouchstart' in window)||navigator.maxTouchPoints>0;if(!touch)mixTarget=1;},650);
 $('nx').onclick=()=>{if(mixAmt<.9){toast('조금만 더 섞어요');mixTarget=1;return;}try{draw();const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}
   const q=new URLSearchParams(location.search);q.set('st',(P.stir).toFixed(2));location.href='glass.html?'+q;};
 $('bk').onclick=()=>back();
 let last=performance.now()/1000,lastL='';
 function frame(){const now=performance.now()/1000,dt=Math.min(now-last,1/30);last=now;
-  const se=shake.energy;if(se>.03)mixTarget=Math.min(1,mixTarget+se*dt*.3);
+  const se=shake.energy;if(se>.03)mixTarget=Math.min(1,mixTarget+se*dt*.9);
   mixAmt+=(mixTarget-mixAmt)*(1-Math.exp(-dt*(.35+P.stir*.9)));if(Math.abs(mixTarget-mixAmt)<.002)mixAmt=mixTarget;
   if(ptr.down)Object.assign(splat,{on:true,x:ptr.x,y:ptr.y,vx:ptr.vx,vy:ptr.vy,r:.14});
   else if(se>.05){const k=se*Math.hypot(W,H)*2.2/Math.max(Math.hypot(shake.ax,shake.ay),1);Object.assign(splat,{on:true,x:Math.random()*W,y:Math.random()*H,vx:shake.ax*k,vy:-shake.ay*k,r:.24});}
