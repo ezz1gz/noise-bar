@@ -5,25 +5,26 @@
 <title>NØISE BAR · Display</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:Mulmaru;src:url(assets/fonts/Mulmaru.woff2) format("woff2");font-display:block}
 html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;color:#fff}
 #rot{position:absolute;left:50%;top:50%;transform-origin:50% 50%;overflow:hidden;background:#000}
 .fr{position:absolute;left:0;top:0;border:0;transform-origin:0 0;opacity:0;transition:opacity 3s ease;pointer-events:none}
 .fr.on{opacity:1}
 #ui{position:absolute;inset:0;pointer-events:none;font-family:Inter,"Pretendard",-apple-system,sans-serif}
-#num{position:absolute;left:calc(40px*var(--u));top:calc(80px*var(--u));font:400 calc(64px*var(--u))/1 "Silkscreen",monospace;letter-spacing:-.02em;color:#f4f4f4;transition:opacity 1.2s}
-#band{position:absolute;left:0;right:0;bottom:0;padding:calc(26px*var(--u)) calc(16px*var(--u)) calc(30px*var(--u));background:rgba(255,255,255,.08);backdrop-filter:blur(30px) saturate(1.2);-webkit-backdrop-filter:blur(30px) saturate(1.2);transition:opacity 1.2s}
+#num{position:absolute;left:calc(40px*var(--u));top:calc(80px*var(--u));font:400 calc(64px*var(--u))/1 Mulmaru,monospace;letter-spacing:-.02em;color:#f4f4f4;transition:opacity 1.2s}
+#band{position:absolute;left:0;right:0;bottom:0;padding:calc(60px*var(--u)) calc(16px*var(--u)) calc(18px*var(--u));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.22) 45%,rgba(0,0,0,.32));transition:opacity 1.2s}
 .out{opacity:0!important}
-#name{font-size:calc(28px*var(--u));font-weight:600;letter-spacing:-.01em;line-height:1.1}
-#maker{font-size:calc(15px*var(--u));opacity:.85;margin-top:calc(4px*var(--u))}
-#rec{font-size:calc(13px*var(--u));opacity:.7;margin-top:calc(18px*var(--u))}
-#rows{margin-top:calc(14px*var(--u));display:grid;grid-template-columns:calc(62px*var(--u)) 1fr;row-gap:calc(9px*var(--u));font-size:calc(1px*var(--u))}
-#rows b{font-size:calc(10px*var(--u));font-weight:500;letter-spacing:.12em;opacity:.55;align-self:center}
-#rows span{font-size:calc(13px*var(--u));display:flex;align-items:center;gap:calc(6px*var(--u));flex-wrap:wrap}
+#name{font-size:calc(20.16px*var(--u));font-weight:600;letter-spacing:-.01em;line-height:1.1}
+#maker{font-size:calc(10.8px*var(--u));opacity:.85;margin-top:calc(2.88px*var(--u))}
+#rec{font-size:calc(9.36px*var(--u));opacity:.7;margin-top:calc(12.96px*var(--u))}
+#rows{margin-top:calc(10.08px*var(--u));display:grid;grid-template-columns:calc(44.64px*var(--u)) 1fr;row-gap:calc(6.48px*var(--u));font-size:calc(0.72px*var(--u))}
+#rows b{font-size:calc(7.2px*var(--u));font-weight:500;letter-spacing:.12em;opacity:.55;align-self:center}
+#rows span{font-size:calc(9.36px*var(--u));display:flex;align-items:center;gap:calc(4.32px*var(--u));flex-wrap:wrap}
 .dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;margin-right:.35em}
-#foot{margin-top:calc(22px*var(--u));display:flex;align-items:center;gap:calc(10px*var(--u))}
-#bar{flex:1;height:calc(2px*var(--u));background:rgba(255,255,255,.22);border-radius:9px;overflow:hidden}
+#foot{margin-top:calc(15.84px*var(--u));display:flex;align-items:center;gap:calc(7.2px*var(--u))}
+#bar{flex:1;height:calc(1.44px*var(--u));background:rgba(255,255,255,.22);border-radius:9px;overflow:hidden}
 #bar i{display:block;height:100%;width:0;background:#fff}
-#next{font-size:calc(10px*var(--u));letter-spacing:.12em;opacity:.65;white-space:nowrap}
+#next{font-size:calc(7.2px*var(--u));letter-spacing:.12em;opacity:.65;white-space:nowrap}
 #gtHost{display:none!important}
 #start{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);font-size:3vmin;letter-spacing:.2em;z-index:9;cursor:pointer}
 #start.hide{display:none}
