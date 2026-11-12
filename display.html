@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NØISE BAR · Display</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;color:#fff}
+#rot{position:absolute;left:50%;top:50%;transform-origin:50% 50%;overflow:hidden;background:#000}
+.fr{position:absolute;left:0;top:0;border:0;transform-origin:0 0;opacity:0;transition:opacity 3s ease;pointer-events:none}
+.fr.on{opacity:1}
+#ui{position:absolute;inset:0;pointer-events:none}
+#top{position:absolute;left:6%;right:6%;top:4%;display:flex;justify-content:space-between;align-items:center;font-size:2.2vmin;letter-spacing:.3em;opacity:.8}
+#info{position:absolute;left:6%;right:6%;bottom:6%;transition:opacity 1.2s}
+#info.out{opacity:0}
+#idx{font-size:2vmin;letter-spacing:.25em;opacity:.7}
+#name{font-size:9vmin;font-weight:700;line-height:1.05;margin:1.5vmin 0 .5vmin}
+#maker{font-size:3vmin;opacity:.75}
+#chips{display:flex;flex-wrap:wrap;gap:1.2vmin;margin-top:3vmin}
+.chip{display:flex;align-items:center;gap:1vmin;padding:1vmin 2.2vmin;border-radius:99px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:2.4vmin}
+.dot{width:2vmin;height:2vmin;border-radius:50%}
+#bar{height:.4vmin;background:rgba(255,255,255,.2);margin-top:4vmin;border-radius:9px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:#fff}
+#next{margin-top:1.6vmin;font-size:2vmin;opacity:.6;letter-spacing:.1em}
+#gtHost{display:none!important}
+#start{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);font-size:3vmin;letter-spacing:.2em;z-index:9;cursor:pointer}
+#start.hide{display:none}
+</style></head><body>
+<div id="rot">
+  <iframe class="fr" id="f0" allow="autoplay"></iframe>
+  <iframe class="fr" id="f1" allow="autoplay"></iframe>
+  <div id="ui">
+    <div id="top"><span>NØISE BAR</span><span id="clock"></span></div>
+    <div id="info">
+      <div id="idx"></div><div id="name"></div><div id="maker"></div>
+      <div id="chips"></div>
+      <div id="bar"><i></i></div>
+      <div id="next"></div>
+    </div>
+  </div>
+</div>
+<div id="start">화면을 탭하면 소리와 함께 시작해요</div>
+<script>
+const Q=new URLSearchParams(location.search);
+let ROT=+(Q.get('rot')??-90);           // -90: 모니터 위쪽이 오른쪽 / 90 / 0
+const DUR=(+Q.get('t')||45)*1000;
+const COL={brown:'#C95F19',pink:'#EC4290',white:'#F4F1EC',blue:'#5584F6'};
+const KO={brown:'브라운',pink:'핑크',white:'화이트',blue:'블루'};
+const TH={breath:['숨','#6F8FF0'],flow:['흐름','#8FC7E8'],beat:['박자','#C7B7F2'],scatter:['흩뿌림','#F0A070']};
+const GK={fizz:'FIZZ',spark:'SPARK',blossom:'BLOSSOM',melt:'MELT'};
+// 샘플 칵테일 (추후 사용자 제작 데이터로 교체)
+const LIST=[
+ {t:'Midnight',m:'James adam',pk:'brown,blue',s:'.6,.4',ln:'파도',lv:60,lq:'breath:60',g:'blossom-5'},
+ {t:'Pink Rain',m:'Yuna',pk:'pink,white',s:'.55,.45',ln:'빗소리',lv:55,lq:'scatter:55',g:'fizz-3'},
+ {t:'Morning Desk',m:'Hoon',pk:'white,blue',s:'.5,.5',ln:'키보드',lv:50,lq:'beat:50',g:'spark-4'},
+ {t:'Warm Stove',m:'Mina',pk:'brown,pink',s:'.7,.3',ln:'모닥불',lv:65,lq:'flow:65',g:'melt-2'},
+ {t:'Cricket Night',m:'Seo',pk:'blue,brown,white',s:'.4,.35,.25',ln:'귀뚜라미',lv:45,lq:'scatter:45',g:'spark-6'}
+];
+const F=[f0,f1];let cur=0,i=0,t0=0,started=false;
+function src(c){return 'play.html?'+new URLSearchParams({pk:c.pk,s:c.s,ln:c.ln,lv:c.lv,lq:c.lq,g:c.g,t:c.t,mk:c.m}).toString()}
+function layout(){
+  const W=innerWidth,H=innerHeight,side=ROT%180!==0;
+  const sw=side?H:W, sh=side?W:H;
+  rot.style.width=sw+'px';rot.style.height=sh+'px';
+  rot.style.transform=`translate(-50%,-50%) rotate(${ROT}deg)`;
+  const k=sw/402;
+  F.forEach(f=>{f.style.width='402px';f.style.height=(sh/k)+'px';f.style.transform=`scale(${k})`});
+}
+addEventListener('resize',layout);layout();
+function clean(f){ // 폰용 버튼/텍스트는 숨기고 메타볼·그래프만
+  try{const d=f.contentDocument;const s=d.createElement('style');
+   s.textContent='#ply>*:not(#bgc):not(canvas),#lis>*:not(#gw),#toast,#mutex,#bk,#vol,#mode,#pause,#prev,#next,#timer,#recipe,#hint{display:none!important}#gw{transform:scale(.82) translateY(-6%)}html,body{background:#000!important}#bgc{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important}';d.head.appendChild(s);
+   const re=()=>d.querySelectorAll('[data-band=top],[data-band=bot]').forEach(e=>e.style.display='none');re();setTimeout(re,800);
+  }catch(e){}
+}
+function mute(f,on){try{f.contentWindow.setMute(on)}catch(e){}}
+function wake(f){try{f.contentWindow.ensureA();f.contentWindow.AC&&f.contentWindow.AC.resume()}catch(e){}
+  try{f.contentDocument.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}catch(e){}}
+function info(c){
+  const n=(i%LIST.length);const nx=LIST[(n+1)%LIST.length];
+  idx.textContent=`NOW POURING  ${String(n+1).padStart(2,'0')} / ${String(LIST.length).padStart(2,'0')}`;
+  document.getElementById("name").textContent=c.t;maker.textContent='by '+c.m;
+  const pk=c.pk.split(','),s=c.s.split(',');
+  let h=pk.map((k,j)=>`<span class="chip"><span class="dot" style="background:${COL[k]}"></span>${KO[k]} ${Math.round(s[j]*100)}%</span>`).join('');
+  const [th]=c.lq.split(':');h+=`<span class="chip"><span class="dot" style="background:${TH[th][1]}"></span>${c.ln} · ${TH[th][0]}</span>`;
+  const [g,gn]=c.g.split('-');h+=`<span class="chip">${GK[g]} ×${gn}</span>`;
+  chips.innerHTML=h;next.textContent='NEXT  →  '+nx.t;
+}
+function show(n,first){
+  const c=LIST[n%LIST.length],nf=F[1-cur],of=F[cur];
+  nf.onload=()=>{nf.onload=null;clean(nf);if(started)wake(nf);mute(nf,!started);
+    requestAnimationFrame(()=>{nf.classList.add('on');of.classList.remove('on');mute(of,true);
+      setTimeout(()=>{of.src='about:blank'},3200)});
+    document.getElementById('info').classList.add('out');
+    setTimeout(()=>{info(c);document.getElementById('info').classList.remove('out')},1200);
+    cur=1-cur;t0=performance.now();};
+  nf.src=src(c);
+}
+show(0,true);
+start.onclick=()=>{started=true;start.classList.add('hide');F.forEach(f=>{wake(f)});mute(F[cur],false);
+  try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}};
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R'){ROT=ROT===-90?90:ROT===90?0:-90;layout()}
+  if(e.key==='ArrowRight'){i++;show(i)}});
+(function tick(){const p=Math.min(1,(performance.now()-t0)/DUR);document.querySelector('#bar i').style.width=p*100+'%';
+  const d=new Date();clock.textContent=d.toTimeString().slice(0,5);
+  if(t0&&p>=1){t0=0;i++;show(i)}requestAnimationFrame(tick)})();
+</script></body></html>
