@@ -6,6 +6,7 @@
   var list = [];
   var iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var AC = window.AudioContext || window.webkitAudioContext;
+  var sus = AC && AC.prototype.suspend, res = AC && AC.prototype.resume;
   function route(c) {
     if (c.__nbOut) return;
     if (!iOS || !c.createMediaStreamDestination) { try { var o = c.createGain(); o.__nbReal = true; o.connect(c.destination); c.__nbOut = o; } catch (e) {} return; }
@@ -16,17 +17,18 @@
       var el = document.createElement('audio'); el.setAttribute('playsinline', ''); el.autoplay = false; el.srcObject = ms.stream;
       el.style.display = 'none'; (document.body || document.documentElement).appendChild(el);
       var set = function (v) { try { direct.gain.setTargetAtTime(v, c.currentTime, .03); } catch (e) { direct.gain.value = v; } };
-      el.addEventListener('playing', function () { set(0); });
-      ['pause', 'ended', 'stalled', 'emptied', 'error'].forEach(function (ev) { el.addEventListener(ev, function () { set(1); }); });
+      // 한 번이라도 <audio>로 재생됐으면, 그 뒤 멈춤(잠금화면·아일랜드의 일시정지, 이어폰 빼기)은 '진짜 멈춤'으로 처리
+      el.addEventListener('playing', function () { c.__nbPlayed = true; set(0); try { navigator.mediaSession.playbackState = 'playing'; } catch (e) {} });
+      el.addEventListener('pause', function () { if (c.__nbPlayed) { if (!c.__nbUser) { c.__nbSys = true; try { sus.call(c); } catch (e) {} try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {} } } else set(1); });
+      ['ended', 'stalled', 'emptied', 'error'].forEach(function (ev) { el.addEventListener(ev, function () { if (!c.__nbPlayed) set(1); }); });
       c.__nbOut = out; c.__nbEl = el;
     } catch (e) {}
   }
   if (AC && !AC.__nbPatched) {
     var Wrapped = function (o) { var c = o ? new AC(o) : new AC(); list.push(c); route(c);
-      try { c.addEventListener('statechange', function () { if ((c.state === 'interrupted' || c.state === 'suspended') && !c.__nbUser) setTimeout(function () { try { c.resume(); } catch (e) {} }, 300); }); } catch (e) {}
+      try { c.addEventListener('statechange', function () { if ((c.state === 'interrupted' || c.state === 'suspended') && !c.__nbUser && !c.__nbSys) setTimeout(function () { try { c.resume(); } catch (e) {} }, 300); }); } catch (e) {}
       return c; };
     Wrapped.prototype = AC.prototype; Wrapped.__nbPatched = true;
-    var sus = AC.prototype.suspend, res = AC.prototype.resume;
     AC.prototype.suspend = function () { this.__nbUser = true; if (this.__nbEl) try { this.__nbEl.pause(); } catch (e) {} return sus.apply(this, arguments); };
     AC.prototype.resume = function () { if (arguments[0] !== 'auto') this.__nbUser = false; var el = this.__nbEl; if (el && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); } return res.call(this); };
     // ctx.destination 으로 가는 연결을 <audio> 출력으로 바꿔 끼움
@@ -37,10 +39,12 @@
     };
     try { window.AudioContext = Wrapped; window.webkitAudioContext = Wrapped; } catch (e) {}
   }
+  window.__nbCtxList = list;
+  function allCtx() { var out = list.slice(); try { var w = window.top; var fr = [w].concat([].slice.call(w.frames)); fr.forEach(function (f) { try { if (f !== window && f.__nbCtxList) out = out.concat(f.__nbCtxList); } catch (e) {} }); } catch (e) {} return out; }
   var tag = null;
   function wakeAll() {
     list.forEach(function (c) {
-      if (c.state === 'closed' || c.__nbUser) return;
+      if (c.state === 'closed' || c.__nbUser) return; c.__nbSys = false;
       if (c.state !== 'running') { try { c.resume(); } catch (e) {} }
       var el = c.__nbEl; if (el && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); }
     });
@@ -52,6 +56,8 @@
         // 아주 짧은 무음 wav 반복 → iOS가 '미디어 재생' 상태로 인식 (무음 스위치 무시)
         tag = document.createElement('audio'); tag.setAttribute('playsinline', ''); tag.loop = true; tag.volume = 0.01;
         tag.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAA';
+        tag.addEventListener('playing', function () { tag.__p = true; });
+        tag.addEventListener('pause', function () { if (!tag.__p || tag.__self) return; allCtx().forEach(function (c) { if (!c.__nbUser) { c.__nbSys = true; try { sus.call(c); } catch (e) {} if (c.__nbEl) try { c.__nbEl.pause(); } catch (e) {} } }); try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {} });
       }
       if (tag.paused) { var pr = tag.play(); if (pr && pr.catch) pr.catch(function () {}); }
     } catch (e) {}
@@ -68,7 +74,8 @@
       navigator.mediaSession.metadata = new MediaMetadata({ title: 'NØISE BAR', artist: 'NØISE BAR', album: 'NØISE BAR',
         artwork: [{ src: base + 'icon-512.png', sizes: '512x512', type: 'image/png' }, { src: base + 'icon-192.png', sizes: '192x192', type: 'image/png' }] });
       // 잠금화면·아일랜드의 재생 버튼으로도 다시 켤 수 있게
-      navigator.mediaSession.setActionHandler('play', function () { list.forEach(function (c) { c.__nbUser = false; }); unlock(); });
+      navigator.mediaSession.setActionHandler('play', function () { allCtx().forEach(function (c) { c.__nbUser = false; c.__nbSys = false; try { c.resume(); } catch (e) {} }); unlock(); try { navigator.mediaSession.playbackState = 'playing'; } catch (e) {} });
+      navigator.mediaSession.setActionHandler('pause', function () { allCtx().forEach(function (c) { try { c.suspend(); } catch (e) {} if (c.__nbEl) try { c.__nbEl.pause(); } catch (e) {} }); try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {} });
       navigator.mediaSession.__nb = true;
     } catch (e) {}
   }
