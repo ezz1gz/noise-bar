@@ -4,7 +4,23 @@ const COLS=(Q.get('c')||'7A2CFF,E0218A,FF6A3D,FF9A3C,FF4F9A,9B2FD0').split(',').
 while(COLS.length<6)COLS.push(COLS[COLS.length%Math.max(1,COLS.length)]);
 const LQ={n:Q.get('ln')||'시계',v:Q.get('lv')||'20',c:'#'+(Q.get('lc')||'BC6940').replace('#','')};
 function barText(){const b=document.getElementById('bar');if(!b)return;b.innerHTML=`<i style="background:${LQ.c}"></i><span class="n">${LQ.n}</span><span class="v"><b>${LQ.v}</b>%</span>`;}
-function fit(){const ph=document.getElementById('ph');const k=Math.min(1,innerWidth/393,innerHeight/852);ph.style.transform=`scale(${k})`;ph.style.borderRadius=(window.parent!==window||(k<1&&innerWidth<500))?'0':'44px';}
+// 화면 맞춤: 폰에서는 가로를 꽉 채우고(393 기준), 세로는 화면 높이만큼 늘이거나 줄여요.
+// 위쪽(제목·뒤로)은 위에 붙고, 아래 바는 화면 바닥에 붙고, 잔·그림(art)은 남는 높이에 맞춰 비율 유지로 줄어요.
+function nbFit(){const ph=document.getElementById('ph');if(!ph)return;
+  const Wv=innerWidth,Hv=innerHeight,mob=Wv<500||window.parent!==window;
+  let k,vh;if(mob){k=Wv/393;vh=Hv/k;}else{k=Math.min(1,(Hv-24)/852,(Wv-24)/393);vh=852;}
+  const dy=vh-852,s=Math.min(1,vh/852),ax=(393-393*s)/2;
+  ph.style.height=vh+'px';ph.style.borderRadius=mob?'0':'44px';
+  if(mob){ph.style.position='fixed';ph.style.left='0';ph.style.top='0';ph.style.transformOrigin='0 0';}
+  ph.style.transform=`scale(${k})`;
+  [...ph.children].forEach(el=>{if(el.tagName==='SCRIPT'||el.tagName==='STYLE')return;
+    let b=el.dataset.band;if(!b){const t=el.offsetTop,h=el.offsetHeight;
+      b=h>=800?(el.tagName==='CANVAS'?'full':'art'):(t>=690?'bot':'top');el.dataset.band=b;}
+    if(b==='bot'){el.style.translate=`0 ${dy}px`;}
+    else if(b==='full'){el.style.height=vh+'px';}
+    else if(b==='art'){el.style.transformOrigin='0 0';el.style.scale=String(s);el.style.translate=`${ax}px 0`;}});
+  window.__nbS=s;window.__nbVH=vh;}
+function fit(){nbFit();}
 const inFrame=window.parent!==window;
 function go(page){location.href=page+location.search;}
 function back(page){if(page)go(page);else if(inFrame)parent.postMessage({nb:'back'},'*');else history.back();}

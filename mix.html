@@ -208,7 +208,7 @@ simStep(1,0,1e6);
 let snapOK=false;const snapTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.MIRRORED_REPEAT));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
 {let su=null;try{su=sessionStorage.getItem('nb-liqshot');}catch(_){}if(!su&&inFrame)try{su=parent.__liqShot;}catch(_){}if(su){const im=new Image();im.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);snapOK=true;};im.src=su;}}
 // 끌기 = 실제로 젓기
-const pp=e=>{const r=cv.getBoundingClientRect(),k=r.width/W;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
+const pp=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/(r.width/W),(e.clientY-r.top)/(r.height/H)];};
 cv.addEventListener('pointerdown',e=>{enableMotion();cv.setPointerCapture(e.pointerId);const[x,y]=pp(e);Object.assign(ptr,{down:true,x,y,vx:0,vy:0,t:performance.now()});$('hint').style.opacity=0;});
 cv.addEventListener('pointermove',e=>{if(!ptr.down)return;const[x,y]=pp(e),now=performance.now(),dt=Math.max((now-ptr.t)/1000,.008),dx=x-ptr.x,dy=y-ptr.y;ptr.vx=ptr.vx*.4+dx/dt*.6;ptr.vy=ptr.vy*.4+dy/dt*.6;ptr.x=x;ptr.y=y;ptr.t=now;mixTarget=Math.min(1,mixTarget+Math.hypot(dx,dy)/Math.hypot(W,H)*.35);});
 ['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{ptr.down=false;}));
@@ -235,7 +235,7 @@ function frame(){const now=performance.now()/1000,dt=Math.min(now-last,1/30);las
   if(mixAmt>.55)$('hint').style.opacity=0;const ok=mixAmt>=.9;if(ok&&now-(window.__shotT||0)>1.5){window.__shotT=now;try{const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}}$('nx').setAttribute('aria-disabled',String(!ok));$('nx').classList.toggle('ready',mixAmt>.97);
   requestAnimationFrame(frame);}
 frame();
-function fitM(){const ph=$('ph'),k=Math.min(1,innerWidth/393,innerHeight/852);ph.style.transform=`scale(${k})`;ph.style.borderRadius=(inFrame||(k<1&&innerWidth<500))?'0':'44px';}
+function fitM(){nbFit();}
 fitM();addEventListener('resize',fitM);
 })();
 </script></body></html>

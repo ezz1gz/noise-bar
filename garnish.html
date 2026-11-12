@@ -15,7 +15,7 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 #mb{position:absolute;left:9px;top:9px;width:300px;height:300px;border-radius:50%}
 .hl{position:absolute;inset:9px;border-radius:50%;pointer-events:none;background:radial-gradient(120% 80% at 28% 18%,rgba(255,255,255,.35),rgba(255,255,255,0) 38%),radial-gradient(closest-side,rgba(0,0,0,0) 86%,rgba(70,20,60,.18) 100%);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}
 .lay{position:absolute;inset:0;pointer-events:none}
-.gl{position:absolute;left:42px;top:263px;width:318px;height:318px;border-radius:50%;overflow:hidden}
+.gl{position:absolute;left:37.5px;top:263px;width:318px;height:318px;border-radius:50%;overflow:hidden}
 .g{position:absolute;left:0;top:0;pointer-events:auto;touch-action:none;cursor:grab;will-change:transform}
 .g .box{position:absolute;left:0;top:0;width:72px;height:72px;transform-origin:0 0}
 .g .box>*{position:absolute}
@@ -29,10 +29,12 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 .tag{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);font-size:12px;color:#555;background:rgba(255,255,255,.85);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s}
 .tag.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.g .bob,.ing .fl{animation:none}}
+.ph{background:#fff}
 </style></head><body><div class="ph" id="ph">
+<div class="drink" data-band="art" style="position:absolute;left:37.5px;top:263px"><div class="gm"></div><canvas id="mb" width="636" height="636"></canvas><div class="hl"></div></div>
 <svg width="393" height="852" viewBox="0 0 393 852" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g clip-path="url(#clip0_22_8716)">
-<rect width="393" height="852" fill="white"/>
+<rect width="393" height="852" fill="none"/>
 <path d="M229.12 885.951C229.12 876.831 229.12 867.631 229.12 858.431C229.04 857.151 228.8 853.791 229.36 852.831C230.08 851.791 233.76 851.871 234.96 852.031C237.76 852.431 237.12 854.991 237.04 857.311C236.96 862.751 237.04 868.431 237.04 873.871C237.04 880.591 237.12 887.391 237.04 894.111C237.04 895.391 236.64 898.591 237.52 899.471C238.4 900.351 241.92 899.951 243.28 899.951C250 899.871 256.72 900.031 263.52 899.871C266.8 899.791 266.88 900.831 266.96 903.951C267.04 908.831 264.96 908.031 260.88 907.951C254.72 907.791 248.32 907.871 242.16 907.871C238.72 907.871 235.44 907.951 231.92 908.031C228.8 908.191 228.8 906.911 228.96 904.031C229.28 898.111 229.12 891.871 229.12 885.951Z" fill="white"/>
 <path d="M57.7583 20.7231C60.3149 20.7231 62.5396 22.541 62.5396 26.8574V26.874C62.5396 30.9082 60.7217 33.2988 57.7085 33.2988C55.5088 33.2988 53.8652 31.9956 53.4834 30.1611L53.4668 30.0698H55.5752L55.6001 30.1528C55.9155 30.9912 56.6543 31.5391 57.7085 31.5391C59.6094 31.5391 60.4146 29.6797 60.5059 27.3887C60.5059 27.2974 60.5142 27.2061 60.5142 27.1147H60.3481C59.9082 28.061 58.8623 28.8994 57.2188 28.8994C54.9194 28.8994 53.3091 27.2227 53.3091 24.9482V24.9316C53.3091 22.4995 55.1602 20.7231 57.7583 20.7231ZM57.75 27.2559C59.103 27.2559 60.1406 26.2764 60.1406 24.9233V24.9067C60.1406 23.5371 59.103 22.4663 57.7749 22.4663C56.4551 22.4663 55.4009 23.5205 55.4009 24.8569V24.8735C55.4009 26.2598 56.3887 27.2559 57.75 27.2559ZM66.3081 25.2388C65.5527 25.2388 64.9883 24.6577 64.9883 23.9272C64.9883 23.1885 65.5527 22.6157 66.3081 22.6157C67.0718 22.6157 67.6279 23.1885 67.6279 23.9272C67.6279 24.6577 67.0718 25.2388 66.3081 25.2388ZM66.3081 31.3979C65.5527 31.3979 64.9883 30.8252 64.9883 30.0864C64.9883 29.3477 65.5527 28.7749 66.3081 28.7749C67.0718 28.7749 67.6279 29.3477 67.6279 30.0864C67.6279 30.8252 67.0718 31.3979 66.3081 31.3979ZM75.8872 33V30.7007H70.0269V28.9492C71.5791 26.2515 73.2808 23.4956 74.9077 21.022H77.9375V28.9326H79.5479V30.7007H77.9375V33H75.8872ZM72.019 28.9824H75.9204V22.7319H75.7959C74.5674 24.6079 73.1812 26.8242 72.019 28.8579V28.9824ZM84.5283 33V23.1304H84.3872L81.4072 25.2388V23.2217L84.5366 21.022H86.6699V33H84.5283Z" fill="black"/>
 <path d="M300.53 22.0329C300.53 21.3999 300.053 20.8867 299.464 20.8867H298.397C297.808 20.8867 297.33 21.3999 297.33 22.0329V31.9669C297.33 32.5999 297.808 33.1131 298.397 33.1131H299.464C300.053 33.1131 300.53 32.5999 300.53 31.9669V22.0329ZM293.096 23.332H294.163C294.752 23.332 295.23 23.8575 295.23 24.5057V31.9394C295.23 32.5876 294.752 33.1131 294.163 33.1131H293.096C292.507 33.1131 292.03 32.5876 292.03 31.9394V24.5057C292.03 23.8575 292.507 23.332 293.096 23.332ZM288.764 25.981H287.698C287.109 25.981 286.631 26.5132 286.631 27.1697V31.9244C286.631 32.5809 287.109 33.1131 287.698 33.1131H288.764C289.354 33.1131 289.831 32.5809 289.831 31.9244V27.1697C289.831 26.5132 289.354 25.981 288.764 25.981ZM283.464 28.4263H282.397C281.808 28.4263 281.33 28.9509 281.33 29.598V31.9414C281.33 32.5885 281.808 33.1131 282.397 33.1131H283.464C284.053 33.1131 284.53 32.5885 284.53 31.9414V29.598C284.53 28.9509 284.053 28.4263 283.464 28.4263Z" fill-rule="evenodd" clip-rule="evenodd" fill="black"/>
@@ -73,8 +75,8 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 <path d="M174.464 150.333H169.906V145.776H179.021V150.333H188.135V141.219H174.464V136.661H169.906V132.104H174.464V127.547H192.693V132.104H197.25V136.661H192.693V141.219H197.25V150.333H192.693V154.891H174.464V150.333ZM188.135 136.661V132.104H179.021V136.661H188.135Z" fill="black"/>
 <path d="M151.938 151.328H155.844V135.703H151.938V131.797H163.656V151.328H167.562V155.234H151.938V151.328ZM155.844 123.984H163.656V127.891H155.844V123.984Z" fill="black"/>
 <path d="M211.052 154.557H200.635V151.953H203.24V149.349V146.745V144.141V141.536V138.932V136.328V133.724V131.12V128.516V125.911V123.307V120.703V118.099H198.031V115.495H203.24V112.891H208.448V115.495V118.099V120.703V123.307V125.911V128.516H211.052V131.12H208.448V133.724V136.328V138.932V141.536V144.141V146.745V149.349V151.953H211.052V154.557ZM229.281 154.557H218.865V151.953H221.469V149.349V146.745V144.141V141.536V138.932V136.328V133.724V131.12H218.865V128.516H211.052V125.911H221.469V128.516H224.073V131.12H226.677V133.724V136.328V138.932V141.536V144.141V146.745V149.349V151.953H229.281V154.557Z" fill="black"/>
-<foreignObject x="2" y="223" width="398" height="398"><div xmlns="http://www.w3.org/1999/xhtml" class="drink" style="position:absolute;left:40px;top:40px"><div class="gm"></div><canvas id="mb" width="636" height="636"></canvas><div class="hl"></div></div></foreignObject>
-<path d="M201 263C288.813 263 360 334.187 360 422C360 509.813 288.813 581 201 581C113.187 581 42 509.813 42 422C42 334.187 113.187 263 201 263ZM200.999 266.999C115.395 266.999 45.999 336.395 45.999 421.999C45.9993 507.603 115.395 576.999 200.999 576.999C286.603 576.999 355.999 507.603 355.999 421.999C355.999 336.395 286.603 266.999 200.999 266.999Z" fill="#515151" fill-opacity="0.2"/>
+
+<path transform="translate(-4.5 0)" d="M201 263C288.813 263 360 334.187 360 422C360 509.813 288.813 581 201 581C113.187 581 42 509.813 42 422C42 334.187 113.187 263 201 263ZM200.999 266.999C115.395 266.999 45.999 336.395 45.999 421.999C45.9993 507.603 115.395 576.999 200.999 576.999C286.603 576.999 355.999 507.603 355.999 421.999C355.999 336.395 286.603 266.999 200.999 266.999Z" fill="#515151" fill-opacity="0.2"/>
 </g>
 <defs>
 <filter id="filter0_di_22_8716" x="-14" y="722" width="320" height="120" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
@@ -326,7 +328,7 @@ function variantMarkup(k,n,seed){const f=FAM[k],id='v'+(UID++);const cx=36-f.off
 <foreignObject x="0" y="0" width="72" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(1.7px);-webkit-backdrop-filter:blur(1.7px);clip-path:url(#${id}c);width:100%;height:100%"></div></foreignObject>
 <path d="${F}" fill="#fff" fill-opacity=".4" filter="url(#${id}j)"/></g></svg>`;}
 const ph=document.getElementById('ph'),lay=document.getElementById('lay'),glass=document.getElementById('gl'),tag=document.getElementById('tag');
-const GC=[201,422],GR=159;
+const GC=[196.5,422],GR=159;
 // 글라스 둘레 자리 (피그마 배치 기준 중심) · 자리마다 들어갈 수 있는 최대 크기
 const SLOTS=[{x:93.8,y:241.8,max:'M'},{x:349,y:173,max:'M'},{x:99,y:647,max:'L'},{x:272.5,y:646.5,max:'L'}];
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -372,7 +374,7 @@ setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()
   w.firstElementChild.animate([{filter:'brightness(1)'},{filter:'brightness(1.6) drop-shadow(0 0 6px rgba(255,255,255,.9))'},{filter:'brightness(1)'}],{duration:420,easing:'ease-out',composite:'add'});}});},40);
 
 function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=cy-GC[1],r=Math.hypot(dx,dy),lim=GR-s/2-8;
-  const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-42,gy=GC[1]+dy*k-263;
+  const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-37.5,gy=GC[1]+dy*k-263;
   const w=document.createElement('div');w.className='ing';w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
   const id='q'+(UID++),f=FAM[d.k],P=shapePath(d.k,d.n,36-f.off[0]/2,36-f.off[1]/2,d.seed);
   w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg);filter:drop-shadow(0 0 1px rgba(255,255,255,.8))"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter></defs><path d="${P}" fill="#D9D9D9" fill-opacity=".2"/><path d="${P}" fill="#fff" fill-opacity=".55" filter="url(#${id})"/></svg></div>`;
@@ -380,7 +382,7 @@ function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=
   while(glass.children.length>3){const o=glass.firstElementChild;o.animate([{opacity:.6},{opacity:0}],{duration:300}).onfinish=()=>o.remove();glass.appendChild(glass.firstElementChild);o.remove();break;}
   tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
 function drag(el){let st=null;const s=()=>SIZES[el._d.sz];
-  const pt=e=>{const r=ph.getBoundingClientRect(),k=r.width/393;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
+  const pt=e=>{const r=document.getElementById('lay').getBoundingClientRect(),k=r.width/393;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
   el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);ac();playG(el._d,(el._x/393)*2-1);const[px,py]=pt(e);st={ox:px-el._x,oy:py-el._y,x0:px,y0:py,moved:false};el.classList.add('drag');});
   el.addEventListener('pointermove',e=>{if(!st)return;const[px,py]=pt(e);if(Math.hypot(px-st.x0,py-st.y0)>5)st.moved=true;place(el,px-st.ox,py-st.oy,s());});
   const end=e=>{if(!st)return;const moved=st.moved;st=null;el.classList.remove('drag');const inG=Math.hypot(el._x-GC[0],el._y-GC[1])<GR;

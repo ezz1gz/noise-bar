@@ -640,7 +640,7 @@ $('vol').onclick=()=>setMute(!mutedAll);
 $('prev').onclick=$('next').onclick=()=>toast('다른 믹스는 다음 프로토타입에서 이어져요');
 $('timer').onclick=()=>toast('타이머는 다음 프로토타입에서 이어져요');$('recipe').onclick=()=>toast('레시피(베이스·리큐르·가니쉬)는 다음 프로토타입에서 이어져요');
 $('bk').onclick=()=>{tell({nb:'tilt',a:0,cx:0,sp:0});go('garnish.html');};
-function fitP(){const op=document.body.classList.contains('gt-on'),wide=innerWidth>=760,aw=innerWidth-(op&&wide?380:0),ah=innerHeight*(op&&!wide?.46:1);const k=Math.min(1,aw/402,ah/874);ph.style.transform=`scale(${k})`;ph.style.borderRadius=(inFrame||(k<1&&innerWidth<500))?'0':'44px';}
+function fitP(){nbFit();}
 fitP();addEventListener('resize',fitP);
 </script><script>
 (()=>{const H=(()=>{try{return inFrame&&parent.document?parent.document:document;}catch(_){return document;}})();
