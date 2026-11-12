@@ -1,0 +1,240 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mix</title><link rel="stylesheet" href="common.css">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+.ph{background:#141117}
+#c{position:absolute;inset:0;width:393px;height:852px;display:block;touch-action:none;cursor:grab}
+.top{position:absolute;left:0;right:0;top:0;height:120px;pointer-events:none;mix-blend-mode:difference;color:#fff}
+.logo{position:absolute;left:20px;top:104px;font-family:'Silkscreen',monospace;font-weight:700;font-size:52px;line-height:.9;letter-spacing:1px;mix-blend-mode:difference;color:#fff;pointer-events:none}
+.state{position:absolute;right:20px;top:120px;font:10px/1 'Space Mono',ui-monospace,monospace;letter-spacing:.22em;border:1px solid rgba(255,255,255,.75);padding:6px 10px;border-radius:99px;color:#fff;mix-blend-mode:difference;font-variant-numeric:tabular-nums;pointer-events:none}
+.gnb{position:absolute;left:0;top:54px;width:393px;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;box-sizing:border-box;mix-blend-mode:difference;pointer-events:none;opacity:.8}
+.gnb svg{display:block}
+.hint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:12px;color:#fff;mix-blend-mode:difference;white-space:nowrap;pointer-events:none;transition:opacity .6s}
+.cap{position:absolute;left:16px;top:746px;width:260px;height:60px;border-radius:30px;background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);box-shadow:0 6px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:10px;padding:6px 20px 0;box-sizing:border-box;color:#fff}
+.cap::before{content:"";position:absolute;left:50%;top:11px;width:30px;margin-left:-15px;border-top:1.5px solid rgba(237,237,237,.9);border-radius:1px}
+.cap b{font-size:14px;font-weight:500;white-space:nowrap;letter-spacing:-.02em}
+.cap output{font-size:14px;width:34px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:28px;background:transparent;margin:0;--p:45%}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(#fff,#fff) 0 0/var(--p) 100% no-repeat,rgba(255,255,255,.3)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;margin-top:-7px;box-shadow:0 1px 6px rgba(0,0,0,.25)}
+input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.3)}input[type=range]::-moz-range-progress{height:4px;background:#fff;border-radius:2px}input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff}
+#nx{position:absolute;left:317px;top:746px;width:60px;height:60px;border-radius:50%;border:0;background:rgba(0,0,0,.8);box-shadow:0 4px 20px rgba(0,0,0,.25);display:grid;place-items:center;cursor:pointer;transition:opacity .4s,transform .3s}
+#nx[aria-disabled="true"]{opacity:.35}
+#nx.ready{animation:pulse 1.4s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.07)}}
+.toast{position:absolute;left:50%;top:180px;transform:translateX(-50%);background:rgba(244,241,236,.95);color:#141117;font-size:12px;padding:8px 14px;border-radius:16px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}.toast.on{opacity:1}
+</style></head><body><div class="ph" id="ph">
+<canvas id="c" aria-label="섞이는 음료. 끌어서 휘저을 수 있어요."></canvas>
+<div class="gnb"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M17.6667 7L10.6667 14L17.6667 21" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.54 8.46C16.477 9.398 17.004 10.67 17.004 11.995C17.004 13.321 16.477 14.593 15.54 15.53" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="logo">MiX</div><div class="state" id="state">SOLID</div>
+<div class="hint" id="hint">끌어서 휘젓거나 폰을 흔들어 보세요</div>
+<div class="toast" id="toast"></div>
+<div class="cap"><b>휘젓기</b><input id="stir" type="range" min="0" max="100" value="45" aria-label="휘젓기 정도"><output id="so">45</output></div>
+<button id="nx" type="button" aria-label="잔에 담기" aria-disabled="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18L15 12L9 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<button class="hit" id="bk" aria-label="뒤로" style="left:8px;top:58px;width:44px;height:44px"></button>
+</div>
+<script src="common.js"></script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),cv=$('c'),gl=cv.getContext('webgl2',{antialias:false});
+if(!gl){$('state').textContent='WEBGL2 필요';return;}
+// Metaball Lab과 같은 두 패스: ① 좌표 지도를 컬 노이즈 흐름으로 밀기(휘젓기의 기억) ② 밀린 좌표로 띠 색을 읽어 '빛 섞기'
+const VS=`#version 300 es
+in vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
+const NOISE=`
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}
+float noise(vec2 p){vec2 i=floor(p);vec2 f=fract(p);
+  float a=hash(i),b=hash(i+vec2(1,0)),c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+  vec2 u=f*f*(3.-2.*f);return mix(a,b,u.x)+(c-a)*u.y*(1.-u.x)+(d-b)*u.x*u.y;}
+float fbm(vec2 p){float v=0.,a=.5;mat2 r=mat2(.8,.6,-.6,.8);
+  for(int i=0;i<3;i++){v+=a*noise(p);p=r*p*2.15;a*=.45;}return v;}`;
+
+const SIM=`#version 300 es
+precision highp float;
+uniform sampler2D uPrev;uniform vec2 uSimRes;
+uniform float uTime,uDt,uFlow,uScale,uAsp,uRelax,uPtrOn,uPtrR;
+uniform vec4 uPtr;
+out vec4 o;
+${NOISE}
+float psi(vec2 q){return fbm(q+vec2(uTime*.05,-uTime*.03));}
+void main(){
+  vec2 p=gl_FragCoord.xy/uSimRes;
+  vec2 q=p*vec2(uAsp,1.)*uScale;
+  float e=.02;
+  float a=psi(q+vec2(0,e)),b=psi(q-vec2(0,e)),c=psi(q+vec2(e,0)),d=psi(q-vec2(e,0));
+  vec2 v=vec2(a-b,-(c-d))/(2.*e);           // curl noise: 소용돌이만 있는 흐름
+  v=v/vec2(uAsp,1.)/uScale*uFlow;
+  vec2 dp=(p-uPtr.xy)*vec2(uAsp,1.);
+  v+=uPtr.zw*exp(-dot(dp,dp)/(uPtrR*uPtrR))*uPtrOn;  // 손가락이 끄는 힘
+  vec2 src=p-v*uDt;
+  vec2 px=1./uSimRes;
+  vec2 uv=texture(uPrev,src).xy;
+  vec2 avg=(texture(uPrev,src+vec2(px.x,0)).xy+texture(uPrev,src-vec2(px.x,0)).xy+
+            texture(uPrev,src+vec2(0,px.y)).xy+texture(uPrev,src-vec2(0,px.y)).xy)*.25;
+  uv=mix(uv,avg,.05);
+  uv=mix(uv,p,clamp(uRelax*uDt,0.,1.));
+  o=vec4(uv,0.,1.);
+}`;
+
+const DISP=`#version 300 es
+precision highp float;
+uniform sampler2D uMap;uniform vec2 uRes;
+uniform float uTime,uMix,uScale,uSoft,uAsp,uCock,uWhite,uPaint;
+uniform sampler2D uSnap;uniform float uHasSnap;uniform vec4 uMood;uniform vec3 uPal[4];uniform vec3 uPal2[4];uniform vec3 uPal3[4];uniform vec3 uCuts;uniform vec4 uShare;uniform vec4 uGa,uGb,uDrop;uniform vec2 uTa,uTb;
+out vec4 o;
+${NOISE}
+// ── OKLab: 사람 눈 기준 색 공간 — 섞어도 탁해지지 않음
+vec3 toLin(vec3 c){return mix(c/12.92,pow((c+.055)/1.055,vec3(2.4)),step(.04045,c));}
+vec3 toSrgb(vec3 c){c=max(c,0.);return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
+vec3 oklab(vec3 c){c=toLin(c);
+  vec3 l=vec3(.4122214708*c.r+.5363325363*c.g+.0514459929*c.b,.2119034982*c.r+.6806995451*c.g+.1073969566*c.b,.0883024619*c.r+.2817188376*c.g+.6299787005*c.b);
+  l=pow(max(l,0.),vec3(1./3.));
+  return vec3(.2104542553*l.x+.7936177850*l.y-.0040720468*l.z,1.9779984951*l.x-2.4285922050*l.y+.4505937099*l.z,.0259040371*l.x+.7827717662*l.y-.8086757660*l.z);}
+vec3 fromOklab(vec3 L){
+  vec3 l=vec3(L.x+.3963377774*L.y+.2158037573*L.z,L.x-.1055613458*L.y-.0638541728*L.z,L.x-.0894841775*L.y-1.2914855480*L.z);l=l*l*l;
+  return toSrgb(vec3(4.0767416621*l.x-3.3077115913*l.y+.2309699292*l.z,-1.2684380046*l.x+2.6097574011*l.y-.3413193965*l.z,-.0041960863*l.x-.7034186147*l.y+1.7076147010*l.z));}
+// ── 물감 섞기: 쿠벨카-뭉크 근사 — 색을 '빛을 얼마나 흡수하는지'(K/S)로 바꿔 비율대로 섞음
+vec3 toKS(vec3 c){vec3 R=clamp(toLin(c),.002,.998);return (1.-R)*(1.-R)/(2.*R);}
+vec3 fromKS(vec3 ks){return toSrgb(1.+ks-sqrt(ks*ks+2.*ks));}
+void main(){
+  vec2 p=gl_FragCoord.xy/uRes;
+  vec2 uv=texture(uMap,p).xy;
+  vec2 w=uv*vec2(uAsp,1.)*uScale;
+  vec2 q=vec2(fbm(w*1.3+uTime*.02),fbm(w*1.5+1.));
+  vec2 r=vec2(fbm(w*1.8+q*2.5+uTime*.05),fbm(w*1.4+q*1.2));
+  float fn=fbm(w*1.1+r*1.8);
+  float m=uMix*uMix*(3.-2.*uMix);
+  float t=(1.-uv.y)+(fn-.45)*m*1.7+(r.x-.5)*m*.7;
+  t=1.-abs(1.-mod(t+4.,2.));                 // 거울 반복: 끊김 없이 색이 순환
+  float aa=fwidth(t)*.8+1e-5;
+  float e=max(aa,uSoft*smoothstep(.25,1.,uMix));
+  float k=uCock*m;                                   // 빛 섞기(칵테일 색)로 바뀌는 정도
+  float kp=uPaint*m;                                 // 물감 섞기로 바뀌는 정도
+  e=mix(e,max(e,.16),k);
+  e=mix(e,max(e,.22),kp);                            // 물감: 더 넓게 겹쳐 섞임                             // 칵테일 모드: 경계를 더 넓게 녹임
+  float s1=smoothstep(uCuts.x-e,uCuts.x+e,t);
+  float s2=smoothstep(uCuts.y-e,uCuts.y+e,t);
+  float s3=smoothstep(uCuts.z-e,uCuts.z+e,t);
+  vec4 wt=vec4(1.-s1,max(s1-s2,0.),max(s2-s3,0.),s3);
+  vec3 col=uPal[0]*wt.x+uPal[1]*wt.y+uPal[2]*wt.z+uPal[3]*wt.w;
+  if(uMix>.001){vec4 w2=wt*clamp(uShare*25.,0.,1.);float sw=dot(w2,vec4(1.));if(sw>1e-4)wt=w2/sw;}   // 0%인 색은 섞임에 끼지 않게
+  if(k>.001){
+    // 재료 색 → 칵테일 색, OKLab에서 섞고 채도는 재료들의 채도를 유지(+살짝 올림)
+    vec3 L=vec3(0.);float C=0.;
+    for(int i=0;i<4;i++){vec3 c=oklab(mix(uPal[i],uPal2[i],k));L+=c*wt[i];C+=length(c.yz)*wt[i];}
+    float cl=length(L.yz);if(cl>1e-4)L.yz*=mix(1.,(C*1.08)/cl,.85);
+    // 같은 색 안에서도 흐름 따라 색조·밝기가 살짝 출렁이게
+    float hs=(fn-.5)*.9*k,cs=cos(hs),sn=sin(hs);L.yz=mat2(cs,sn,-sn,cs)*L.yz;L.x+=(r.y-.5)*.08*k;
+    // ② 비율 → 분위기: 화이트=밝고 파스텔 · 브라운=어둡고 따뜻 · 블루=깊고 차갑게 · 핑크=화사하게
+    vec4 sh=uMood;
+    L.x+=( .17*sh.w-.11*sh.x-.07*sh.y)*k;
+    L.yz*=1.+(.28*sh.z-.5*sh.w)*k;
+    L.yz+=vec2(.025,.045)*sh.x*k+vec2(-.012,-.055)*sh.y*k;
+    vec3 ck=fromOklab(L);
+    col=mix(col,ck,k);
+  }
+  if(kp>.001){
+    // 색상 각도는 그대로, 밝기·채도만 다듬은 물감 색으로 섞기
+    vec3 ks=vec3(0.),Lo=vec3(0.);float ws=0.;
+    for(int i=0;i<4;i++){vec3 c=mix(uPal[i],uPal3[i],kp);ks+=toKS(c)*wt[i];Lo+=oklab(c)*wt[i];ws+=wt[i];}
+    Lo/=max(ws,1e-5);
+    vec3 Lk=oklab(fromKS(ks/max(ws,1e-5)));
+    // 하이브리드: 어두워짐·차분해짐은 물감 공식에서, 색상 방향은 눈 기준 혼합에서 (브라운+블루가 초록으로 가지 않게)
+    vec3 L;L.x=mix(Lk.x,Lo.x,.4);
+    float C=max(length(Lk.yz)*1.1,.6*length(Lo.yz));
+    vec2 dir=length(Lo.yz)>1e-3?normalize(Lo.yz):normalize(Lk.yz+1e-5);
+    L.yz=dir*C;
+    L.x=max(L.x,.42);                                 // 너무 어두워지지 않게 밝기 바닥
+    float hs=(fn-.5)*.35*kp,cs=cos(hs),sn=sin(hs);L.yz=mat2(cs,sn,-sn,cs)*L.yz;
+    col=mix(col,fromOklab(L),kp);
+  }
+  // ③ 리큐르 한 방울: 떨어진 자리부터 잉크처럼 번지며 전체 톤을 바꿈 (컬러 그레이딩)
+  {
+    vec2 pd=(p-uDrop.xy)*vec2(uAsp,1.);
+    float dd=length(pd)+(fbm(p*vec2(uAsp,1.)*5.+uDrop.w)-.5)*.22;      // 번지는 경계를 울퉁불퉁하게
+    float rad=uDrop.z;                                                 // 번진 반경 (시간에 따라 커짐)
+    float msk=1.-smoothstep(rad-.08,rad,dd);                           // 1 = 새 리큐르 톤
+    float front=exp(-pow((dd-rad+.03)/.035,2.))*step(.001,rad)*step(rad,1.9);   // 번지는 앞쪽 테두리는 조금 진하게
+    vec4 g=mix(uGa,uGb,msk);vec2 tn=mix(uTa,uTb,msk);
+    vec3 L=oklab(col);
+    float cs=cos(g.y),sn=sin(g.y);L.yz=mat2(cs,sn,-sn,cs)*L.yz;        // 색상 회전
+    {float c0=length(L.yz)*max(g.z,1.);L.yz=L.yz*g.z+tn*(1.+front*1.5);float c1=length(L.yz);if(c1>1e-4)L.yz*=max(1.,c0/c1);}   // 리큐르를 넣어도 채도는 떨어지지 않게                                   // 채도 · 틴트
+    L.x=L.x*(1.+g.w)+g.x-front*.04;                                    // 밝기 (배율 + 이동)
+    col=fromOklab(L);
+  }
+  // 리큐르 화면에서 바로 이어 섞기: 찍어 둔 그 화면을 저은 좌표로 읽고(0→50: 휘감김) · 점점 번지고(→70) · 완전히 섞인 칵테일 색으로(→100)
+  if(uHasSnap>.5){vec2 su=vec2(uv.x,1.-uv.y)+vec2((r.y-.5)*.5,(fn-.45)*1.1+(r.x-.5)*.45)*smoothstep(0.,.75,uMix);float bl=.003+.03*m;
+    vec3 sc=(texture(uSnap,su).rgb*2.+texture(uSnap,su+vec2(bl,0)).rgb+texture(uSnap,su-vec2(bl,0)).rgb+texture(uSnap,su+vec2(0,bl)).rgb+texture(uSnap,su-vec2(0,bl)).rgb)/6.;
+    col=mix(sc,col,smoothstep(.45,1.,uMix));}
+  float lum=dot(col,vec3(.299,.587,.114));
+  col=mix(vec3(lum),col,1.+.2*m);
+  col+=(hash(gl_FragCoord.xy+fract(uTime*30.)*100.)-.5)*.035*m;
+  o=vec4(clamp(col,0.,1.),1.);
+}`;
+
+
+const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(x));return x;};
+function program(fs,names){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,VS));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.bindAttribLocation(p,0,'a');gl.linkProgram(p);const u={};names.forEach(n=>u[n]=gl.getUniformLocation(p,n));return{p,u};}
+const sim=program(SIM,['uPrev','uSimRes','uTime','uDt','uFlow','uScale','uAsp','uRelax','uPtrOn','uPtrR','uPtr']);
+const disp=program(DISP,['uSnap','uHasSnap','uMap','uRes','uTime','uMix','uScale','uSoft','uAsp','uPal','uPal2','uPal3','uCuts','uCock','uWhite','uPaint','uShare','uMood','uGa','uGb','uTa','uTb','uDrop']);
+const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+const hasFloat=!!(gl.getExtension('EXT_color_buffer_float')||gl.getExtension('EXT_color_buffer_half_float'));let FMT=hasFloat?{i:gl.RGBA16F,t:gl.HALF_FLOAT}:{i:gl.RGBA8,t:gl.UNSIGNED_BYTE};
+function tgt(w,h){const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,FMT.i,w,h,0,gl.RGBA,FMT.t,null);[gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.LINEAR));[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
+  const fb=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,fb);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);return{tex,fb,ok:gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE};}
+const W=393,H=852,dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+const simW=180,simH=Math.round(180*H/W);let A=tgt(simW,simH),B=tgt(simW,simH);if(!A.ok&&FMT.i!==gl.RGBA8){FMT={i:gl.RGBA8,t:gl.UNSIGNED_BYTE};A=tgt(simW,simH);B=tgt(simW,simH);}
+// 값: 앞 단계에서 만든 베이스(위→아래)·비율·리큐르
+const PAL=PC.map(hexRGB),PAL2=PK.map((k,i)=>hexRGB(COCK[k]||PC[i]));
+const tot=SH.reduce((a,b)=>a+b,0)||1,share=SH.map(v=>v/tot);let acc=0;const cutsT=[0,1,2].map(i=>(acc+=share[i]));const q=share.map(Math.sqrt),qt=q.reduce((a,b)=>a+b,0);acc=0;const cutsS=[0,1,2].map(i=>(acc+=q[i])/qt);
+const [GR,TN]=liqGrade(),drop={x:+(Q.get('dx')||.5),y:+(Q.get('dy')||.45),seed:Math.random()*50};
+const P={stir:STIR,scale:.4,purity:.3};
+const ptr={down:false,x:0,y:0,vx:0,vy:0,t:0};const splat={on:false,x:0,y:0,vx:0,vy:0,r:.14};
+const shake={energy:0,ax:0,ay:0,last:null,on:false};
+function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;if(shake.last){const j=Math.hypot(a.x-shake.last.x,a.y-shake.last.y,(a.z||0)-shake.last.z),e2=Math.min(1,Math.max(0,(j-2.5)/16));if(e2>shake.energy){shake.energy=e2;shake.ax=a.x-shake.last.x;shake.ay=a.y-shake.last.y;}}shake.last={x:a.x,y:a.y,z:a.z||0};}
+function enableMotion(){if(shake.on)return;shake.on=true;try{if(window.DeviceMotionEvent&&DeviceMotionEvent.requestPermission)DeviceMotionEvent.requestPermission().then(r=>{if(r==='granted')addEventListener('devicemotion',onMotion);}).catch(()=>{});else addEventListener('devicemotion',onMotion);}catch(_){}}
+function simStep(dt,flow,relax){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,simW,simH);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
+  gl.uniform1i(u.uPrev,0);gl.uniform2f(u.uSimRes,simW,simH);gl.uniform1f(u.uTime,simT);gl.uniform1f(u.uDt,dt);gl.uniform1f(u.uFlow,flow);gl.uniform1f(u.uScale,.8+P.scale*2.4);gl.uniform1f(u.uAsp,W/H);gl.uniform1f(u.uRelax,relax);
+  gl.uniform1f(u.uPtrOn,splat.on?1:0);gl.uniform1f(u.uPtrR,splat.r);gl.uniform4f(u.uPtr,splat.x/W,1-splat.y/H,splat.vx/W*1.1,-splat.vy/H*1.1);gl.drawArrays(gl.TRIANGLES,0,3);[A,B]=[B,A];}
+let mixAmt=0,mixTarget=0,simT=0,dispT=0;const cuts=cutsT.slice();
+function draw(){gl.useProgram(disp.p);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,cv.width,cv.height);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=disp.u;
+  gl.uniform1i(u.uMap,0);gl.uniform1i(u.uSnap,1);gl.uniform1f(u.uHasSnap,snapOK?1:0);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.activeTexture(gl.TEXTURE0);gl.uniform2f(u.uRes,cv.width,cv.height);gl.uniform1f(u.uTime,dispT);gl.uniform1f(u.uMix,mixAmt);gl.uniform1f(u.uScale,.7+P.scale*2.2);gl.uniform1f(u.uSoft,.02+(1-P.purity)*.3);gl.uniform1f(u.uAsp,W/H);
+  gl.uniform3fv(u.uPal,new Float32Array(PAL.flat()));gl.uniform3fv(u.uPal2,new Float32Array(PAL2.flat()));gl.uniform3fv(u.uPal3,new Float32Array(PAL.flat()));gl.uniform1f(u.uCock,1);gl.uniform1f(u.uPaint,0);
+  gl.uniform4fv(u.uShare,new Float32Array(share));gl.uniform4fv(u.uMood,new Float32Array(moodVec()));gl.uniform1f(u.uWhite,0);
+  // 리큐르 한 방울: 섞이는 만큼 그 자리부터 번지며 톤이 바뀜
+  gl.uniform4f(u.uGa,0,0,1,0);gl.uniform2f(u.uTa,0,0);gl.uniform4fv(u.uGb,new Float32Array(GR));gl.uniform2fv(u.uTb,new Float32Array(TN));gl.uniform4f(u.uDrop,drop.x,1-drop.y,LT.length?Math.min(3,mixAmt*3.2):0,drop.seed);
+  const kk=mixAmt*mixAmt*(3-2*mixAmt)*.75;gl.uniform3f(u.uCuts,cuts[0]+(cutsS[0]-cuts[0])*kk,cuts[1]+(cutsS[1]-cuts[1])*kk,cuts[2]+(cutsS[2]-cuts[2])*kk);gl.drawArrays(gl.TRIANGLES,0,3);}
+simStep(1,0,1e6);
+// 리큐르 화면 사진 (없으면 솔리드 띠부터)
+let snapOK=false;const snapTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.MIRRORED_REPEAT));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+{let su=null;try{su=sessionStorage.getItem('nb-liqshot');}catch(_){}if(!su&&inFrame)try{su=parent.__liqShot;}catch(_){}if(su){const im=new Image();im.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,im);snapOK=true;};im.src=su;}}
+// 끌기 = 실제로 젓기
+const pp=e=>{const r=cv.getBoundingClientRect(),k=r.width/W;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
+cv.addEventListener('pointerdown',e=>{enableMotion();cv.setPointerCapture(e.pointerId);const[x,y]=pp(e);Object.assign(ptr,{down:true,x,y,vx:0,vy:0,t:performance.now()});$('hint').style.opacity=0;});
+cv.addEventListener('pointermove',e=>{if(!ptr.down)return;const[x,y]=pp(e),now=performance.now(),dt=Math.max((now-ptr.t)/1000,.008),dx=x-ptr.x,dy=y-ptr.y;ptr.vx=ptr.vx*.4+dx/dt*.6;ptr.vy=ptr.vy*.4+dy/dt*.6;ptr.x=x;ptr.y=y;ptr.t=now;mixTarget=Math.min(1,mixTarget+Math.hypot(dx,dy)/Math.hypot(W,H)*.35);});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,()=>{ptr.down=false;}));
+const st=$('stir');const paint=()=>st.style.setProperty('--p',st.value+'%');st.value=Math.round(P.stir*100);$('so').textContent=st.value;paint();
+st.addEventListener('input',()=>{P.stir=st.value/100;$('so').textContent=st.value;paint();});
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1500);}
+// 처음: 솔리드로 잠깐 → 흔들기 시작(자동) — 휘젓기 정도가 클수록 빨리·크게 섞임
+setTimeout(()=>{mixTarget=1;},650);
+$('nx').onclick=()=>{if(mixAmt<.9){toast('조금만 더 섞어요');mixTarget=1;return;}try{draw();const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}
+  const q=new URLSearchParams(location.search);q.set('st',(P.stir).toFixed(2));location.href='glass.html?'+q;};
+$('bk').onclick=()=>back();
+let last=performance.now()/1000,lastL='';
+function frame(){const now=performance.now()/1000,dt=Math.min(now-last,1/30);last=now;
+  const se=shake.energy;if(se>.03)mixTarget=Math.min(1,mixTarget+se*dt*.3);
+  mixAmt+=(mixTarget-mixAmt)*(1-Math.exp(-dt*(.35+P.stir*.9)));if(Math.abs(mixTarget-mixAmt)<.002)mixAmt=mixTarget;
+  if(ptr.down)Object.assign(splat,{on:true,x:ptr.x,y:ptr.y,vx:ptr.vx,vy:ptr.vy,r:.14});
+  else if(se>.05){const k=se*Math.hypot(W,H)*2.2/Math.max(Math.hypot(shake.ax,shake.ay),1);Object.assign(splat,{on:true,x:Math.random()*W,y:Math.random()*H,vx:shake.ax*k,vy:-shake.ay*k,r:.24});}
+  else if(mixAmt<.9&&mixTarget>.5){const a=now*1.7;Object.assign(splat,{on:true,x:W*(.5+.28*Math.cos(a)),y:H*(.52+.2*Math.sin(a*1.3)),vx:-Math.sin(a)*900*P.stir,vy:Math.cos(a)*700*P.stir,r:.2});} // 자동으로 젓는 손
+  else splat.on=false;
+  shake.energy*=Math.exp(-dt*2.2);
+  simT+=dt*((.25+P.stir*2.2)*Math.max(mixAmt,mixTarget>.5?.4:0)+se*1.5);dispT+=dt*((.3+P.stir*2.4)*mixAmt+se*1.5);
+  const mk=snapOK?Math.max(mixAmt,mixTarget>.5?.45:0)*2.6:mixAmt;simStep(dt,(.05+P.stir*.5)*mk+se*.5,.04*mixAmt);draw();
+  const v=Math.round(mixAmt*100),L=mixAmt<.01?'SOLID':mixAmt>.97?'MIXED':'MIXING '+v;if(L!==lastL){lastL=L;$('state').textContent=L;}
+  if(mixAmt>.55)$('hint').style.opacity=0;const ok=mixAmt>=.9;if(ok&&now-(window.__shotT||0)>1.5){window.__shotT=now;try{const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}}$('nx').setAttribute('aria-disabled',String(!ok));$('nx').classList.toggle('ready',mixAmt>.97);
+  requestAnimationFrame(frame);}
+frame();
+function fitM(){const ph=$('ph'),k=Math.min(1,innerWidth/393,innerHeight/852);ph.style.transform=`scale(${k})`;ph.style.borderRadius=(inFrame||(k<1&&innerWidth<500))?'0':'44px';}
+fitM();addEventListener('resize',fitM);
+})();
+</script></body></html>
