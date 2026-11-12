@@ -690,6 +690,12 @@ addEventListener('pagehide',()=>{try{P_().__nbPreview(null);P_().__nbSolo(-1);}c
 addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gtBtn').click();});
 })();
 </script>
+<script>
+// ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
+(()=>{try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
+const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g')};
+fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok)try{sessionStorage.setItem(key,'1');}catch(_){}}).catch(()=>{});}catch(_){}})();
+</script>
 </body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
