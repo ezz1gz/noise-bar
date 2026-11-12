@@ -12,7 +12,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-appl
 .fr.on{opacity:1}
 #ui{position:absolute;inset:0;pointer-events:none;font-family:Inter,"Pretendard",-apple-system,sans-serif}
 #num{position:absolute;left:calc(40px*var(--u));top:calc(80px*var(--u));font:400 calc(64px*var(--u))/1 Mulmaru,monospace;letter-spacing:-.02em;color:#f4f4f4;transition:opacity 1.2s}
-#band{position:absolute;left:0;right:0;bottom:0;padding:calc(60px*var(--u)) calc(16px*var(--u)) calc(18px*var(--u));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.22) 45%,rgba(0,0,0,.32));transition:opacity 1.2s}
+#band{position:absolute;left:0;right:0;bottom:0;padding:calc(60px*var(--u)) calc(16px*var(--u)) calc(8px*var(--u));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.22) 45%,rgba(0,0,0,.32));transition:opacity 1.2s}
 .out{opacity:0!important}
 #name{font-size:calc(20.16px*var(--u));font-weight:600;letter-spacing:-.01em;line-height:1.1}
 #maker{font-size:calc(10.8px*var(--u));opacity:.85;margin-top:calc(2.88px*var(--u))}
@@ -72,7 +72,7 @@ function layout(){
 addEventListener('resize',layout);layout();
 function clean(f){ // 폰용 버튼/텍스트는 숨기고 메타볼·그래프만
   try{const d=f.contentDocument;const s=d.createElement('style');
-   s.textContent='#ply>*:not(#bgc):not(canvas),#lis>*:not(#gw),#toast,#mutex,#bk,#vol,#mode,#pause,#prev,#next,#timer,#recipe,#hint{display:none!important}#gw{transform:translateY(-4%)}html,body{background:#000!important}#bgc{position:fixed!important;left:0!important;top:0!important;width:100vw!important;height:100vh!important}';d.head.appendChild(s);
+   s.textContent='#ply>*:not(#bgc):not(canvas),#lis>*:not(#gw),#toast,#mutex,#bk,#vol,#mode,#pause,#prev,#next,#timer,#recipe,#hint{display:none!important}#gw{transform:translateY(-4%)}html,body{background:#000!important}#bgc{position:fixed!important;left:-4vw!important;top:-4vh!important;width:108vw!important;height:108vh!important;transform:none!important;z-index:0}.ph{background:transparent!important}#lis{z-index:1}';d.head.appendChild(s);const bg=d.getElementById('bgc');if(bg)d.body.prepend(bg);
    const re=()=>d.querySelectorAll('[data-band=top],[data-band=bot]').forEach(e=>e.style.display='none');re();setTimeout(re,800);
   }catch(e){}
 }
