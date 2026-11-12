@@ -1,34 +1,73 @@
-// ── 소리 잠금 해제 (아이폰): 무음 스위치를 켜도 들리게 하고, 손을 뗄 때(touchend/click) 오디오를 깨워요
+// ── 소리 (아이폰 대응)
+// 1) 무음 스위치를 켜도 들리게 2) 손을 뗄 때 오디오를 깨움 3) 이어폰을 꽂고/빼도 다시 나오게
+//    → 모든 소리를 <audio> 요소로 내보내서(유튜브처럼 '미디어 재생'으로) iOS가 출력 경로를 알아서 바꾸게 해요.
+//    그 <audio>가 멈춰 있으면 원래 출력으로 자동으로 되돌아가요(소리가 끊기지 않게).
 (function () {
   var list = [];
+  var iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var AC = window.AudioContext || window.webkitAudioContext;
+  function route(c) {
+    if (!iOS || c.__nbOut || !c.createMediaStreamDestination) return;
+    try {
+      var out = c.createGain(), direct = c.createGain(), ms = c.createMediaStreamDestination();
+      out.__nbReal = true; direct.__nbReal = true;
+      out.connect(direct); direct.connect(c.destination); out.connect(ms);
+      var el = document.createElement('audio'); el.setAttribute('playsinline', ''); el.autoplay = false; el.srcObject = ms.stream;
+      el.style.display = 'none'; (document.body || document.documentElement).appendChild(el);
+      var set = function (v) { try { direct.gain.setTargetAtTime(v, c.currentTime, .03); } catch (e) { direct.gain.value = v; } };
+      el.addEventListener('playing', function () { set(0); });
+      ['pause', 'ended', 'stalled', 'emptied', 'error'].forEach(function (ev) { el.addEventListener(ev, function () { set(1); }); });
+      c.__nbOut = out; c.__nbEl = el;
+    } catch (e) {}
+  }
   if (AC && !AC.__nbPatched) {
-    var Wrapped = function (o) { var c = o ? new AC(o) : new AC(); list.push(c); return c; };
+    var Wrapped = function (o) { var c = o ? new AC(o) : new AC(); list.push(c); route(c);
+      try { c.addEventListener('statechange', function () { if ((c.state === 'interrupted' || c.state === 'suspended') && !c.__nbUser) setTimeout(function () { try { c.resume(); } catch (e) {} }, 300); }); } catch (e) {}
+      return c; };
     Wrapped.prototype = AC.prototype; Wrapped.__nbPatched = true;
+    var sus = AC.prototype.suspend, res = AC.prototype.resume;
+    AC.prototype.suspend = function () { this.__nbUser = true; if (this.__nbEl) try { this.__nbEl.pause(); } catch (e) {} return sus.apply(this, arguments); };
+    AC.prototype.resume = function () { if (arguments[0] !== 'auto') this.__nbUser = false; var el = this.__nbEl; if (el && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); } return res.call(this); };
+    // ctx.destination 으로 가는 연결을 <audio> 출력으로 바꿔 끼움
+    var con = AudioNode.prototype.connect;
+    AudioNode.prototype.connect = function (dst) {
+      if (dst && dst instanceof AudioDestinationNode && !this.__nbReal && this.context && this.context.__nbOut) { arguments[0] = this.context.__nbOut; }
+      return con.apply(this, arguments);
+    };
     try { window.AudioContext = Wrapped; window.webkitAudioContext = Wrapped; } catch (e) {}
   }
   var tag = null;
+  function wakeAll() {
+    list.forEach(function (c) {
+      if (c.state === 'closed' || c.__nbUser) return;
+      if (c.state !== 'running') { try { c.resume(); } catch (e) {} }
+      var el = c.__nbEl; if (el && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    });
+  }
   function unlock() {
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-    if (!tag) {
-      try {
-        // 아주 짧은 무음 wav를 반복 재생 → iOS가 '미디어 재생' 상태가 되어 무음 스위치를 무시해요
-        tag = document.createElement('audio');
-        tag.setAttribute('playsinline', ''); tag.loop = true; tag.volume = 0.01;
+    try {
+      if (!tag) {
+        // 아주 짧은 무음 wav 반복 → iOS가 '미디어 재생' 상태로 인식 (무음 스위치 무시)
+        tag = document.createElement('audio'); tag.setAttribute('playsinline', ''); tag.loop = true; tag.volume = 0.01;
         tag.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAA';
-        var pr = tag.play(); if (pr && pr.catch) pr.catch(function () {});
-      } catch (e) {}
-    }
-    list.forEach(function (c) { if (c.state !== 'running' && c.state !== 'closed') { try { c.resume(); } catch (e) {} } });
+      }
+      if (tag.paused) { var pr = tag.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    } catch (e) {}
+    wakeAll();
   }
   ['touchend', 'click', 'keydown', 'pointerup'].forEach(function (ev) { addEventListener(ev, unlock, true); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) list.forEach(function (c) { try { if (c.state !== 'running') c.resume(); } catch (e) {} }); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) wakeAll(); });
+  // 이어폰 연결/해제 같은 출력 장치 변화
+  try { navigator.mediaDevices && navigator.mediaDevices.addEventListener && navigator.mediaDevices.addEventListener('devicechange', function () { setTimeout(wakeAll, 400); }); } catch (e) {}
   function media() {
     try {
       if (!('mediaSession' in navigator) || navigator.mediaSession.__nb) return;
       var base = location.href.replace(/[^\/]*([?#].*)?$/, '');
       navigator.mediaSession.metadata = new MediaMetadata({ title: 'NØISE BAR', artist: 'NØISE BAR', album: 'NØISE BAR',
         artwork: [{ src: base + 'icon-512.png', sizes: '512x512', type: 'image/png' }, { src: base + 'icon-192.png', sizes: '192x192', type: 'image/png' }] });
+      // 잠금화면·아일랜드의 재생 버튼으로도 다시 켤 수 있게
+      navigator.mediaSession.setActionHandler('play', function () { list.forEach(function (c) { c.__nbUser = false; }); unlock(); });
       navigator.mediaSession.__nb = true;
     } catch (e) {}
   }
