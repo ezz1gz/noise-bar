@@ -413,5 +413,5 @@ function fr(){gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uR,cv.width,cv.he
 
 [...document.getElementById('ph').children].forEach(el=>{if(!el.dataset.band)el.dataset.band='art';});barText();fit();addEventListener('resize',fit);
 document.getElementById('bk').onclick=()=>go('glass.html');
-document.getElementById('nx').onclick=()=>{const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='play.html?'+q;};
+document.getElementById('nx').onclick=()=>{const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='name.html?'+q;};
 </script></body></html>

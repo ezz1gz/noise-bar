@@ -641,7 +641,7 @@ $('pause').onclick=()=>{paused=!paused;document.body.classList.toggle('paused',p
 $('vol').onclick=()=>setMute(!mutedAll);
 $('prev').onclick=$('next').onclick=()=>toast('다른 믹스는 다음 프로토타입에서 이어져요');
 $('timer').onclick=()=>toast('타이머는 다음 프로토타입에서 이어져요');$('recipe').onclick=()=>toast('레시피(베이스·리큐르·가니쉬)는 다음 프로토타입에서 이어져요');
-$('bk').onclick=()=>{tell({nb:'tilt',a:0,cx:0,sp:0});go('garnish.html');};
+$('bk').onclick=()=>{tell({nb:'tilt',a:0,cx:0,sp:0});go('name.html');};
 function fitP(){[...ph.children].forEach(el=>{if(!el.dataset.band&&el.id!=='toast')el.dataset.band='art';});nbFit();}
 fitP();addEventListener('resize',fitP);
 </script><script>
@@ -695,10 +695,20 @@ addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gt
 document.getElementById('ocn').onclick=()=>{let me='';try{me=sessionStorage.getItem('nb-sea-me')||'';}catch(_){}location.href='sea/'+(me?'?me='+me:'');};
 // ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
 (()=>{try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
-const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g')};
+const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
 fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok)try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}).catch(()=>{});}catch(_){}})();
 </script>
-</body></html><style id="nb-play-info">
+
+<script>
+// ── 이름 단계에서 정한 칵테일 이름·닉네임을 플레이 제목 자리에 표시
+(()=>{const Q=new URLSearchParams(location.search),nm=Q.get('nm');if(!nm)return;const mk=Q.get('mk')||'';
+function put(){if(!document.querySelector('#ph svg'))return setTimeout(put,100);
+ document.querySelectorAll('#ph svg path').forEach(p=>{try{const b=p.getBBox();if(b.y>620&&b.y+b.height<688&&b.x>8&&b.x+b.width<250)p.style.display='none';}catch(_){}});
+ const d=document.createElement('div');d.id='nbTitle';d.style.cssText='position:absolute;left:17px;top:624px;width:290px;color:#fff;pointer-events:none;z-index:5;font-family:Pretendard,"Apple SD Gothic Neo",system-ui,sans-serif';
+ d.innerHTML='<div style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div style="font-size:16px;opacity:.85;margin-top:4px"></div>';
+ d.children[0].textContent=nm;d.children[1].textContent=mk;document.getElementById('ph').appendChild(d);}
+if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTimeout(put,50));else setTimeout(put,50);})();
+</script></body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
 #nbInfo b{font-weight:600;color:#fff}
