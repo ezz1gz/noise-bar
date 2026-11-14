@@ -708,7 +708,10 @@ function put(){if(!document.querySelector('#ph svg'))return setTimeout(put,100);
  d.innerHTML='<div style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div style="font-size:16px;opacity:.85;margin-top:4px"></div>';
  d.children[0].textContent=nm;d.children[1].textContent=mk;document.getElementById('ph').appendChild(d);}
 if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTimeout(put,50));else setTimeout(put,50);})();
-</script></body></html><style id="nb-play-info">
+</script>
+<script src="intro.js"></script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'play',title:null,lines:["서브", "완성된 한 잔을", "천천히 들어보아요."]}),250));</script>
+</body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
 #nbInfo b{font-weight:600;color:#fff}

@@ -1,3 +1,5 @@
+// 폰트: Pretendard (디자인 기준 서체)
+(function(){try{if(document.getElementById('nbPret'))return;var l=document.createElement('link');l.id='nbPret';l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css';(document.head||document.documentElement).appendChild(l);}catch(e){}})();
 // ── 소리 (아이폰 대응)
 // 1) 무음 스위치를 켜도 들리게 2) 손을 뗄 때 오디오를 깨움 3) 이어폰을 꽂고/빼도 다시 나오게
 //    → 모든 소리를 <audio> 요소로 내보내서(유튜브처럼 '미디어 재생'으로) iOS가 출력 경로를 알아서 바꾸게 해요.

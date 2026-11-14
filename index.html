@@ -724,6 +724,7 @@ button:focus-visible{outline:2px solid #e2468f;outline-offset:2px}
 </aside>
 </div>
 
+<script src="intro.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -1385,6 +1386,32 @@ window.__theme=t=>{stage.classList.toggle('light',t==='light');$('thmT').textCon
 window.__liq={LIQ,LBY,lives:()=>lives(),relayout:()=>{if(step===2&&(barState==='liq'||barState==='liqopen'))renderLiq();}};
 
 frame();
+// 피그마 베이스 디자인: 안내 문구 → 타이틀이 gnb로 · 소리 성격 제목 · 접힌 바/시트 내용
+(()=>{
+ const bl=stage.querySelector('.baseLogo'),ll=stage.querySelector('.lqLogo');if(bl)bl.dataset.nbH='24.5';if(ll)ll.dataset.nbH='24.5';
+ const ch=document.createElement('div');ch.id='nbChar';ch.setAttribute('aria-live','polite');stage.appendChild(ch);
+ const crw=document.querySelector('#vIdle .crw');const L=document.createElement('span');L.className='nbL';const R=document.createElement('span');R.className='nbR';crw.appendChild(L);crw.appendChild(R);
+ const _u=updBar;let lastL='',lastR='';
+ updBar=function(pc){_u(pc);try{
+   NOISE.forEach((n,i)=>{n.row.style.setProperty('--s',share[i].toFixed(3));});
+   tray.classList.toggle('nbSel',sel>=0);
+   let l,r,rp=false;
+   if(solo>=0){const n=NOISE[solo];l=`<i style="background:${n.c}"></i><small>${n.n}</small>`;r=pc[solo]+'%';rp=true;}
+   else{l=NOISE.map(n=>`<i style="background:${n.c}"></i>`).join('');r='Base';}
+   if(l!==lastL){L.innerHTML=l;lastL=l;}if(r!==lastR){R.textContent=r;lastR=r;}R.classList.toggle('p',rp);
+   const t=solo>=0?NOISE[solo].sd:character()[0]+' 소리';if(ch.textContent!==t)ch.textContent=t;
+   // 다른 띠가 어두워지면(그 노이즈만 듣기) 제목을 흰색으로
+   const top=bandAt(Math.min(120,H*.14));stage.classList.toggle('nbDk',(solo>=0&&solo!==top)||stage.classList.contains('bgD'));
+ }catch(e){}};
+ placeLabs();
+ const LINES={
+  base:['베이스','네 가지 노이즈를 쌓아','나만의 바탕 소리를 만들어보아요.'],
+  liq:['리큐르','쌓은 베이스 위에','포인트를 줄 리큐르를 따라보아요.']};
+ const ready=()=>stage.classList.add('nbReady');
+ if(step===1)nbIntro({key:'base',host:stage,title:bl,lines:LINES.base,onDone:ready});else ready();
+ const _s=setStep;setStep=function(s){_s(s);if(s===2&&!stage.dataset.nbLiq){stage.dataset.nbLiq='1';nbIntro({key:'liq',host:stage,title:ll,lines:LINES.liq});}};
+})();
+
 })();
 </script>
 <style>
@@ -1617,3 +1644,66 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
  addEventListener('resize',()=>{if(!cur)prev=meas();});
 })();
 </script>
+<style id="nb-base2">
+/* ── 피그마 베이스_01~04-2 (2026-11) ── */
+#stage .baseLogo,#stage .lqLogo{will-change:translate,scale}
+#nbChar{position:absolute;z-index:12;left:0;right:0;top:calc(max(54px,var(--safeT)) + 60px);text-align:center;pointer-events:none;
+ font-family:Pretendard,'Apple SD Gothic Neo',var(--f-kr);font-weight:200;font-size:32px;line-height:42px;letter-spacing:-.02em;color:#000;text-shadow:0 0 10px rgba(0,0,0,.1);
+ opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .7s cubic-bezier(.32,.72,0,1),color .3s}
+#stage.s1.nbReady #nbChar{opacity:1;transform:none}
+#stage.nbDk #nbChar{color:#fff}
+#stage .gbar,#stage .gbar button{font-family:Pretendard,'Apple SD Gothic Neo',var(--f-kr)!important}
+/* ① 접힌 바 260×60 · r10 · 유리 테두리 */
+#stage.s1 #tray[data-state="idle"],#stage.s1 #tray[data-state="drag"]{left:var(--mx);right:calc(var(--mx) + 101px);height:60px;border-radius:10px;
+ background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ box-shadow:0 6px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05),inset 0 0 0 .75px rgba(255,255,255,.7)!important}
+#stage.s1 #tray.bsolo[data-state="idle"]{background:rgba(255,255,255,.2)!important}
+#stage.s1 #tray::before{display:none!important}
+#stage.s1 #tray .cgr{left:50%!important;margin-left:-16.75px;top:9.25px}
+#stage.s1 .v-idle .crw{left:16px;right:16px;top:20px;height:24px}
+#stage.s1 .v-idle .crw>*:not(.nbL):not(.nbR){display:none!important}
+#stage .nbL{display:flex;align-items:center;gap:6px}
+#stage .nbL i{display:block;width:24px;height:24px;border-radius:3.75px;box-shadow:inset 0 0 0 .25px #fff}
+#stage .nbL small,#stage .nbR{font-size:12px;font-weight:400;line-height:1.3;letter-spacing:-.02em;color:#fff}
+#stage .nbL small{margin-left:1px}
+#stage .nbR.p{font-size:13px}
+#stage.s1 .v-drag .crw{left:16px;right:16px;top:20px;height:24px;justify-content:flex-start!important;gap:31px}
+#stage.s1 .v-drag .pv{gap:6px}
+#stage.s1 .v-drag .pv i{width:24px!important;height:24px!important;border-radius:3.75px!important}
+#stage.s1 .v-drag .pv small{font-size:12px!important;font-weight:400!important;color:#fff!important;margin-left:1px}
+#stage.s1 .v-drag .pv b,#stage.s1 .v-drag .pv b em{font-size:13px!important;font-weight:400!important;color:#000!important;margin-left:2px}#stage.s1 .v-drag .pv b em{margin-left:0!important}
+#stage.s1 .v-drag .pv .lkS{filter:brightness(0) invert(1)}
+/* ③ 펼친 시트 361 · r8 · 배경 흐림 */
+#stage.s1 #tray[data-state="open"]{left:var(--mx);right:var(--mx);height:308px;border-radius:8px;background:rgba(255,255,255,.04)!important;
+ -webkit-backdrop-filter:blur(25px)!important;backdrop-filter:blur(25px)!important;
+ box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05),inset 0 0 0 .75px rgba(255,255,255,.7)!important}
+#stage.s1 #tray.nbSel[data-state="open"]{height:361px}
+#stage.s1 .v-open{padding:20px 16px!important;box-sizing:border-box}
+#stage.s1 .v-open .bgr img{filter:none}
+#stage.s1 .v-open .bh{display:none!important}
+#stage.s1 #rows{margin-top:30px!important;gap:10px!important}
+#stage.s1 .row{position:relative;padding:0!important;height:34px!important}
+#stage.s1 .row .trk{width:100%!important;height:34px;border-radius:5px!important;background:transparent!important;box-shadow:none!important}
+#stage.s1 .row.sel .trk{box-shadow:inset 0 0 0 1px #000!important}
+#stage.s1 .row.sel.locked .trk{box-shadow:none!important}
+#stage.s1 .row .trk .f{width:calc(72px + var(--s,0) * (100% - 72px))!important;border-radius:5px!important;background:transparent!important;box-shadow:none!important;padding:0 0 0 12px!important;transition:background .2s}
+#stage.s1 .row.sel .trk .f,#stage.s1 .row.locked .trk .f{background:var(--c)!important}
+#stage.s1 .row .fn{font-size:12px!important;font-weight:400!important;color:#fff!important}
+#stage.s1 .row.isw.sel .fn,#stage.s1 .row.isw.locked .fn{color:#656565!important}
+#stage.s1 .row .fh img{filter:brightness(0) invert(1)}
+#stage.s1 .row.sel .fh,#stage.s1 .row.locked .fh{visibility:hidden}
+#stage.s1 .row .pcx{position:absolute;right:14px;top:0;height:34px;display:flex;align-items:center;z-index:2;pointer-events:none}
+#stage.s1 .row .pc,#stage.s1 .row.sel .pc,#stage.s1 .row .pc em{font-size:14px!important;font-weight:400!important;color:#000!important}
+#stage.s1 .row .lkI{display:none!important}
+#stage.s1 .v-open .bsec{display:none;margin-top:10px!important;padding:8px 0 0!important;border-top:.75px solid #fff!important}
+#stage.s1 #tray.nbSel .v-open .bsec{display:block}
+#stage.s1 .bchips{display:flex!important;justify-content:space-between!important;gap:0!important;height:34px}
+#stage.s1 .bch{width:auto!important;height:34px!important;padding:0 16px!important;border-radius:4px!important;background:transparent!important;box-shadow:none!important;color:#fff!important;gap:6px!important;font-size:13px!important;font-weight:400!important}
+#stage.s1 .bch .bic img{filter:brightness(0) invert(1)}
+#stage.s1 .bch[aria-pressed="true"]{width:160px!important;background:#000!important}
+#stage.s1 .bch .x img{width:16px;height:16px}
+#stage.s1 .bcta{width:auto!important;margin:30px 0 0!important}
+#stage.s1 .bnext{height:42px!important;border-radius:21px!important;background:rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .75px rgba(255,255,255,.8)!important;color:#fff!important;font-size:13px!important;font-weight:400!important;gap:8px!important}
+#stage.s1 .bnext img{filter:brightness(0) invert(1);width:16px;height:16px}
+</style>
+
