@@ -111,3 +111,13 @@
 #lq2 .l2size b{position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:14px!important;font-weight:400!important;color:#000!important;letter-spacing:-.02em!important;pointer-events:none;z-index:4}
 .l2bar{touch-action:none}
 .l2sheet .l2grab{padding:16px 140px!important;margin:-16px 0!important}
+/* 이미 담은 리큐르 원: 블러·테두리 없이 색만 · 지금 고른 원만 검은 테두리 */
+#lq2 .l2it.in{box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#lq2 .l2it.in.fo{box-shadow:0 0 0 .75px #000!important}
+/* 볼륨 바 = 베이스 슬라이더: 평소엔 색·테두리 없이 눈금만 · 누르는 동안 리큐르 색 채움 + 검은 테두리 */
+#lq2 .l2pill .l2fill{background:transparent!important;transition:background .15s,width .08s}
+#lq2 .l2pill::after{opacity:0;transition:opacity .15s}
+#lq2 .l2pill.on .l2fill{background:var(--c)!important}
+#lq2 .l2pill.on::after{opacity:1}
+#lq2 .l2pill .l2tick{display:block!important;position:absolute;top:10.25px;left:calc(72px + var(--s,0) * (100% - 72px) - 12px)!important;z-index:2}
+#lq2 .l2pill.on .l2tick{visibility:hidden}

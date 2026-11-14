@@ -1531,7 +1531,7 @@ function render(){if(L2.sel&&L2.sel.dying)L2.sel=null;const L=ld(),sel=L2.sel;
   else{row.innerHTML=`<div class="l2slots">${[0,1,2].map(i=>`<i class="l2slot${L[i]?'':' e'}"></i>`).join('')}</div>`+(L.length?`<b class="l2cnt">${L.length}/${MAXL}</b>`:`<span class="l2lab">Liqueur</span>`);
     row.querySelectorAll('.l2slot').forEach((e,i)=>{if(L[i])paint(e,LBY[L[i].k].c);});$$('l2bar').setAttribute('aria-label',`리큐르 ${L.length}/${MAXL} · 리큐르 고르기 열기`);}
   // 탭·원
-  [...$$('l2tabs').children].forEach(t=>{t.setAttribute('aria-pressed',String(t.dataset.k===L2.cat));t.classList.toggle('has',!!sel&&LBY[sel.k].th===t.dataset.k);});
+  [...$$('l2tabs').children].forEach(t=>{t.setAttribute('aria-pressed',String(t.dataset.k===L2.cat));t.classList.toggle('has',L.some(x=>LBY[x.k].th===t.dataset.k));});
   const g=$$('l2grid');if(g.dataset.cat!==L2.cat){g.dataset.cat=L2.cat;g.innerHTML='';LIQ.filter(l=>l.th===L2.cat).forEach(l=>{const b=document.createElement('button');b.type='button';b.className='l2it';b.dataset.k=l.k;b.innerHTML=`<span class="l2n">${l.n}</span>`;paint(b,l.c);bind(b,l);g.appendChild(b);});}
   g.querySelectorAll('.l2it').forEach(b=>{const x=L.find(q=>q.k===b.dataset.k);b.classList.toggle('in',!!x);b.classList.toggle('fo',!!x&&x===sel);b.setAttribute('aria-label',`${LBY[b.dataset.k].n}: `+(x?(x===sel?'한 번 더 누르면 빼기':'누르면 고르기'):'누르면 잔에 담기')+' · 길게 누르면 미리 듣기');b.setAttribute('aria-pressed',String(!!x));});
   // 크기
