@@ -1102,7 +1102,7 @@ function startPreview(l,b){preview=l;lastPrev=l;b.classList.add('prev');listen(`
 function stopPreview(){if(!preview)return;preview=null;grid.querySelectorAll('.prev').forEach(c=>c.classList.remove('prev'));hideListen();}
 // 고르면: 방울이 칩에서 튀어 올라 잔에 똑
 function pick(l,b){const ex=lives().find(x=>x.k===l.k);if(ex){focus=ex;ex.mk.classList.remove('pulse');void ex.mk.offsetWidth;ex.mk.classList.add('pulse');showTheme(l);updLiq();return;}
-  if(lives().length>=MAXL){window.nbNotice?nbNotice(['리큐르는 세 가지까지 넣을 수 있어요','방울을 아래 바로 끌어 놓으면 빼고 다시 고를 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`);return;}
+  if(lives().length>=MAXL){window.nbNotice?nbNotice(['리큐르는 세 가지까지 담을 수 있어요','담긴 원을 한 번 더 누르면 뺄 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`);return;}
   const sr=stage.getBoundingClientRect(),r=b.getBoundingClientRect(),x0=r.left-sr.left+r.height/2,y0=r.top-sr.top+r.height/2;
   const TOPS=246,BOT=Math.max(TOPS,CH-40),cy=y=>Math.max(TOPS,Math.min(BOT,y)),by=cy((TOPS+BOT)/2),slots=[[W*.5,by],[W*.27,cy(by+50)],[W*.73,cy(by-30)],[W*.5,cy(by+90)]];const sp=slots.find(([sx,sy])=>lives().every(x=>Math.hypot(x.x-sx,x.y-sy)>70))||slots[0];
   const xt=sp[0]+(Math.random()-.5)*20,yt=sp[1],peak=Math.max(HEADB+30,yt-150);
@@ -1439,7 +1439,7 @@ $$('l2sg').addEventListener('click',()=>closeSheet());
 // 손잡이 끌기: 바는 위로 → 열기, 시트는 아래로 → 닫기
 function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if((e.clientY-y)*dir>28){y=null;fn();}});addEventListener('pointerup',()=>{y=null;});}
 dragOpen($$('l2bar'),-1,()=>{wake();openSheet();});dragOpen($$('l2sg'),1,closeSheet);
-function go(){const L=ld();if(!L.length){toast('리큐르를 하나 이상 담아요');openSheet();return;}closeSheet();openFlow(L);}
+function go(){const L=ld();if(!L.length){(window.nbNotice?nbNotice(['리큐르를 하나 이상 담아요'],stage):toast('리큐르를 하나 이상 담아요'));openSheet();return;}closeSheet();openFlow(L);}
 $$('l2next').addEventListener('click',()=>{wake();ld().length?go():openSheet();});
 $$('l2mix').addEventListener('click',()=>{wake();go();});
 
@@ -1451,7 +1451,7 @@ CATS.forEach(([k,n])=>{const b=document.createElement('button');b.type='button';
 function spot(){const top=Math.max(190,(parseFloat(getComputedStyle(S).getPropertyValue('--safeT'))||54)+140),bot=H-170;
   const c=[[.38,.36],[.68,.62],[.3,.66],[.64,.34],[.5,.5]].map(([x,y])=>[W*x,top+(bot-top)*y]);
   return c.find(([x,y])=>ld().every(d=>Math.hypot(d.x-x,d.y-y)>110))||c[ld().length%c.length];}
-function add(l){if(ld().length>=MAXL){toast(`잔엔 ${MAXL}가지까지 · 담긴 리큐르를 한 번 더 누르면 빠져요`);return;}
+function add(l){if(ld().length>=MAXL){(window.nbNotice?nbNotice(['리큐르는 세 가지까지 담을 수 있어요','담긴 원을 한 번 더 누르면 뺄 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`));return;}
   gestTip=true;const[x,y]=spot();addDrop(l,x,y);const d=drops[drops.length-1];d.v=.6;d.l2drop=performance.now();select(d);}
 function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
 function tap(l){wake();const ex=ld().find(x=>x.k===l.k);if(ex){if(isSel(ex))drop(ex);else select(ex);return;}add(l);}
@@ -1569,8 +1569,8 @@ frame();
  window.__nbT={share:a=>{share=a;placeLabs();},solo:i=>{setSolo(i);placeLabs();},sel:i=>{setSel(i);placeLabs();},bar:st=>setBar(st)};
 
  const LINES={
-  base:[['베이스','네 가지 노이즈를 쌓아','나만의 바탕 소리를 만들어보아요.'],['조작법','색 띠를 위아래로 끌면 비율이 바뀌어요','띠를 탭하면 그 소리만 들려요','아래 바를 밀어 올리면 자세히 조절해요']],
-  liq:[['리큐르','쌓은 베이스 위에','포인트를 줄 리큐르를 따라보아요.'],['조작법','아래 선반에서 리큐르를 탭하거나 끌어 놓아요','길게 누르면 미리 들어볼 수 있어요']]};
+  base:[['베이스','네 가지 노이즈를 쌓아 바탕 소리를 만들어요','색 띠를 위아래로 끌면 비율이 바뀌고','띠를 탭하면 그 소리만 들려요','아래 바를 올리면 자세히 조절해요']],
+  liq:[['리큐르','리큐르는 바탕 소리에 향을 더하는 포인트예요','원을 탭하면 담기고, 길게 누르면 미리 들어요','두 손가락으로 벌리면 진하게, 오므리면 연하게','세 가지까지 담을 수 있어요']]};
  const ready=()=>stage.classList.add('nbReady');
  if(step===1)nbIntro({key:'base',host:stage,title:bl,pages:LINES.base,onDone:ready});else ready();
  const _s=setStep;setStep=function(s){_s(s);if(s===2&&!stage.dataset.nbLiq){stage.dataset.nbLiq='1';nbIntro({key:'liq',host:stage,title:ll,pages:LINES.liq});}};

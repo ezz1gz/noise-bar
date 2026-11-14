@@ -50,7 +50,7 @@ $$('l2sg').addEventListener('click',()=>closeSheet());
 // 손잡이 끌기: 바는 위로 → 열기, 시트는 아래로 → 닫기
 function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if((e.clientY-y)*dir>28){y=null;fn();}});addEventListener('pointerup',()=>{y=null;});}
 dragOpen($$('l2bar'),-1,()=>{wake();openSheet();});dragOpen($$('l2sg'),1,closeSheet);
-function go(){const L=ld();if(!L.length){toast('리큐르를 하나 이상 담아요');openSheet();return;}closeSheet();openFlow(L);}
+function go(){const L=ld();if(!L.length){(window.nbNotice?nbNotice(['리큐르를 하나 이상 담아요'],stage):toast('리큐르를 하나 이상 담아요'));openSheet();return;}closeSheet();openFlow(L);}
 $$('l2next').addEventListener('click',()=>{wake();ld().length?go():openSheet();});
 $$('l2mix').addEventListener('click',()=>{wake();go();});
 
@@ -62,7 +62,7 @@ CATS.forEach(([k,n])=>{const b=document.createElement('button');b.type='button';
 function spot(){const top=Math.max(190,(parseFloat(getComputedStyle(S).getPropertyValue('--safeT'))||54)+140),bot=H-170;
   const c=[[.38,.36],[.68,.62],[.3,.66],[.64,.34],[.5,.5]].map(([x,y])=>[W*x,top+(bot-top)*y]);
   return c.find(([x,y])=>ld().every(d=>Math.hypot(d.x-x,d.y-y)>110))||c[ld().length%c.length];}
-function add(l){if(ld().length>=MAXL){toast(`잔엔 ${MAXL}가지까지 · 담긴 리큐르를 한 번 더 누르면 빠져요`);return;}
+function add(l){if(ld().length>=MAXL){(window.nbNotice?nbNotice(['리큐르는 세 가지까지 담을 수 있어요','담긴 원을 한 번 더 누르면 뺄 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`));return;}
   gestTip=true;const[x,y]=spot();addDrop(l,x,y);const d=drops[drops.length-1];d.v=.6;d.l2drop=performance.now();select(d);}
 function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
 function tap(l){wake();const ex=ld().find(x=>x.k===l.k);if(ex){if(isSel(ex))drop(ex);else select(ex);return;}add(l);}
