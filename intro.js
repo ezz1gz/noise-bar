@@ -4,17 +4,18 @@
 //  - title: 작아질 타이틀 (HTML 요소 · SVG <g> · 'auto' = 상단 SVG에서 타이틀 패스를 찾아 묶음 · null = 없음)
 //  - 같은 세션에서 이미 본 단계는 문구 없이 바로 작은 타이틀 상태로
 (function(){
-const css=`.nbIntro{position:absolute;inset:0;z-index:60;pointer-events:auto;touch-action:none;cursor:pointer}
+const css=`.nbIntro .cp span,.nbNote span{height:auto!important;min-height:26px;max-width:calc(100% - 32px);box-sizing:border-box;white-space:normal!important;word-break:keep-all;text-align:center}
+.nbIntro{position:absolute;inset:0;z-index:60;pointer-events:auto;touch-action:none;cursor:pointer}
 .nbIntro .cp{position:absolute;left:0;right:0;top:46.4%;display:flex;flex-direction:column;align-items:center;transform:translateY(-50%);
- font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:14px;font-weight:400;letter-spacing:-.02em;line-height:23px;color:#fff}
-.nbIntro .cp span{display:block;height:23px;padding:0 9px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap;
+ font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;font-weight:400;letter-spacing:-.02em;line-height:26px;color:#fff}
+.nbIntro .cp span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap;
  opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .6s cubic-bezier(.32,.72,0,1)}
 .nbIntro .cp span.on{opacity:1;transform:none}
 .nbIntro .cp span.nbHd{color:rgba(255,255,255,.75)}
 .nbIntro .cp.gone span{opacity:0;transform:translateY(-4px);transition:opacity .3s ease,transform .35s ease}
 .nbNote{position:absolute;left:0;right:0;top:46.4%;z-index:59;display:flex;flex-direction:column;align-items:center;transform:translateY(-50%);pointer-events:none;
- font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:14px;letter-spacing:-.02em;line-height:23px;color:#fff;transition:opacity .35s ease}
-.nbNote span{display:block;height:23px;padding:0 9px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap}
+ font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;letter-spacing:-.02em;line-height:26px;color:#fff;transition:opacity .35s ease}
+.nbNote span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap}
 .nbNote.out{opacity:0}
 .nbIntro.out .cp span,.nbIntro.out .cp span.on{opacity:0;transform:translateY(-4px);transition:opacity .35s ease,transform .4s ease}`;
 function addCss(){if(document.getElementById('nbIntroCss'))return;const s=document.createElement('style');s.id='nbIntroCss';s.textContent=css;document.head.appendChild(s);}
