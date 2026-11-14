@@ -11,6 +11,7 @@ const css=`.nbIntro .cp span,.nbNote span{height:auto!important;min-height:26px;
 .nbIntro .cp span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap;
  opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .6s cubic-bezier(.32,.72,0,1)}
 .nbIntro .cp span.on{opacity:1;transform:none}
+.nbIntro .cp span.nbT{margin-bottom:23px}
 .nbIntro .cp span.nbHd{color:rgba(255,255,255,.75)}
 .nbIntro .cp.gone span{opacity:0;transform:translateY(-4px);transition:opacity .3s ease,transform .35s ease}
 .nbNote{position:absolute;left:0;right:0;top:46.4%;z-index:59;display:flex;flex-direction:column;align-items:center;transform:translateY(-50%);pointer-events:none;
@@ -52,9 +53,14 @@ function shrink(el,host,instant,done){
   if(!D){set(1);done&&done();return;}
   const f=now=>{const t=Math.min(1,(now-t0)/D);set(t<1?spring(t):1);if(t<1)requestAnimationFrame(f);else done&&done();};requestAnimationFrame(f);}
 // 짧은 안내(자막 모양) — 조작은 막지 않음
+
+// 하단 바·시트가 올라와 있으면 문구가 겹치지 않게 그 위로 올림
+function avoidBars(box,host){try{const hr=host.getBoundingClientRect(),k=hr.width/(host.offsetWidth||hr.width)||1;let top=Infinity;
+  document.querySelectorAll('#tray,#l2sheet,#l2bar,.g2sheet,.g2bar,.gbar').forEach(e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e);if(!r.height||cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.15)return;if(r.top>hr.top+hr.height*.25)top=Math.min(top,r.top);});
+  const h=box.offsetHeight,base=hr.height*.464/k;let c=base;if(top<Infinity){const lim=(top-hr.top)/k-18-h/2;c=Math.min(base,lim);}c=Math.max(c,h/2+130);box.style.top=c+'px';}catch(e){}}
 window.nbNotice=function(lines,host){addCss();host=host||document.getElementById('ph')||document.getElementById('stage')||document.body;
   if(typeof lines==='string')lines=[lines];let n=host.querySelector('.nbNote');if(n){clearTimeout(n._t);n.remove();}
-  n=document.createElement('div');n.className='nbNote';n.setAttribute('role','status');n.innerHTML=lines.map(l=>`<span>${l}</span>`).join('');host.appendChild(n);
+  n=document.createElement('div');n.className='nbNote';n.setAttribute('role','status');n.innerHTML=lines.map(l=>`<span>${l}</span>`).join('');host.appendChild(n);avoidBars(n,host);n._iv=setInterval(()=>{if(!n.isConnected)return clearInterval(n._iv);avoidBars(n,host);},150);
   n.animate([{opacity:0,transform:'translateY(calc(-50% + 6px))'},{opacity:1,transform:'translateY(-50%)'}],{duration:350,easing:'cubic-bezier(.32,.72,0,1)'});
   n._t=setTimeout(()=>{n.classList.add('out');setTimeout(()=>n.remove(),380);},2200+lines.join('').length*40);};
 
@@ -87,15 +93,15 @@ window.nbIntro=function(o){
   const end=()=>{if(gone)return;gone=true;clr();ov.classList.add('out');
     setTimeout(()=>{ov.remove();shrink(title,host,false,finish);},380);};
   const show=i=>{clr();pi=i;const old=cp;if(old){old.classList.add('gone');setTimeout(()=>old.remove(),360);}
-    cp=document.createElement('div');cp.className='cp';cp.innerHTML=pages[i].map((l,k)=>`<span${k===0&&pages.length>1&&i>0?' class="nbHd"':''}>${l}</span>`).join('');ov.appendChild(cp);
+    cp=document.createElement('div');cp.className='cp';cp.innerHTML=pages[i].map((l,k)=>`<span${k===0?' class="nbT"':''}>${l}</span>`).join('');ov.appendChild(cp);avoidBars(cp,host);{const c0=cp,iv=setInterval(()=>{if(!c0.isConnected)return clearInterval(iv);avoidBars(c0,host);},150);}
     sp=[...cp.querySelectorAll('span')];const d0=old?380:350;
     sp.forEach((s,k)=>T.push(setTimeout(()=>s.classList.add('on'),d0+k*380)));
     const hold=d0+sp.length*380+Math.max(2800,pages[i].join('').length*75);
     T.push(setTimeout(next,hold));};
   const next=()=>{if(pi+1<pages.length)show(pi+1);else end();};
   show(0);
-  // 탭해도 넘어가지 않음 (끝까지 다 보여준 뒤 몇 초 있다가 저절로 사라짐) · 탭은 소리 깨우기만
-  ov.addEventListener('pointerdown',e=>{e.preventDefault();[()=>window.__nbWake&&window.__nbWake(),()=>window.wake&&window.wake(),()=>window.ensureA&&window.ensureA(),()=>window.ac&&window.ac(),()=>parent!==window&&parent.__nbWake&&parent.__nbWake()].forEach(f=>{try{f();}catch(_){}});});
+  // 탭: 설명이 다 나오기 전엔 넘어가지 않음 · 다 나온 뒤 탭하면 넘김 (탭은 소리도 깨움)
+  ov.addEventListener('pointerdown',e=>{e.preventDefault();if(sp.length&&sp.every(x=>x.classList.contains('on'))&&!gone)setTimeout(next,0);[()=>window.__nbWake&&window.__nbWake(),()=>window.wake&&window.wake(),()=>window.ensureA&&window.ensureA(),()=>window.ac&&window.ac(),()=>parent!==window&&parent.__nbWake&&parent.__nbWake()].forEach(f=>{try{f();}catch(_){}});});
   return{skip:end};
 };
 })();

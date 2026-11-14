@@ -27,14 +27,12 @@ input::placeholder{color:#b4b0b8;font-weight:400}
 <div class="wrap">
   <div class="gnb"><button type="button" id="bk" aria-label="이전 단계"><img src="assets/gnb-back.svg" width="28" height="28" alt=""></button><button type="button" id="gVol" aria-label="소리 끄기"><img src="assets/gnb-volume.svg" width="24" height="24" alt=""></button></div>
   <h1>Name</h1>
-  <p class="sub">잔에 이름을 붙이면 소리의 바다로 보내져요</p>
   <div class="drink"><div class="ball" id="ball"><span id="pvN">이름 없는 잔</span><small id="pvM">@guest</small></div></div>
   <form id="f" autocomplete="off">
     <label><b>칵테일</b><input id="nm" maxlength="20" placeholder="예) 새벽 세시" enterkeyhint="next"></label>
     <label><b>닉네임</b><input id="mk" maxlength="12" placeholder="예) 지우" enterkeyhint="done"></label>
     <div class="row"><button class="go" id="go" type="submit" disabled>완성하고 바다로 보내기 ›</button></div>
-    <p class="note">이름과 닉네임은 전시장 화면에 함께 보여요</p>
-  </form>
+    </form>
 </div>
 <script>
 const Q=new URLSearchParams(location.search);
@@ -53,5 +51,5 @@ document.getElementById('f').onsubmit=e=>{e.preventDefault();if(go.disabled){(cl
 document.getElementById('bk').onclick=()=>{Q.delete('nm');Q.delete('mk');location.href='garnish.html?'+Q;};
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'serve',host:document.querySelector('.wrap'),title:document.querySelector('.wrap h1'),pages:[["서브", "완성된 한 잔에 이름을 붙여요", "잔 이름과 닉네임을 적고", "바다로 보내면 플레이 화면으로 이어져요"]]}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'serve',host:document.querySelector('.wrap'),title:document.querySelector('.wrap h1'),pages:[["서브 Serve", "완성된 한 잔에 이름을 붙여요", "잔 이름과 닉네임을 적고", "바다로 보내면 플레이 화면으로 이어져요"]]}),250));</script>
 </body></html>

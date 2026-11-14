@@ -8,6 +8,8 @@
 .top{position:absolute;left:0;right:0;top:0;height:120px;pointer-events:none;mix-blend-mode:difference;color:#fff}
 .logo{position:absolute;left:20px;top:104px;font-family:'Silkscreen',monospace;font-weight:700;font-size:52px;line-height:.9;letter-spacing:1px;mix-blend-mode:difference;color:#fff;pointer-events:none}
 .mpct{position:absolute;left:0;right:0;top:114px;text-align:center;font-family:Pretendard,'Apple SD Gothic Neo',sans-serif;font-weight:200;font-size:32px;line-height:42px;letter-spacing:-.02em;color:#fff;mix-blend-mode:difference;pointer-events:none;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .7s cubic-bezier(.32,.72,0,1);font-variant-numeric:tabular-nums}
+/* 폰을 흔들어 섞으니 하단 휘젓기 바는 숨김 */
+.ph>.cap{display:none!important}
 .nbIntroDone .mpct{opacity:1;transform:none}
 .state[hidden]{display:none!important}
 .state{position:absolute;right:20px;top:120px;font:10px/1 'Space Mono',ui-monospace,monospace;letter-spacing:.22em;border:1px solid rgba(255,255,255,.75);padding:6px 10px;border-radius:99px;color:#fff;mix-blend-mode:difference;font-variant-numeric:tabular-nums;pointer-events:none}
@@ -246,5 +248,5 @@ fitM();addEventListener('resize',fitM);
 })();
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]].concat((window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')?[["흔들기 허용", "화면을 누르면 동작 접근 허용 창이 나와요", "‘허용’을 눌러주세요"]]:[])}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스 Mix", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]].concat((window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')?[["흔들기 허용", "화면을 누르면 동작 접근 허용 창이 나와요", "‘허용’을 눌러주세요"]]:[])}),250));</script>
 </body></html>

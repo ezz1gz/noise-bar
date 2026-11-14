@@ -1598,6 +1598,9 @@ frame();
  function adapt(){if(step!==1)return;const cr=cv.getBoundingClientRect();
    const set=(el)=>{if(!el)return;const r=el.getBoundingClientRect();if(!r.height)return;const L=bgL(r.top+r.height/2-cr.top);el.classList.toggle('nbLt',L>.55);el.classList.toggle('nbDk',L<.09);};
    document.querySelectorAll('#rows .row,#vOpen .bsec,#vOpen .bcta,#vOpen .bgr,#tray .crw,#tray .cgr').forEach(set);
+   // 줄의 채움색이 뒤 띠 색과 같으면(파랑 위 파랑) 채움을 밝게 → 겹쳐도 보이게
+   document.querySelectorAll('#rows .row').forEach((r,i)=>{const rr=r.getBoundingClientRect();if(!rr.height)return;const b=bandAt(Math.max(0,Math.min(H-1,rr.top+rr.height/2-cr.top)));
+     const dim=solo>=0&&b!==solo;r.classList.toggle('nbSame',NOISE[b].c===NOISE[i].c&&!dim);});
    const tr=tray.getBoundingClientRect();tray.classList.toggle('nbLt',bgL(tr.top+20-cr.top)>.55);}
  setInterval(adapt,180);
  window.__nbT={share:a=>{share=a;placeLabs();},solo:i=>{setSolo(i);placeLabs();},sel:i=>{setSel(i);placeLabs();},bar:st=>setBar(st)};
@@ -1647,8 +1650,8 @@ frame();
  ['pointerdown','touchend','click'].forEach(ev=>addEventListener(ev,()=>{try{wake();}catch(_){}} ,true));
 
  const LINES={
-  base:[['베이스','네 가지 노이즈를 쌓아 바탕 소리를 만들어요','색 띠를 위아래로 끌면 비율이 바뀌고','띠를 탭하면 그 소리만 들려요','아래 바를 올리면 자세히 조절해요']],
-  liq:[['리큐르','리큐르는 바탕 소리에 향을 더하는 포인트예요','원을 탭하면 담기고, 길게 누르면 미리 들어요','두 손가락으로 벌리면 진하게, 오므리면 연하게','세 가지까지 담을 수 있어요']]};
+  base:[['베이스 Base','네 가지 노이즈를 쌓아 바탕 소리를 만들어요','색 띠를 위아래로 끌면 비율이 바뀌고','띠를 탭하면 그 소리만 들려요','아래 바를 올리면 자세히 조절해요']],
+  liq:[['리큐르 Liqueur','리큐르는 바탕 소리에 향을 더하는 포인트예요','원을 탭하면 담기고, 길게 누르면 미리 들어요','두 손가락으로 벌리면 진하게, 오므리면 연하게','세 가지까지 담을 수 있어요']]};
  const ready=()=>stage.classList.add('nbReady');
  if(step===1)nbIntro({key:'base',host:stage,title:bl,pages:LINES.base,onDone:ready});else ready();
  const _s=setStep;setStep=function(s){_s(s);if(s===2&&!stage.dataset.nbLiq){stage.dataset.nbLiq='1';nbIntro({key:'liq',host:stage,title:ll,pages:LINES.liq});}};
@@ -1974,6 +1977,7 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
 #stage.s1 .crw.nbLt .nbL small,#stage.s1 .crw.nbLt .nbR,#stage.s1 .crw.nbLt .pv small{color:#141117!important}
 #stage.s1 .crw.nbDk .pv b,#stage.s1 .crw.nbDk .pv b em{color:#fff!important}
 #stage.s1 #tray{touch-action:none}
+#stage.s1 .row.nbSame.sel .trk .f,#stage.s1 .row.nbSame.locked .trk .f{background:linear-gradient(rgba(255,255,255,.38),rgba(255,255,255,.38)),var(--c)!important;box-shadow:0 0 0 .75px rgba(255,255,255,.6),0 2px 8px rgba(0,0,0,.12)!important}
 </style>
 
 <link rel="stylesheet" href="liq2.css">
