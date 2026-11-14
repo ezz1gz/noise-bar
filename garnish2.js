@@ -8,7 +8,14 @@ const BLANK={spark:'<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
 const ORDER=['spark','blossom','fizz','melt'];
 const ITEMS=()=>[...LOOP].filter(w=>w.isConnected).map(w=>w._loop.d);
 const numOf=d=>{if(d.num)return d.num;const f=FAM[d.k];d.num=Math.max(0,f.counts.indexOf(d.n))*12+['S','M','L'].indexOf(d.sz)*4+Math.floor((d.seed||0)*4)+1;return d.num;};
-const blankOf=(k,n,seed,S)=>{const f=FAM[k],P=shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed);return `<svg viewBox="0 0 72 72" width="${S}" height="${S}" fill="none"><path d="${P}" stroke="#7A7A7A" stroke-width="${72/S*.71}" stroke-linecap="round" stroke-dasharray="${72/S*2} ${72/S*2.4}"/></svg>`;};
+// 블라썸 빈칸: 꽃잎 원들을 하나로 합친 바깥선 (겹친 안쪽 선이 점선으로 보이지 않게)
+function lobesOutline(cx,cy,n,R){const pr=R*(n<=4?.5:n<=5?.45:n<=6?.4:.33),cr=R-pr,off=(n===4?Math.PI/4:0),h=Math.PI/n;
+  const t=cr*Math.cos(h)+Math.sqrt(Math.max(0,pr*pr-cr*cr*Math.sin(h)*Math.sin(h)));
+  const V=i=>{const m=-Math.PI/2+off+i*2*Math.PI/n+h;return[cx+t*Math.cos(m),cy+t*Math.sin(m)];};
+  let s='';for(let i=0;i<n;i++){const a=V(i-1),b=V(i),ang=-Math.PI/2+off+i*2*Math.PI/n,c=[cx+cr*Math.cos(ang),cy+cr*Math.sin(ang)];
+    let sp=Math.atan2(b[1]-c[1],b[0]-c[0])-Math.atan2(a[1]-c[1],a[0]-c[0]);while(sp<0)sp+=2*Math.PI;
+    s+=(i?'':`M${a[0].toFixed(2)} ${a[1].toFixed(2)}`)+`A${pr} ${pr} 0 ${sp>Math.PI?1:0} 1 ${b[0].toFixed(2)} ${b[1].toFixed(2)}`;}return s+'Z';}
+const blankOf=(k,n,seed,S)=>{const f=FAM[k],P=k==='blossom'?lobesOutline(36-f.off[0]/2,36-f.off[1]/2,n,23.5):shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed);return `<svg viewBox="0 0 72 72" width="${S}" height="${S}" fill="none"><path d="${P}" stroke="#7A7A7A" stroke-width="${72/S*.71}" stroke-linecap="round" stroke-dasharray="${72/S*2} ${72/S*2.4}"/></svg>`;};
 const fillOf=d=>`<div class="sm">${d.n===FAM[d.k].base?baseMarkup(d.k):variantMarkup(d.k,d.n,d.seed)}</div>`;
 // ── 머리: 윗줄 = 베이스 한 단어 + 리큐르 흐름 / 아랫줄 = 가니쉬 문장 (없으면 베이스 문장)
 const TOT=SH.reduce((a,b)=>a+b,0)||1,SHR={};PK.forEach((k,i)=>SHR[k]=SH[i]/TOT);
@@ -29,19 +36,46 @@ const bar=document.createElement('div');bar.className='g2bar';bar.setAttribute('
 const nx=document.createElement('button');nx.type='button';nx.className='g2next';nx.setAttribute('aria-label','서빙하기');nx.innerHTML='<img src="assets/l2-chev.svg" width="24" height="24" alt="">';
 // ── 시트
 const sh=document.createElement('section');sh.className='g2sheet';sh.setAttribute('aria-label','가니쉬 설정');
-sh.innerHTML='<button type="button" class="grab" id="g2sg" aria-label="닫기"><img src="assets/l2-grab.svg" width="33.5" height="1.5" alt=""></button><div class="g2tabs" id="g2tabs" role="tablist"></div><div class="g2freq" id="g2freq" role="group" aria-label="빈도"></div><div class="g2line"></div><div class="g2vol"><div class="g2pill" id="g2pill" role="slider" tabindex="0" aria-label="볼륨" aria-valuemin="0" aria-valuemax="100"><span>볼륨</span><i id="g2tk"></i></div><b id="g2vp"></b></div><button type="button" class="g2serve" id="g2serve"><span>서빙하기</span><img src="assets/l2-chevw.svg" width="24" height="24" alt=""></button>';
+sh.innerHTML='<button type="button" class="grab" id="g2sg" aria-label="닫기"><img src="assets/l2-grab.svg" width="33.5" height="1.5" alt=""></button><div class="g2tabs" id="g2tabs" role="tablist"></div><div class="g2freq" id="g2freq" role="group" aria-label="빈도"></div><div class="g2line"></div><div class="g2vol"><div class="g2pill" id="g2pill" role="slider" tabindex="0" aria-label="볼륨" aria-valuemin="0" aria-valuemax="100"><i class="g2fill"></i><span id="g2pn">볼륨</span><img class="g2tick" id="g2tk" src="assets/l2-tick.svg" width="1.5" height="13.5" alt=""></div><b id="g2vp"></b></div><button type="button" class="g2serve" id="g2serve"><span>서빙하기</span><img src="assets/l2-chevw.svg" width="24" height="24" alt=""></button>';
 [bar,nx,sh].forEach(e=>{e.dataset.band='bot';ph.appendChild(e);});sh.dataset.band='bot';
 let act=null;
+// 새로 넣은 가니쉬는 빈도·볼륨을 둘 다 정하기 전까지 다른 조작 막음
+const need=()=>ITEMS().find(d=>d._nf||d._nv)||null;
+function nudge(){const d=need();if(!d)return;act=d;ph.classList.add('g2open');render();const m=[];if(d._nf)m.push('빈도');if(d._nv)m.push('볼륨');note([FAM[d.k].n+' '+numOf(d),m.join('·')+'을 먼저 정해요']);}
+const lockGate=e=>{if(!need())return;if(sh.contains(e.target)&&!e.target.closest('#g2sg,#g2serve,.g2tab'))return;if(e.target.closest&&e.target.closest('.nbIntro,.nbNotice'))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(e.type==='pointerdown')nudge();};
+['pointerdown','pointerup','click','touchstart','mousedown'].forEach(t=>addEventListener(t,lockGate,{capture:true,passive:false}));
 const note=t=>{try{nbNotice(t);}catch(_){}};
 function open(){if(!ITEMS().length){note(['가니쉬를 잔에 올려요','탭하거나 끌어서 넣어요']);return;}ph.classList.add('g2open');render();}
-function close(){ph.classList.remove('g2open');}
+function close(){if(need()){nudge();return;}ph.classList.remove('g2open');}
 bar.onclick=open;bar.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
 $('g2sg').onclick=close;
 {let y=null;bar.addEventListener('pointerdown',e=>{y=e.clientY;});$('g2sg').addEventListener('pointerdown',e=>{y=-e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if(y>0&&y-e.clientY>28){y=null;open();}else if(y<0&&e.clientY+y>28){y=null;close();}});addEventListener('pointerup',()=>{y=null;});}
 // 밖(잔·빈 곳)을 누르면 시트 닫기
 ph.addEventListener('pointerdown',e=>{if(ph.classList.contains('g2open')&&!sh.contains(e.target))close();},true);
-function serve(){const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}const q=new URLSearchParams(location.search);
-  q.set('g',L.map(d=>`${d.k}-${d.n}-${d.sz}-f${d.f||3}-v${Math.round((d.vol==null?.6:d.vol)*100)}`).join(','));location.href='name.html?'+q;}
+let serving=false;
+function serve(){const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(need()){nudge();return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
+  q.set('g',L.map(d=>`${d.k}-${d.n}-${d.sz}-f${d.f||3}-v${Math.round((d.vol==null?.6:d.vol)*100)}`).join(','));const go=()=>{location.href='name.html?'+q;};
+  toFront().then(go,go);}
+// 서빙: 위에서 본 원 → 앞에서 본 잔 (글라스 고를 때의 역순) — 원이 림 타원으로 눕고, 납작했던 잔 몸통이 펴지며 나타남
+// 믹스 그림이 없을 때: 고른 베이스·리큐르 색으로 번진 덩어리
+function blobs(bx,by,cid){let cols=[];try{const tot=SH.reduce((a,b)=>a+b,0)||1;cols=PK.map((k,i)=>({c:(window.COCK&&COCK[k])||PC[i],w:SH[i]/tot,k})).filter(x=>x.k!=='white'&&x.w>.02).sort((a,b)=>b.w-a.w).map(x=>x.c);}catch(_){}
+  try{cols=cols.concat(LT||[]);}catch(_){}if(!cols.length)cols=['#ff2294','#4583ff'];const f='gb'+cid;
+  return `<defs><filter id="${f}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter></defs><g clip-path="url(#${cid})"><rect x="${bx}" y="${by}" width="336" height="336" fill="#fff"/><g filter="url(#${f})" opacity=".85">${cols.slice(0,5).map((c,i)=>`<circle cx="${bx+90+((i*97)%170)}" cy="${by+50+((i*61)%150)}" r="${70-i*7}" fill="${c}"/>`).join('')}</g></g>`;}
+async function toFront(){const k=Q.get('gl')||'martini';
+  const [G,F]=await Promise.all([fetch('assets/glass/glasses.json').then(r=>r.json()),fetch('assets/glass/glass-all.svgfrag').then(r=>r.text())]);
+  const g=G.find(x=>x.k===k)||G[0],GXL=28.5,GXT=302,CC=[196.5,422],CR=159,[bx,by]=g.box,sx=GXL-bx,sy=GXT-by,Lp=g.rim[0],Rp=g.rim[1],rx=(Lp[0]+Rp[0])/2+sx,ry=Lp[1]+sy,rw=Rp[0]-Lp[0];
+  ph.classList.remove('g2open');ph.classList.add('g2serving');
+  const lay=document.getElementById('lay'),gl=document.getElementById('gl');let shot=null;try{shot=getMixShot();}catch(_){}
+  const w=document.createElement('div');w.className='g2front';w.style.cssText=`position:absolute;left:${GXL}px;top:${GXT}px;width:336px;height:336px;pointer-events:none;z-index:6;opacity:0`;
+  const cid='g2fc'+Date.now();
+  w.innerHTML=`<svg viewBox="${bx} ${by} 336 336" width="336" height="336" fill="none" style="overflow:hidden" aria-hidden="true"><defs><clipPath id="${cid}"><path d="${g.sil}"/></clipPath></defs>${shot?`<image href="${shot}" x="${bx-40}" y="${by-60}" width="416" height="456" preserveAspectRatio="xMidYMid slice" clip-path="url(#${cid})" opacity=".92"/>`:blobs(bx,by,cid)}${uq(F)}</svg>`;
+  lay.appendChild(w);
+  const D=1150,ez='cubic-bezier(.65,0,.35,1)';
+  gl.style.transformOrigin='50% 50%';
+  const a1=gl.animate([{transform:'none',opacity:1},{opacity:1,offset:.7},{transform:`translate(${rx-CC[0]}px,${ry-CC[1]}px) scale(${rw/(2*CR)},${rw*.12/(2*CR)})`,opacity:0}],{duration:D,delay:250,easing:ez,fill:'forwards'});
+  w.style.transformOrigin=`${rx-GXL}px ${ry-GXT}px`;
+  w.animate([{transform:`translate(${CC[0]-rx}px,${CC[1]-ry}px) scale(${2*CR/rw},.12)`,opacity:0},{opacity:.6,offset:.4},{transform:'none',opacity:1}],{duration:D,delay:250+D*.15,easing:ez,fill:'forwards'});
+  await new Promise(r=>setTimeout(r,250+D*1.15+600));}
 nx.onclick=serve;$('g2serve').onclick=serve;
 function render(){const L=ITEMS();
   // 바: 계열 아이콘(넣은 계열은 채움) · n/3
@@ -49,15 +83,15 @@ function render(){const L=ITEMS();
   $('g2lab').textContent=L.length?`${L.length}/3`:'Garnish';bar.setAttribute('aria-label',`가니쉬 ${L.length}/3 · 설정 열기`);
   if(!L.includes(act))act=L[L.length-1]||null;
   // 탭: 담은 가니쉬 이름 + 소리 번호
-  $('g2tabs').innerHTML='';L.forEach(d=>{const b=document.createElement('button');b.type='button';b.className='g2tab';b.setAttribute('role','tab');b.setAttribute('aria-pressed',String(d===act));b.innerHTML=`<span>${FAM[d.k].n} ${numOf(d)}</span><i></i>`;b.onclick=()=>{act=d;render();};$('g2tabs').appendChild(b);});
+  $('g2tabs').innerHTML='';L.forEach(d=>{const b=document.createElement('button');b.type='button';b.className='g2tab';b.setAttribute('role','tab');b.setAttribute('aria-pressed',String(d===act));b.classList.toggle('need',!!(d._nf||d._nv));b.innerHTML=`<span>${FAM[d.k].n} ${numOf(d)}</span><i></i>`;b.onclick=()=>{act=d;render();};$('g2tabs').appendChild(b);});
   if(!act)return;
   // 빈도 칸 5개: 채운 만큼 자주 울림
   const f=act.f||3;$('g2freq').innerHTML='';for(let i=0;i<5;i++){const b=document.createElement('button');b.type='button';b.className='g2f';b.setAttribute('aria-label',`빈도 ${i+1}/5`);b.setAttribute('aria-pressed',String(i<f));b.innerHTML=i<f?fillOf(act):blankOf(act.k,act.n,act.seed,68);
-    b.onclick=()=>{act.f=i+1;try{playG(act,0);}catch(_){}render();};$('g2freq').appendChild(b);}
-  const v=act.vol==null?.6:act.vol;$('g2tk').style.left=`calc(12px + ${v} * (100% - 24px))`;$('g2vp').textContent=Math.round(v*100)+'%';$('g2pill').setAttribute('aria-valuenow',Math.round(v*100));head();}
+    b.onclick=()=>{act.f=i+1;act._nf=0;render();};$('g2freq').appendChild(b);}
+  const v=act.vol==null?.6:act.vol,P=$('g2pill');P.style.setProperty('--s',v.toFixed(3));P.style.setProperty('--c',`linear-gradient(90deg,${FAM[act.k].c[0]},${FAM[act.k].c[1]})`);$('g2pn').textContent=FAM[act.k].n+' 볼륨';$('g2freq').classList.toggle('need',!!act._nf);P.classList.toggle('need',!!act._nv);$('g2vp').textContent=Math.round(v*100)+'%';$('g2pill').setAttribute('aria-valuenow',Math.round(v*100));head();}
 {const p=$('g2pill');let on=false;const set=e=>{if(!act)return;const r=p.getBoundingClientRect();act.vol=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));render();};
-  p.addEventListener('pointerdown',e=>{on=true;p.setPointerCapture(e.pointerId);set(e);});p.addEventListener('pointermove',e=>{if(on)set(e);});p.addEventListener('pointerup',()=>{on=false;if(act)try{playG(act,0);}catch(_){}});
-  p.addEventListener('keydown',e=>{if(!act)return;const d=(e.key==='ArrowRight'||e.key==='ArrowUp')?.05:(e.key==='ArrowLeft'||e.key==='ArrowDown')?-.05:0;if(d){act.vol=Math.max(0,Math.min(1,(act.vol==null?.6:act.vol)+d));render();}});}
+  p.addEventListener('pointerdown',e=>{on=true;p.classList.add('on');p.setPointerCapture(e.pointerId);set(e);});p.addEventListener('pointermove',e=>{if(on)set(e);});const up=()=>{if(!on)return;on=false;p.classList.remove('on');if(act){act._nv=0;try{playG(act,0);}catch(_){}render();}};p.addEventListener('pointerup',up);p.addEventListener('pointercancel',up);
+  p.addEventListener('keydown',e=>{if(!act)return;const d=(e.key==='ArrowRight'||e.key==='ArrowUp')?.05:(e.key==='ArrowLeft'||e.key==='ArrowDown')?-.05:0;if(d){act.vol=Math.max(0,Math.min(1,(act.vol==null?.6:act.vol)+d));act._nv=0;render();}});}
 // 잔 속 가니쉬를 잡아 잔 밖으로 끌어내면 빠짐
 function pullOut(w){let st=null;const k=()=>ph.getBoundingClientRect().width/393;
   w.addEventListener('pointerdown',e=>{e.stopPropagation();w.setPointerCapture(e.pointerId);const m=(w.style.transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/)||[0,0,0]);st={x0:e.clientX,y0:e.clientY,tx:+m[1],ty:+m[2],s:w.offsetWidth};w.style.zIndex=5;});
@@ -65,9 +99,9 @@ function pullOut(w){let st=null;const k=()=>ph.getBoundingClientRect().width/393
     const cx=st.tx+dx+st.s/2,cy=st.ty+dy+st.s/2,out=Math.hypot(cx-159,cy-159)>159;w.style.opacity=out?'.35':'';});
   const end=e=>{if(!st)return;const dx=(e.clientX-st.x0)/k(),dy=(e.clientY-st.y0)/k(),cx=st.tx+dx+st.s/2,cy=st.ty+dy+st.s/2;const o=st;st=null;w.style.zIndex='';
     if(Math.hypot(cx-159,cy-159)>159-o.s*.15){LOOP.delete(w);w.animate([{opacity:.35},{opacity:0,transform:w.style.transform+' scale(.6)'}],{duration:260}).onfinish=()=>{w.remove();render();};try{note([FAM[w._loop.d.k].n+' 가니쉬를 뺐어요']);}catch(_){} }
-    else{w.style.opacity='';if(Math.hypot(dx,dy)<6){act=w._loop.d;render();}}};
+    else{w.style.opacity='';if(Math.hypot(dx,dy)<6){act=w._loop.d;ph.classList.add('g2open');render();}}};
   w.addEventListener('pointerup',end);w.addEventListener('pointercancel',end);}
-window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;act=d;pullOut(w);setTimeout(render,30);},serve};
+window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;d._nf=1;d._nv=1;act=d;pullOut(w);setTimeout(()=>{ph.classList.add('g2open');render();note([FAM[d.k].n+' '+numOf(d),'빈도와 볼륨을 정해요']);},380);},serve};
 // 잔에서 빠질 때(3개 넘게 넣으면 오래된 것 빠짐)도 갱신
 setInterval(()=>{const k=ITEMS().length;if(k!==render._k){render._k=k;render();}},400);
 head();render();

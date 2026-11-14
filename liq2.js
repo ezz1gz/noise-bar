@@ -37,7 +37,7 @@ function head(){$$('l2ph').textContent=character()[0]+' 소리';}
 // 안내 문구·타이틀 이동은 intro.js(nbIntro)가 함 → 끝나면 문장을 띄움
 function enter(){head();L2.open=false;S.classList.remove('l2open');S.classList.add('l2intro');clearTimeout(L2.introT);
   L2.introT=setTimeout(()=>{if(!S.querySelector('.nbIntro'))S.classList.remove('l2intro');},120);render();}
-addEventListener('nbintro:done',e=>{if(e.detail==='liq')setTimeout(()=>S.classList.remove('l2intro'),120);});
+addEventListener('nbintro:done',e=>{if(e.detail==='liq'){setTimeout(()=>S.classList.remove('l2intro'),120);clearTimeout(L2.autoT);L2.autoT=setTimeout(()=>{if(step===2&&!L2.open&&!ld().length)openSheet();},700);}});
 function leave(){clearTimeout(L2.introT);S.classList.remove('l2intro','l2open');L2.open=false;}
 const _set=setStep;setStep=function(s){const was=step;_set(s);if(s===2&&was!==2)enter();else if(s!==2)leave();};
 

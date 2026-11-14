@@ -39,3 +39,23 @@
 .g2pill i{position:absolute;top:11px;width:1.5px;height:12px;border-radius:1px;background:#656565;margin-left:-.75px;pointer-events:none}
 .g2vol b{position:absolute;left:287px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:400;letter-spacing:-.28px;color:#000;font-variant-numeric:tabular-nums}
 .g2serve{display:flex;align-items:center;justify-content:center;gap:6px;width:329px;height:42px;border-radius:100px;border:0;cursor:pointer;background:rgba(0,0,0,.8);color:#fff;font:inherit;font-size:14px;font-weight:500;letter-spacing:-.28px;box-shadow:inset 0 0 10px rgba(0,0,0,.05)}
+
+/* 볼륨: 베이스·리큐르와 같은 방식 — 평소엔 눈금만, 누르는 동안 색 채움 + 검은 선 */
+.g2pill{background:transparent!important;box-shadow:none!important;overflow:hidden;border-radius:5px;padding:0 0 0 12px!important}
+.g2pill .g2fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px;width:calc(72px + var(--s,0) * (100% - 72px));background:transparent;transition:background .15s,width .08s;pointer-events:none}
+.g2pill.on .g2fill{background:var(--c)}
+.g2pill::after{content:'';position:absolute;inset:0;border-radius:5px;box-shadow:inset 0 0 0 1px #000;opacity:0;transition:opacity .15s;pointer-events:none;z-index:3}
+.g2pill.on::after{opacity:1}
+.g2pill span{position:relative;z-index:2;font-size:12px;letter-spacing:-.02em}
+.g2pill .g2tick{position:absolute;top:10.25px;left:calc(72px + var(--s,0) * (100% - 72px) - 12px);margin-left:-1px;z-index:2;pointer-events:none;filter:invert(1)}
+.g2pill.on .g2tick{visibility:hidden}
+/* 아직 안 정한 칸 살짝 깜빡임 */
+.g2freq.need,.g2pill.need{animation:g2need 1.4s ease-in-out infinite}
+@keyframes g2need{50%{opacity:.55}}
+.g2tab.need span::after{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:#ff3b30;margin-left:4px;vertical-align:middle}
+.g2pill i.g2fill{top:0!important;bottom:0!important;height:auto!important;margin:0!important;border-radius:5px!important}
+
+/* 서빙 전환: 원(잔) 말고 나머지는 먼저 사라짐 */
+.g2serving>*:not(.lay):not(.gnb):not(#gnb){transition:opacity .3s;opacity:0!important;pointer-events:none}
+.g2serving .lay>*:not(.gl):not(.g2front){transition:opacity .3s;opacity:0!important}
+.g2serving .ing{transition:opacity .25s;opacity:0!important}
