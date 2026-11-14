@@ -180,6 +180,9 @@ html:not(.phone) body:not(.vOpen) .vol{opacity:0!important;pointer-events:none;t
 html:not(.phone) .seaUI{top:auto;right:calc(var(--us,.5)*181px);bottom:calc(var(--us,.5)*90px);transition:opacity .25s,transform .25s;flex-direction:column-reverse}
 html:not(.phone) body:not(.sOpen) .seaUI{opacity:0!important;pointer-events:none;transform:translateX(12px)}
 #ui .btn[aria-pressed="true"]{background:rgba(255,255,255,.42)}
+
+html:not(.phone) .labels .m.drop .v2{animation:nbDrop 1.3s cubic-bezier(.45,1.45,.8,1) both}
+@keyframes nbDrop{0%{transform:translateY(-55vh);opacity:0}25%{opacity:1}100%{transform:none;opacity:1}}
 </style></head><body>
 <a class="mkBack" href="../index.html">＋ 만들기</a>
 
@@ -445,7 +448,7 @@ MIXES.forEach((m,i)=>{
 });
 
 // ── 조절값
-const DEF={spread:100,glow:100,goo:100,wash:35,washR:45,size:130,gap:85,flow:70,swirl:70,grain:0,sat:100};
+const DEF={spread:100,glow:85,goo:100,wash:15,washR:35,size:95,gap:100,flow:45,swirl:50,grain:12,sat:110};
 const PRESETS={
   gradient:{...DEF,zoom:200,drift:25},
   metaball:{spread:12,glow:8,goo:55,size:95,gap:100,flow:45,swirl:50,grain:12,sat:110,wash:15,washR:35},
@@ -605,7 +608,7 @@ MIXES.forEach(m=>{const d=document.createElement('div');d.className='m';
 let focused=null;
 function focus(m){
   focused=m;stage.classList.add('focus');MIXES.forEach(v=>v.el.classList.toggle('on',v===m));
-  const[x,y]=wrapPos(m);cam.vx=cam.vy=0;anim={tx:cam.x+(x-W*.6),ty:cam.y+(y-H*.3)};
+  const[x,y]=wrapPos(m);cam.vx=cam.vy=0;anim={tx:cam.x+(x-W*(PHONE?.6:.5)),ty:cam.y+(y-H*(PHONE?.3:.5))};
   
   $('sortbar').hidden=true;$('detail').hidden=false;$('rings').hidden=false;
   $('dTag').textContent=m.tag.split(' · ')[0]+' BASE · 리큐르 '+m.lq.split(' · ')[0];
@@ -690,7 +693,7 @@ function buildScene(t){
     m.balls.forEach(b=>{if(n>=MAXB)return;
       const wob=1+.28*Math.sin(t*b.sp+b.ph);const ang=b.a+t*b.sp*.35;
       const d=b.d*CR*wob*(b.sat?1:1);
-      ballBuf.set([m.sp[0]+Math.cos(ang)*d,m.sp[1]+Math.sin(ang)*d,baseR*b.rf*(b.sat?1:1+.08*Math.sin(t*b.sp*1.3+b.ph)),si*3+b.ci],n*4);n++;});
+      const dk=dropK(m);ballBuf.set([m.sp[0]+Math.cos(ang)*d*dk.s,m.sp[1]+Math.sin(ang)*d*dk.s+dk.y,baseR*b.rf*dk.s*(b.sat?1:1+.08*Math.sin(t*b.sp*1.3+b.ph)),si*3+b.ci],n*4);n++;});
   });
   return{n,fslot};
 }
@@ -726,7 +729,7 @@ function placeLabels(){
 }
 
 // ═══ 소리의 바다 (PC) · BuilD '수치 · 수정' 패널
-S.drift=25;DEF.drift=25;Object.assign(DEF,{hue:0,bright:0,contrast:100,warm:0});['hue','bright','contrast','warm'].forEach(k=>{if(S[k]===undefined)S[k]=DEF[k];});Object.values(PRESETS).forEach(p=>{['hue','bright','contrast','warm'].forEach(k=>{if(p[k]===undefined)p[k]=DEF[k];});});S.zoom=200;DEF.zoom=200;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=200;});
+S.drift=25;DEF.drift=25;Object.assign(DEF,{hue:0,bright:27,contrast:100,warm:10});['hue','bright','contrast','warm'].forEach(k=>{S[k]=DEF[k];});Object.values(PRESETS).forEach(p=>{['hue','bright','contrast','warm'].forEach(k=>{if(p[k]===undefined)p[k]=DEF[k];});});S.zoom=200;DEF.zoom=200;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=200;});
 const CFGKEY='nb-sea-cfg2';
 try{const sv=JSON.parse(localStorage.getItem(CFGKEY)||'null');if(sv)for(const k in DEF)if(typeof sv[k]==='number')S[k]=sv[k];}catch(_){}
 const SL2=[['경계',[['spread','퍼짐',0,100],['glow','번짐',0,100],['goo','뭉침',0,100]]],['물듦',[['wash','물듦',0,100],['washR','물듦 범위',0,100]]],
@@ -873,7 +876,7 @@ function pingW(d,w){if(!AC||!master||w<.05)return;const a=AC,t=a.currentTime+.01
   const tone=d.k==='spark'?[1318,1568,1760,2093][st]:d.k==='blossom'?[523,587,659,784][st]:d.k==='melt'?[180,220,262,311][st]:2600+st*900;
   const o=a.createOscillator(),g=a.createGain();o.type=d.k==='fizz'?'triangle':'sine';o.frequency.setValueAtTime(d.k==='melt'?tone*1.9:tone,t);if(d.k==='melt')o.frequency.exponentialRampToValueAtTime(tone,t+.09);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*(d.k==='fizz'?.12:.28),t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+(d.k==='blossom'?1:.3));o.connect(g);g.connect(master);o.start(t);o.stop(t+1.2);}
-return{playLive,stopLive,voice,ping:pingW,per:k=>PER[k]};})();
+return{playLive,stopLive,voice,ping:pingW,per:k=>PER[k],lby:k=>LBY[k]};})();
 // 기존 재생에 리큐르·가니쉬도 같이
 
 // 처음 한 번 아무 데나 클릭하면 소리가 켜져요 (브라우저 정책)
@@ -901,10 +904,10 @@ function ambTick(dt,now){if(!AC||AC.state!=='running'){return;}ambInit();const Z
 placeLabels=function(){MIXES.forEach(m=>{const el=m.el;if(!m.vis||!m.sp){el.style.visibility='hidden';return;}el.style.visibility='';el.classList.remove('r');const k=1+.35*Math.pow(Math.min(1,(m.hear||0)*1.15),1.5);el.style.transform=`translate(${m.sp[0]}px,${m.sp[1]}px) translate(-50%,-5px) scale(${k.toFixed(3)})`;el.style.transformOrigin='50% 5px';el.style.zIndex=String(Math.round((m.hear||0)*100)+(m.live?50:0));el.classList.toggle('act',Math.hypot(m.sp[0]-EAR.x,m.sp[1]-EAR.y)<EAR.r*.85);});
   const dd=2*EAR.r;ear.style.width=ear.style.height=dd+'px';ear.style.transform=`translate(${EAR.x-EAR.r}px,${EAR.y-EAR.r}px)`;};
 // 듣는 원 움직이기: 마우스를 따라감 · 가만두면 화면 가운데로 · 믹스를 누르거나 새 믹스가 오면 그 믹스에 붙음
-stage.addEventListener('pointermove',e=>{const r=stage.getBoundingClientRect(),Zv=(r.width/REFW)*((S.zoom||170)/170);EAR.tx=(e.clientX-r.left)/Zv;EAR.ty=(e.clientY-r.top)/Zv;EAR.last=performance.now()/1000;EAR.anchor=null;});
+stage.addEventListener('pointermove',e=>{const r=stage.getBoundingClientRect(),Zv=(r.width/REFW)*((S.zoom||170)/170);EAR.last=performance.now()/1000;if(EAR.anchor&&!EAR.anchor.live)EAR.anchor=null;});
 playMix=function(m){EAR.anchor=m;EAR.last=performance.now()/1000;playing=true;setPlayIcon();};
 stopMix=function(){EAR.anchor=null;playing=false;setPlayIcon();};
-function earTick(dt,now){if(EAR.anchor&&EAR.anchor.sp){EAR.tx=EAR.anchor.sp[0];EAR.ty=EAR.anchor.sp[1];}else if(now-EAR.last>6){EAR.tx=W/2;EAR.ty=H/2;}
+function earTick(dt,now){if(EAR.anchor&&EAR.anchor.sp){EAR.tx=EAR.anchor.sp[0];EAR.ty=EAR.anchor.sp[1];}else{EAR.tx=W/2;EAR.ty=H/2;}
   if(!EAR.init){EAR.x=EAR.tx=W/2;EAR.y=EAR.ty=H/2;EAR.init=1;}const k=1-Math.exp(-dt*6);EAR.x+=(EAR.tx-EAR.x)*k;EAR.y+=(EAR.ty-EAR.y)*k;}
 // ═══ Ocean UI (Figma 32:10564)
 const UI=document.getElementById('ui');
@@ -954,6 +957,38 @@ placeLabels=function(){if(document.documentElement.classList.contains('phone'))r
  bs.addEventListener('click',e=>{e.stopPropagation();set(false,!B.classList.contains('sOpen'));});
  addEventListener('keydown',e=>{if(e.key==='Escape')set(false,false);});
  [document.querySelector('.vol'),document.querySelector('.seaUI')].forEach(x=>x&&x.addEventListener('pointerdown',e=>e.stopPropagation()));}
+
+// ═══ 드롭 (폰에서 새로 온 잔) · 색 = 실제 레시피 · 샘플 레시피 채우기 · 가운데 활성화
+const DROP_T=1.3;
+function bounce(u){const n=7.5625,d=2.75;if(u<1/d)return n*u*u;if(u<2/d)return n*(u-=1.5/d)*u+.75;if(u<2.5/d)return n*(u-=2.25/d)*u+.9375;return n*(u-=2.625/d)*u+.984375;}
+function dropK(m){if(!m.dropT)return{s:1,y:0};const u=(performance.now()/1000-m.dropT)/DROP_T;if(u>=1){m.dropT=0;return{s:1,y:0};}
+  const e=bounce(Math.max(0,u));return{s:.35+.65*Math.min(1,u*1.6),y:-(1-e)*H*.55};}
+function dropIn(m){m.dropT=performance.now()/1000;if(m.el){m.el.classList.remove('drop');void m.el.offsetWidth;m.el.classList.add('drop');setTimeout(()=>m.el&&m.el.classList.remove('drop'),1500);}}
+setTimeout(()=>{const fa=window.feedAdd;window.feedAdd=function(m,fly){if(fly)dropIn(m);if(fa)return fa.apply(this,arguments);};},0);
+// 메타볼 색 = 베이스 비율(3칸을 비율대로 나눔) + 리큐르 한 방울(톤)
+const MBC={pink:'#FF2294',white:'#F4F0F7',blue:'#4583FF',brown:'#C95F19'};
+function hx3(h){h=h.replace('#','');return[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255);}
+function slots(b){const ks=['pink','white','blue','brown'],tot=b.reduce((a,x)=>a+(x||0),0)||1,q=ks.map((k,i)=>({k,v:(b[i]||0)/tot*3}));
+  q.forEach(o=>o.n=Math.floor(o.v));let left=3-q.reduce((a,o)=>a+o.n,0);q.slice().sort((x,y)=>(y.v-y.n)-(x.v-x.n)).forEach(o=>{if(left>0&&o.v>0){o.n++;left--;}});
+  const out=[];q.sort((x,y)=>y.v-x.v).forEach(o=>{for(let i=0;i<o.n;i++)out.push(o.k);});while(out.length<3)out.push(out[0]||'white');return out.slice(0,3);}
+function recipeOf(m){if(m.live)return m.live;if(m._rec)return m._rec;
+  const lk=(typeof liqKeys==='function'?liqKeys(m):[]).map(x=>x[0]);const G={Tick:['spark',5],Drop:['fizz',10],Leaf:['blossom',5],Spark:['spark',6],Star:['spark',8]};
+  const g=[];const mm=(m.gn||'').match(/^(\w+)\s*×(\d)/);if(mm&&G[mm[1]]){for(let i=0;i<+mm[2];i++)g.push({k:G[mm[1]][0],n:G[mm[1]][1]+ (i?1:0),sz:'M'});}
+  return m._rec={lk,lv:lk.map(()=>.55),g};}
+function recolor(m){const r=recipeOf(m),lq=r.lk&&r.lk[0]&&LIVE.lby(r.lk[0]);const lc=lq?lq.c:null;const key=m.b.join(',')+'|'+lc;if(m._ck===key)return;m._ck=key;
+  const sl=slots(m.b);m.hexCol=[MBC[sl[0]],MBC[sl[1]],lc||MBC[sl[2]]];
+  m.col=sl.map(k=>{const a=hx3(MBC[k]);if(!lc)return a;const c=hx3(lc);return a.map((v,i)=>v*.82+c[i]*.18);});}
+// 카드: 샘플도 실제 레시피로
+{const _fc=fillCard;fillCard=function(m){_fc(m);const r=recipeOf(m);const $c=id=>document.getElementById(id);
+  if(r.lk&&r.lk.length){const l=LIVE.lby(r.lk[0]);if(l){const c=l.c;$c('cLiq').innerHTML=`<span class="ld" style="background:radial-gradient(circle,${c} 0%,${c}83 58%,${c}00 100%)"></span><span></span>`;$c('cLiq').lastChild.textContent=l.n;}}
+  const gl=$c('cGar');gl.innerHTML='';(r.g.length?r.g:[]).slice(0,3).forEach(x=>gl.appendChild(garIcon(x.k,x.n)));if(!r.g.length)gl.textContent='—';};}
+// 샘플 가니쉬도 소리 나게
+setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()/1000;MIXES.forEach(m=>{if(m.live)return;const r=recipeOf(m),w=m.hear||0;if(!r.g.length||w<.05)return;
+  m._gn=m._gn||r.g.map((_,i)=>now+.5+i*.4+Math.random());r.g.forEach((g,i)=>{if(now>=m._gn[i]){m._gn[i]=now+LIVE.per(g.k);LIVE.ping(g,w);}});});},60);
+// 가운데에 가장 가까운 믹스가 활성 (클릭하면 그 믹스)
+{const _pl=placeLabels;placeLabels=function(){MIXES.forEach(recolor);if(document.documentElement.classList.contains('phone'))return _pl();
+  const cx=W/2,cy=H/2;let best=null,bd=1e9;MIXES.forEach(m=>{if(!m.vis||!m.sp)return;const d=Math.hypot(m.sp[0]-cx,m.sp[1]-cy);if(d<bd){bd=d;best=m;}});
+  const keep=MIXES.map(m=>m.hear);MIXES.forEach(m=>m.hear=(EAR.anchor&&EAR.anchor.vis)?(m===EAR.anchor?1:0):(m===best&&bd<Math.min(W,H)*.45?1:0));_pl();MIXES.forEach((m,i)=>m.hear=keep[i]);};}
 
 function frame(){
   const now=performance.now()/1000,dt=Math.min(now-last,1/30);last=now;
