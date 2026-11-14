@@ -386,7 +386,8 @@ function drag(el){let st=null;const s=()=>SIZES[el._d.sz];
   el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);ac();playG(el._d,(el._x/393)*2-1);const[px,py]=pt(e);st={ox:px-el._x,oy:py-el._y,x0:px,y0:py,moved:false};el.classList.add('drag');});
   el.addEventListener('pointermove',e=>{if(!st)return;const[px,py]=pt(e);if(Math.hypot(px-st.x0,py-st.y0)>5)st.moved=true;place(el,px-st.ox,py-st.oy,s());});
   const end=e=>{if(!st)return;const moved=st.moved;st=null;el.classList.remove('drag');const inG=Math.hypot(el._x-GC[0],el._y-GC[1])<GR;
-    if(inG||!moved){const tx=inG?el._x:GC[0]+(Math.random()-.5)*120,ty=inG?el._y:GC[1]+(Math.random()-.5)*120;
+    const full=(inG||!moved)&&glass.children.length>=3;if(full&&window.nbNotice)nbNotice(['가니쉬는 세 개까지 넣을 수 있어요']);
+    if((inG||!moved)&&!full){const tx=inG?el._x:GC[0]+(Math.random()-.5)*120,ty=inG?el._y:GC[1]+(Math.random()-.5)*120;
       el.style.pointerEvents='none';el.animate([{transform:el.style.transform,opacity:1},{transform:`translate(${tx-s()/2}px,${ty-s()/2}px) scale(.62)`,opacity:.3}],{duration:moved?220:520,easing:'cubic-bezier(.4,0,.6,1)'}).onfinish=()=>{el.remove();toGlass(el,tx,ty);setTimeout(()=>spawn(el._slot,true),260);};}
     else{const sl=SLOTS[el._slot];const back=[el._x,el._y];el.animate([{transform:el.style.transform},{transform:`translate(${sl.x-s()/2}px,${sl.y-s()/2}px)`}],{duration:420,easing:'cubic-bezier(.45,1.45,.8,1)'});place(el,sl.x,sl.y,s());}};
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
@@ -416,5 +417,5 @@ document.getElementById('bk').onclick=()=>go('glass.html');
 document.getElementById('nx').onclick=()=>{const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='name.html?'+q;};
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'garnish',title:'auto',lines:["가니쉬", "잔 위에 가니쉬를 올려", "소리에 작은 반짝임을 더해보아요."]}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'garnish',title:'auto',pages:[["가니쉬", "잔 위에 가니쉬를 올려", "소리에 작은 반짝임을 더해보아요."], ["조작법", "가니쉬를 탭하거나 끌어서 잔에 올려요", "세 개까지 올릴 수 있어요"]]}),250));</script>
 </body></html>

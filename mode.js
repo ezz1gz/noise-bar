@@ -94,7 +94,7 @@
     document.documentElement.classList.toggle('nb-muted', m);
     var st = document.getElementById('stage'); if (st) st.classList.toggle('muted', m);
     if (document.getElementById('vol') && document.body) document.body.classList.toggle('muted', m);
-    ['gVol', 'snd', 'vol'].forEach(function (id) { var b = document.getElementById(id); if (b) { b.setAttribute('aria-pressed', String(!m)); b.setAttribute('aria-label', m ? '소리 켜기' : '소리 끄기'); } });
+    ['gVol', 'snd', 'vol'].forEach(function (id) { var b = document.getElementById(id); if (b) { b.setAttribute('aria-pressed', String(!m)); b.setAttribute('aria-label', m ? '소리 켜기' : '소리 끄기'); b.classList.toggle('off', m); } });
   }
   setInterval(apply, 150);
   window.__nbToggleMute = function () { setM(!getM()); unlock(); };

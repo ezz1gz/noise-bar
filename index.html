@@ -263,7 +263,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#dcd8e1;color:var(--in
 .st-l2 .v-liq .chip{background:rgba(255,255,255,.55);color:#141117;box-shadow:inset 0 0 0 1px rgba(20,17,23,.1)}
 .st-l2 .v-liq .chip .d{box-shadow:none}
 .st-l2 .chip.more{background:rgba(255,255,255,.55);color:#141117;box-shadow:inset 0 0 0 1px rgba(20,17,23,.25)}
-.st-l2 .lqg.full .chip,.st-l2 .lqg.full .tile{opacity:.4}
+
 .st-l2 .tile{background:rgba(255,255,255,.55);color:#141117;box-shadow:inset 0 0 0 1px rgba(20,17,23,.1)}
 .st-l2 .lqgrip i{background:rgba(20,17,23,.22)}
 .st-l2 .lqhd span{color:#141117}
@@ -420,7 +420,7 @@ button:focus-visible{outline:2px solid #e2468f;outline-offset:2px}
 .st-l2 .v-liq .chip.in .d,.st-l2 .tile.in .d{width:10px;height:10px}
 .st-l2 .v-liq .chip.prev,.st-l2 .tile.prev{transform:scale(1.04);background:#fff}
 .st-l2 .v-liq .chip.plus{width:40px;padding:0;justify-content:center;background:#000;color:#fff;box-shadow:0 0 5px rgba(0,0,0,.05)}
-.st-l2 .lqg.full .chip:not(.in):not(.plus),.st-l2 .lqg.full .tile:not(.in){opacity:.4}
+
 /* 펼침 타일 103×64 r15 · 열 간격 12 · 행 간격 10 · 점 위 가운데(위 13.5) · 이름 아래 가운데 */
 .st-l2 .lqg.mid,.st-l2 .lqg.big{flex:0 1 auto!important;min-height:0;display:grid;grid-template-columns:repeat(3,103px);column-gap:12px;row-gap:10px;padding:6px 16px 6px;margin-bottom:-6px;overflow-x:hidden;overflow-y:auto;align-content:start;-webkit-mask:none;mask:none}
 .st-l2 .lqh{grid-column:1/-1;font-size:12px;font-weight:500;color:#555;opacity:1;margin:4px 0 0}
@@ -1102,7 +1102,7 @@ function startPreview(l,b){preview=l;lastPrev=l;b.classList.add('prev');listen(`
 function stopPreview(){if(!preview)return;preview=null;grid.querySelectorAll('.prev').forEach(c=>c.classList.remove('prev'));hideListen();}
 // 고르면: 방울이 칩에서 튀어 올라 잔에 똑
 function pick(l,b){const ex=lives().find(x=>x.k===l.k);if(ex){focus=ex;ex.mk.classList.remove('pulse');void ex.mk.offsetWidth;ex.mk.classList.add('pulse');showTheme(l);updLiq();return;}
-  if(lives().length>=MAXL){toast(`잔엔 ${MAXL}가지까지 · 아래에서 하나를 빼면 담을 수 있어요`);return;}
+  if(lives().length>=MAXL){window.nbNotice?nbNotice(['리큐르는 세 가지까지 넣을 수 있어요','방울을 아래 바로 끌어 놓으면 빼고 다시 고를 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`);return;}
   const sr=stage.getBoundingClientRect(),r=b.getBoundingClientRect(),x0=r.left-sr.left+r.height/2,y0=r.top-sr.top+r.height/2;
   const TOPS=246,BOT=Math.max(TOPS,CH-40),cy=y=>Math.max(TOPS,Math.min(BOT,y)),by=cy((TOPS+BOT)/2),slots=[[W*.5,by],[W*.27,cy(by+50)],[W*.73,cy(by-30)],[W*.5,cy(by+90)]];const sp=slots.find(([sx,sy])=>lives().every(x=>Math.hypot(x.x-sx,x.y-sy)>70))||slots[0];
   const xt=sp[0]+(Math.random()-.5)*20,yt=sp[1],peak=Math.max(HEADB+30,yt-150);
@@ -1548,12 +1548,23 @@ frame();
    const top=bandAt(Math.min(120,H*.14));stage.classList.toggle('nbDk',(solo>=0&&solo!==top)||stage.classList.contains('bgD'));
  }catch(e){}};
  placeLabs();
+ // 뒤 색 밝기에 따라 글자색 자동 (띠 색 + 그 소리만 듣기 어둡게를 계산)
+ const LUM={};const lum=hex=>{if(LUM[hex]!=null)return LUM[hex];const v=[1,3,5].map(k=>parseInt(hex.slice(k,k+2),16)/255);return LUM[hex]=v;};
+ const lin=c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4);
+ function bgL(y){const b=bandAt(Math.max(0,Math.min(H-1,y)));let v=lum(NOISE[b].c);if(solo>=0&&b!==solo)v=v.map(c=>c*.513);const l=v.map(lin);return .2126*l[0]+.7152*l[1]+.0722*l[2];}
+ function adapt(){if(step!==1)return;const cr=cv.getBoundingClientRect();
+   const set=(el)=>{if(!el)return;const r=el.getBoundingClientRect();if(!r.height)return;const L=bgL(r.top+r.height/2-cr.top);el.classList.toggle('nbLt',L>.55);el.classList.toggle('nbDk',L<.09);};
+   document.querySelectorAll('#rows .row,#vOpen .bsec,#vOpen .bcta,#vOpen .bgr,#tray .crw,#tray .cgr').forEach(set);
+   const tr=tray.getBoundingClientRect();tray.classList.toggle('nbLt',bgL(tr.top+20-cr.top)>.55);}
+ setInterval(adapt,180);
+ window.__nbT={share:a=>{share=a;placeLabs();},solo:i=>{setSolo(i);placeLabs();},sel:i=>{setSel(i);placeLabs();},bar:st=>setBar(st)};
+
  const LINES={
-  base:['베이스','네 가지 노이즈를 쌓아','나만의 바탕 소리를 만들어보아요.'],
-  liq:['리큐르','쌓은 베이스 위에','포인트를 줄 리큐르를 따라보아요.']};
+  base:[['베이스','네 가지 노이즈를 쌓아','나만의 바탕 소리를 만들어보아요.'],['조작법','색 띠를 위아래로 끌면 비율이 바뀌어요','띠를 탭하면 그 소리만 들려요','아래 바를 밀어 올리면 자세히 조절해요']],
+  liq:[['리큐르','쌓은 베이스 위에','포인트를 줄 리큐르를 따라보아요.'],['조작법','아래 선반에서 리큐르를 탭하거나 끌어 놓아요','길게 누르면 미리 들어볼 수 있어요']]};
  const ready=()=>stage.classList.add('nbReady');
- if(step===1)nbIntro({key:'base',host:stage,title:bl,lines:LINES.base,onDone:ready});else ready();
- const _s=setStep;setStep=function(s){_s(s);if(s===2&&!stage.dataset.nbLiq){stage.dataset.nbLiq='1';nbIntro({key:'liq',host:stage,title:ll,lines:LINES.liq});}};
+ if(step===1)nbIntro({key:'base',host:stage,title:bl,pages:LINES.base,onDone:ready});else ready();
+ const _s=setStep;setStep=function(s){_s(s);if(s===2&&!stage.dataset.nbLiq){stage.dataset.nbLiq='1';nbIntro({key:'liq',host:stage,title:ll,pages:LINES.liq});}};
 })();
 
 })();
@@ -1849,6 +1860,27 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
 #stage.s1 .bcta{width:auto!important;margin:30px 0 0!important}
 #stage.s1 .bnext{height:42px!important;border-radius:21px!important;background:rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .75px rgba(255,255,255,.8)!important;color:#fff!important;font-size:13px!important;font-weight:400!important;gap:8px!important}
 #stage.s1 .bnext img{filter:brightness(0) invert(1);width:16px;height:16px}
+/* 조작하지 않는 줄도 흐려지지 않게 — 시트 안 투명도 변화 없음 */
+#stage.s1 #rows .row,#stage.s1 #rows.soloing .row,#stage.s1 #rows .row .trk,#stage.s1 #rows .row .trk .f,#stage.s1 #rows .row .pc,#stage.s1 #rows .row .fn,#stage.s1 .bch{opacity:1!important}
+/* 선택 줄 테두리는 채움 위에 */
+#stage.s1 .row .trk::after{content:"";position:absolute;inset:0;border-radius:5px;pointer-events:none;z-index:3}
+#stage.s1 .row.sel .trk{box-shadow:none!important}
+#stage.s1 .row.sel:not(.locked) .trk::after{box-shadow:inset 0 0 0 1px #000}
+/* 뒤가 밝으면 글자를 어둡게(nbLt) · 아주 어두우면 밝게(nbDk) */
+#stage.s1 .row.nbLt:not(.sel):not(.locked) .fn,#stage.s1 .row.nbLt.isw .fn{color:#555!important}
+#stage.s1 .row.nbLt .fh img{filter:brightness(0) opacity(.55)}
+#stage.s1 .row.nbLt.isw.locked .trk .f,#stage.s1 .row.nbLt.isw.sel .trk .f{box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)!important}
+#stage.s1 .row.nbDk .pc,#stage.s1 .row.nbDk .pc em{color:#fff!important}
+#stage.s1 .row.nbDk.sel:not(.locked) .trk::after{box-shadow:inset 0 0 0 1px #fff}
+#stage.s1 .bsec.nbLt{border-top-color:rgba(0,0,0,.25)!important}
+#stage.s1 .bsec.nbLt .bch:not([aria-pressed="true"]){color:#141117!important}
+#stage.s1 .bsec.nbLt .bch:not([aria-pressed="true"]) .bic img{filter:brightness(0)}
+#stage.s1 .bcta.nbLt .bnext{color:#141117!important;box-shadow:inset 0 0 0 .75px rgba(0,0,0,.4)!important}
+#stage.s1 .bcta.nbLt .bnext img{filter:brightness(0)}
+#stage.s1 .bgr.nbLt img,#stage.s1 .cgr.nbLt img{filter:brightness(0) opacity(.35)}
+#stage.s1 #tray.nbLt{box-shadow:0 6px 30px rgba(0,0,0,.18),inset 0 0 0 .75px rgba(0,0,0,.15)!important}
+#stage.s1 .crw.nbLt .nbL small,#stage.s1 .crw.nbLt .nbR,#stage.s1 .crw.nbLt .pv small{color:#141117!important}
+#stage.s1 .crw.nbDk .pv b,#stage.s1 .crw.nbDk .pv b em{color:#fff!important}
 </style>
 
 <link rel="stylesheet" href="liq2.css">
