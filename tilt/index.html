@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NØISE BAR · 청감 모드 소리 시범</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-:root{--ink:#141117;--mute:#8a8590;--line:#e8e5ec;--pk:#FF2D8A}
+:root{--ink:#141117;--mute:#8a8590;--pk:#FF2D8A}
 *{box-sizing:border-box}
-body{margin:0;background:#f6f4f8;color:var(--ink);font:14px/1.5 Pretendard,'Noto Sans KR',system-ui,sans-serif}
+body{margin:0;background:#f6f4f8;color:var(--ink);font:14px/1.5 Pretendard,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
 .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px}
-@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+@media(max-width:860px){.wrap{grid-template-columns:1fr;padding:18px 14px 40px}}
 h1{grid-column:1/-1;margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
 .lead{grid-column:1/-1;margin:-10px 0 0;color:var(--mute)}
-.stage{position:relative;background:linear-gradient(160deg,#4a86f0,#9a6ad8 55%,#e58aa8);border-radius:22px;aspect-ratio:4/5;overflow:hidden;touch-action:none;cursor:grab}
+.stage{position:relative;background:radial-gradient(120% 90% at 50% 40%,#2b2340,#120f1a);border-radius:22px;aspect-ratio:1/1;overflow:hidden;touch-action:none;cursor:grab}
 .stage:active{cursor:grabbing}
 canvas{width:100%;height:100%;display:block}
-.hud{position:absolute;left:16px;right:16px;bottom:14px;display:flex;justify-content:space-between;color:#fff;font-size:12px;text-shadow:0 1px 6px rgba(0,0,0,.25);pointer-events:none}
-.hint{position:absolute;left:0;right:0;top:16px;text-align:center;color:#fff;font-size:13px;opacity:.9;pointer-events:none;text-shadow:0 1px 6px rgba(0,0,0,.25)}
+.hint{position:absolute;left:0;right:0;top:14px;text-align:center;color:#fff;font-size:13px;opacity:.75;pointer-events:none}
+.hud{position:absolute;left:16px;right:16px;bottom:12px;display:flex;justify-content:space-between;color:#fff;opacity:.75;font-size:12px;pointer-events:none}
 .panel{background:#fff;border-radius:20px;padding:18px;box-shadow:0 0 0 1px rgba(20,17,23,.06),0 14px 40px rgba(40,20,50,.08);display:grid;gap:16px;align-content:start}
-.grp>b{display:block;font-size:11px;color:var(--mute);font-weight:600;margin-bottom:6px;letter-spacing:.02em}
+.grp>b{display:block;font-size:11px;color:var(--mute);font-weight:600;margin-bottom:6px}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:#f0eef2;border-radius:12px;padding:3px}
 .seg button,.chips button{font:inherit;border:0;background:transparent;border-radius:9px;height:34px;cursor:pointer;color:#555}
 .seg button[aria-pressed=true]{background:var(--ink);color:#fff}
@@ -24,154 +23,190 @@ canvas{width:100%;height:100%;display:block}
 .chips button{background:#f0eef2;height:auto;padding:8px 10px;text-align:left;line-height:1.35}
 .chips button small{display:block;color:var(--mute);font-size:11px}
 .chips button[aria-pressed=true]{background:var(--ink);color:#fff}.chips button[aria-pressed=true] small{color:#cfcad6}
-.tog{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer}
-.tog input{accent-color:var(--pk);width:16px;height:16px}
-.tog small{color:var(--mute)}
-input[type=range]{width:100%;accent-color:var(--ink)}
+.tog{display:flex;align-items:flex-start;gap:8px;padding:5px 0;cursor:pointer}
+.tog input{accent-color:var(--pk);width:16px;height:16px;margin-top:2px}
+.tog small{display:block;color:var(--mute);font-size:11.5px}
 .row{display:flex;gap:8px}
-.btn{flex:1;font:600 14px Pretendard,sans-serif;height:44px;border-radius:22px;border:0;cursor:pointer;background:#f0eef2;color:var(--ink)}
+.btn{flex:1;font:600 14px inherit;font-family:inherit;height:44px;border-radius:22px;border:0;cursor:pointer;background:#f0eef2;color:var(--ink)}
 .btn.pri{background:var(--ink);color:#fff}
 .btn.pk{background:var(--pk);color:#fff}
-.now{font-size:12.5px;color:#4a4550;background:#f7f5f9;border-radius:12px;padding:10px 12px;line-height:1.6;min-height:70px}
+.btn[aria-pressed=true]{background:#6b4cff;color:#fff}
+.now{font-size:12.5px;color:#4a4550;background:#f7f5f9;border-radius:12px;padding:10px 12px;line-height:1.65;min-height:76px}
 .now b{color:var(--ink)}
-.dis .tog,.dis .grp.nw{opacity:.4;pointer-events:none}
+.dis .nw{opacity:.4;pointer-events:none}
 </style></head><body>
 <div class="wrap">
-<h1>청감 모드 · 소리 시범</h1>
-<p class="lead">샘플 잔: 브라운 50 · 핑크 50 베이스 + 리큐르 파도(숨)·시계(박자) + 가니쉬 SPARK. 이어폰을 끼면 차이가 훨씬 잘 들려요.</p>
-<div class="stage" id="stage"><canvas id="cv"></canvas><div class="hint" id="hint">좌우로 끌거나 폰을 기울여 보세요</div><div class="hud"><span id="hT">기울기 0°</span><span id="hS"></span></div></div>
+<h1>청감 모드 · 360° 소리 시범</h1>
+<p class="lead">위에서 내려다본 잔이에요. 가운데가 듣는 나(코가 위쪽 = 앞)예요. 이어폰을 꼭 끼고 들어보세요. 샘플 잔: 브라운 50·핑크 50 + 리큐르 파도·시계 + 가니쉬 SPARK.</p>
+<div class="stage" id="stage"><canvas id="cv"></canvas><div class="hint" id="hint">기울이고 싶은 방향으로 끌어보세요 · 폰은 직접 기울이기</div><div class="hud"><span id="hT"></span><span id="hS"></span></div></div>
 <aside class="panel">
-  <div class="row"><button class="btn pri" id="play">▶ 소리 켜기</button><button class="btn pk" id="shake">흔들기</button></div>
-  <div class="grp"><b>비교</b><div class="seg"><button id="mOld" aria-pressed="false">지금 방식</button><button id="mNew" aria-pressed="true">새 방식</button></div></div>
-  <div class="grp nw"><b>잔 — 기울일 때 반응을 정해요</b><div class="chips" id="glasses"></div></div>
-  <div class="grp nw" id="effs"><b>효과</b>
-    <label class="tog"><input type="checkbox" id="eLayer" checked><span>① 재료가 층으로 쏟아지기 <small>기운 쪽 재료가 앞으로</small></span></label>
-    <label class="tog"><input type="checkbox" id="eSink" checked><span>② 잔 속으로 잠기기 <small>많이 기울이면 먹먹하게</small></span></label>
-    <label class="tog"><input type="checkbox" id="eRim" checked><span>③ 림 공명 <small>기울기 따라 음높이 미끄러짐</small></span></label>
-    <label class="tog"><input type="checkbox" id="eSlosh" checked><span>④ 출렁임 <small>흔들면 쏴아 · 벽에 닿으면 가니쉬</small></span></label>
+  <div class="row"><button class="btn pri" id="play">▶ 소리 켜기</button><button class="btn" id="swirl" aria-pressed="false">↻ 스월링</button><button class="btn pk" id="shake">흔들기</button></div>
+  <div class="grp"><b>비교</b><div class="seg"><button id="mOld" aria-pressed="false">지금 방식 (좌우만)</button><button id="mNew" aria-pressed="true">새 방식 (360°)</button></div></div>
+  <div class="grp nw"><b>잔 — 재료가 어떻게 움직이고 다가오는지 정해요</b><div class="chips" id="glasses"></div></div>
+  <div class="grp nw"><b>효과</b>
+    <label class="tog"><input type="checkbox" id="eNear" checked><span>리큐르·가니쉬가 다가오기<small>기울일수록 귀 가까이 — 크고 또렷하고 마른 소리로</small></span></label>
+    <label class="tog"><input type="checkbox" id="eHeight" checked><span>높이 층<small>베이스는 아래, 리큐르는 귀 높이, 가니쉬는 위에서</small></span></label>
+    <label class="tog"><input type="checkbox" id="eSlosh" checked><span>출렁임<small>흔들면 재료가 나를 한 바퀴 휘돌고, 잔 벽에 닿으면 가니쉬가 울려요</small></span></label>
   </div>
-  <div class="grp"><b>기울기</b><input type="range" id="tilt" min="-60" max="60" value="0" step="1" aria-label="기울기"></div>
-  <div class="now" id="now">소리를 켜고 기울여 보세요.</div>
+  <div class="row" id="calRow" hidden><button class="btn" id="cal">지금 자세를 똑바로로</button></div>
+  <div class="now" id="now">소리를 켜고 화면을 끌거나 스월링을 눌러보세요.</div>
 </aside>
 </div>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-// ── 잔 4종: 글라스 = 청감 모드 반응을 정하는 설정
+// 잔: k = 따라오는 빠르기, near = 얼마나 가까이 오는지, conv = 재료가 한쪽으로 모이는 정도, spread = 기본 벌어짐, verb = 잔 몸통 울림, lag = 재료끼리 시차
 const GL={
- flute:{n:'좁은 림',s:'플루트 · 하이볼',need:.55,curve:1.9,width:.35,f0:2600,q:9,oct:1.3,sink:1,verb:.08,slosh:.6,shape:'flute'},
- snifter:{n:'모으는 잔',s:'스니프터 · 튤립',need:.4,curve:1.2,width:.15,f0:900,q:4,oct:.8,sink:.8,verb:.18,slosh:.8,warm:1,shape:'snifter'},
- rocks:{n:'퍼뜨리는 잔',s:'락 · 쿠페',need:.2,curve:.6,width:1,f0:1500,q:1.2,oct:.6,sink:.45,verb:.05,slosh:.7,shape:'rocks'},
- wine:{n:'둥근 볼',s:'와인',need:.35,curve:1,width:.6,f0:620,q:2.4,oct:1,sink:.75,verb:.32,slosh:1.4,shape:'wine'}};
-let glass='wine',mode='new',tilt=0,tTarget=0,slosh=0,sloshV=0,held=0;
-Object.entries(GL).forEach(([k,g])=>{const b=document.createElement('button');b.dataset.k=k;b.setAttribute('aria-pressed',String(k===glass));b.innerHTML=`${g.n}<small>${g.s}</small>`;b.onclick=()=>{glass=k;[...$('glasses').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));held=0;};$('glasses').appendChild(b);});
-$('mOld').onclick=()=>{mode='old';$('mOld').setAttribute('aria-pressed','true');$('mNew').setAttribute('aria-pressed','false');document.querySelector('.panel').classList.add('dis');};
-$('mNew').onclick=()=>{mode='new';$('mNew').setAttribute('aria-pressed','true');$('mOld').setAttribute('aria-pressed','false');document.querySelector('.panel').classList.remove('dis');};
+ flute:{n:'좁은 림',s:'플루트 · 하이볼',k:7,near:.85,conv:.95,spread:.7,verb:.12,lag:.2,rim:.55},
+ snifter:{n:'모으는 잔',s:'스니프터 · 튤립',k:4,near:.75,conv:1,spread:1.2,verb:.22,lag:.35,warm:1,rim:.7},
+ rocks:{n:'퍼뜨리는 잔',s:'락 · 쿠페',k:9,near:.45,conv:.35,spread:2.4,verb:.08,lag:.1,rim:.95},
+ wine:{n:'둥근 볼',s:'와인',k:2.4,near:.7,conv:.7,spread:1.6,verb:.38,lag:.7,rim:.8}};
+let glass='wine',mode='new',swirl=false,held=0;
+Object.entries(GL).forEach(([k,g])=>{const b=document.createElement('button');b.dataset.k=k;b.setAttribute('aria-pressed',String(k===glass));b.innerHTML=`${g.n}<small>${g.s}</small>`;b.onclick=()=>{glass=k;[...$('glasses').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));held=0;if(AC)setVerb();};$('glasses').appendChild(b);});
+const panel=document.querySelector('.panel');
+$('mOld').onclick=()=>{mode='old';$('mOld').setAttribute('aria-pressed','true');$('mNew').setAttribute('aria-pressed','false');panel.classList.add('dis');setModel();};
+$('mNew').onclick=()=>{mode='new';$('mNew').setAttribute('aria-pressed','true');$('mOld').setAttribute('aria-pressed','false');panel.classList.remove('dis');setModel();};
+$('swirl').onclick=()=>{swirl=!swirl;$('swirl').setAttribute('aria-pressed',String(swirl));};
 const E=id=>$(id).checked;
+
+// ── 재료 3층: 위치(x,y: 잔 반지름 1 기준, 위 = 앞), 속도
+const LY={
+ base:{n:'베이스',c:[240,120,80],w:.6,off:0,el:-.55},
+ liq:{n:'리큐르',c:[95,165,255],w:1,off:2.1,el:0},
+ gar:{n:'가니쉬',c:[255,255,255],w:1.5,off:-2.1,el:.7}};
+for(const k in LY)Object.assign(LY[k],{x:0,y:0,vx:0,vy:0});
+
 // ── 오디오
 let AC=null,N={};
-function buf(sec,fn,target=.12){const sr=AC.sampleRate,n=Math.round(sec*sr),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0);fn(d,sr,n);let s=0;for(let i=0;i<n;i++)s+=d[i]*d[i];const k=target/(Math.sqrt(s/n)||1);for(let i=0;i<n;i++)d[i]*=k;return b;}
-const pinkF=(d,n)=>{let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;for(let i=0;i<n;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=b0+b1+b2+b3+b4+b5+b6+w*.5362;b6=w*.115926;}};
-function loop(b,dest){const s=AC.createBufferSource();s.buffer=b;s.loop=true;s.connect(dest);s.start(0,Math.random()*b.duration);return s;}
-function impulse(sec,decay){const sr=AC.sampleRate,n=sr*sec,b=AC.createBuffer(2,n,sr);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay);}return b;}
-function start(){
+function genBuf(sec,fn,target=.12){const sr=AC.sampleRate,n=Math.round(sec*sr),b=AC.createBuffer(1,n,sr),d=b.getChannelData(0);fn(d,sr,n);let s=0;for(let i=0;i<n;i++)s+=d[i]*d[i];const k=target/(Math.sqrt(s/n)||1);for(let i=0;i<n;i++)d[i]*=k;const f=Math.round(sr*.05);for(let i=0;i<f;i++){const a=i/f;d[i]=d[i]*a+d[n-f+i]*(1-a);}return b;}
+const brownGen=(d,n,k=.02)=>{let l=0;for(let i=0;i<n;i++){l=(l+k*(Math.random()*2-1))/(1+k);d[i]=l;}};
+async function loadOr(url,fallback){try{const r=await fetch(url);if(!r.ok)throw 0;const b=await AC.decodeAudioData(await r.arrayBuffer());return seam(b);}catch(_){return fallback();}}
+function seam(b){const sr=b.sampleRate,n=b.length,f=Math.round(sr*.8);for(let c=0;c<b.numberOfChannels;c++){const d=b.getChannelData(c);for(let i=0;i<f;i++){const a=i/f;d[i]=d[i]*Math.sqrt(a)+d[n-f+i]*Math.sqrt(1-a);}}return b;}
+function loop(b,dest,g=1){const s=AC.createBufferSource(),gn=AC.createGain();gn.gain.value=g;s.buffer=b;s.loop=true;s.loopEnd=b.duration-.8;s.connect(gn);gn.connect(dest);s.start(0,Math.random()*(b.duration-2));return s;}
+function impulse(sec,decay){const sr=AC.sampleRate,n=sr*sec,b=AC.createBuffer(2,n,sr);for(let c=0;c<2;c++){const d=b.getChannelData(c);let lp=0;for(let i=0;i<n;i++){lp+=((Math.random()*2-1)-lp)*.35;d[i]=lp*Math.pow(1-i/n,decay);}}return b;}
+function setVerb(){N.verb.buffer=impulse(.8+GL[glass].verb*6,2.6);}
+function setModel(){if(!AC)return;for(const k in N.L)N.L[k].p.panningModel=mode==='new'?'HRTF':'equalpower';}
+async function start(){
  AC=new (window.AudioContext||window.webkitAudioContext)();const A=AC;
- // 체인: 층별 → (림 공명 · 잠김 · 지금방식 셸프) → 잔향 → 출력
- N.out=A.createGain();N.out.gain.value=.85;N.out.connect(A.destination);
- N.verb=A.createConvolver();N.verb.buffer=impulse(1.8,3);N.vWet=A.createGain();N.vWet.gain.value=.1;N.verb.connect(N.vWet);N.vWet.connect(N.out);
- N.sink=A.createBiquadFilter();N.sink.type='lowpass';N.sink.frequency.value=18000;N.sink.Q.value=.7;
- N.rim=A.createBiquadFilter();N.rim.type='peaking';N.rim.frequency.value=1000;N.rim.Q.value=2;N.rim.gain.value=0;
- N.hs=A.createBiquadFilter();N.hs.type='highshelf';N.hs.frequency.value=3000;N.ls=A.createBiquadFilter();N.ls.type='lowshelf';N.ls.frequency.value=250;
- N.warm=A.createBiquadFilter();N.warm.type='lowshelf';N.warm.frequency.value=320;N.warm.gain.value=0;
- N.bus=A.createGain();N.bus.connect(N.rim);N.rim.connect(N.warm);N.warm.connect(N.hs);N.hs.connect(N.ls);N.ls.connect(N.sink);N.sink.connect(N.out);N.sink.connect(N.verb);
- const layer=(pan)=>{const g=A.createGain(),f=A.createBiquadFilter(),p=A.createStereoPanner();f.type='lowpass';f.frequency.value=18000;g.connect(f);f.connect(p);p.connect(N.bus);return{g,f,p};};
+ N.out=A.createGain();N.out.gain.value=.9;
+ const comp=A.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;
+ N.master=A.createBiquadFilter();N.master.type='lowpass';N.master.frequency.value=11000;N.master.Q.value=.5;
+ N.warm=A.createBiquadFilter();N.warm.type='lowshelf';N.warm.frequency.value=300;N.warm.gain.value=0;
+ N.dry=A.createGain();N.dry.connect(N.warm);N.warm.connect(N.master);N.master.connect(comp);comp.connect(N.out);N.out.connect(A.destination);
+ N.verb=A.createConvolver();setVerb();N.vOut=A.createGain();N.vOut.gain.value=.9;N.verb.connect(N.vOut);N.vOut.connect(N.warm);
+ const layer=()=>{const g=A.createGain(),f=A.createBiquadFilter(),near=A.createBiquadFilter(),p=A.createPanner(),s=A.createGain();
+  f.type='lowpass';f.frequency.value=16000;f.Q.value=.5;near.type='lowshelf';near.frequency.value=220;near.gain.value=0;
+  p.panningModel='HRTF';p.distanceModel='linear';p.rolloffFactor=0;p.refDistance=1;p.maxDistance=100;
+  g.connect(f);f.connect(near);near.connect(p);p.connect(N.dry);near.connect(s);s.connect(N.verb);return{g,f,near,p,s};};
  N.L={base:layer(),liq:layer(),gar:layer()};
- // 베이스: 브라운 50 + 핑크 50
- const brown=buf(4,(d,sr,n)=>{let l=0;for(let i=0;i<n;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l;}}),pink=buf(4,(d,sr,n)=>pinkF(d,n));
- const bg=A.createGain();bg.gain.value=.42;bg.connect(N.L.base.g);loop(brown,bg);const pg=A.createGain();pg.gain.value=.36;pg.connect(N.L.base.g);loop(pink,pg);
- // 리큐르: 파도(숨) + 시계(박자)
- const waves=buf(16,(d,sr,n)=>{let l=0;for(let i=0;i<n;i++){const t=i/sr,w=Math.random()*2-1;l=(l+.02*w)/1.02;const ph=(t%8)/8;d[i]=(l*3+w*.08)*(.12+.88*Math.pow(Math.max(0,Math.sin(Math.PI*ph)),1.8));}});
- const clock=buf(8,(d,sr,n)=>{for(let k=0;k<16;k++){const st=Math.round(k*.5*sr),f=k%2?1800:2600;for(let j=0;j<sr*.06&&st+j<n;j++){const t=j/sr;d[st+j]+=(Math.sin(2*Math.PI*f*t)*.6+(Math.random()*2-1)*.5)*Math.exp(-t*90);}}},.08);
- const wg=A.createGain();wg.gain.value=.9;wg.connect(N.L.liq.g);loop(waves,wg);const cg=A.createGain();cg.gain.value=.55;cg.connect(N.L.liq.g);loop(clock,cg);
- // 출렁임 쏴아 (밴드 노이즈)
- const wn=buf(3,(d,sr,n)=>{for(let i=0;i<n;i++)d[i]=Math.random()*2-1;});N.sw=A.createGain();N.sw.gain.value=0;N.swF=A.createBiquadFilter();N.swF.type='bandpass';N.swF.frequency.value=900;N.swF.Q.value=.8;
- const s=loop(wn,N.swF);N.swF.connect(N.sw);N.sw.connect(N.bus);
- gTimer();}
-function ping(v=1,f=1568){if(!AC)return;const t=AC.currentTime+.01;[1,2.76].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f*m;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16*v/(i+1),t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.9-i*.3);o.connect(g);g.connect(N.L.gar.g);o.start(t);o.stop(t+1);});}
-function gTimer(){let k=0;setInterval(()=>{if(AC&&AC.state==='running'){ping(.9,[1318,1568,1760,2093][k++%4]);}},1600);}
-$('play').onclick=async()=>{if(!AC)start();if(AC.state==='running'){await AC.suspend();$('play').textContent='▶ 소리 켜기';}else{await AC.resume();$('play').textContent='❚❚ 소리 끄기';}
- if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){try{await DeviceOrientationEvent.requestPermission();}catch(_){}}};
-$('shake').onclick=()=>{sloshV+=2.2*(Math.random()<.5?-1:1);slosh=Math.max(slosh,.9);};
-// ── 기울기 입력: 끌기 · 슬라이더 · 폰 기울기
-const st=$('stage');let drag=null;
-st.addEventListener('pointerdown',e=>{st.setPointerCapture(e.pointerId);drag={x:e.clientX,t:tTarget};});
-st.addEventListener('pointermove',e=>{if(!drag)return;tTarget=Math.max(-60,Math.min(60,drag.t+(e.clientX-drag.x)*.35));$('tilt').value=Math.round(tTarget);});
-st.addEventListener('pointerup',()=>drag=null);
-$('tilt').oninput=e=>tTarget=+e.target.value;
-addEventListener('deviceorientation',e=>{if(e.gamma==null)return;tTarget=Math.max(-60,Math.min(60,e.gamma));$('tilt').value=Math.round(tTarget);});
-let lastAcc=0;addEventListener('devicemotion',e=>{const a=e.accelerationIncludingGravity;if(!a)return;const m=Math.hypot(a.x||0,a.y||0,a.z||0);const d=Math.abs(m-lastAcc);lastAcc=m;if(d>6){sloshV+=d*.08*(Math.random()<.5?-1:1);slosh=Math.min(1.4,slosh+d*.05);}});
-// ── 매 프레임: 기울기 → 소리
-const set=(p,v,tc=.06)=>p.setTargetAtTime(v,AC.currentTime,tc);
-let lastWall=0,txt='';
-function audio(dt){if(!AC)return;const g=GL[glass],t=tilt/60,a=Math.abs(t),L=N.L;
- if(mode==='old'){ // 지금 방식: 좌우 + 고/저음 셸프만
-  ['base','liq','gar'].forEach(k=>{set(L[k].g.gain,1);set(L[k].f.frequency,18000);set(L[k].p.pan,t*.8);});
-  set(N.hs.gain,t*6);set(N.ls.gain,-t*6);set(N.rim.gain,0);set(N.sink.frequency,18000);set(N.vWet.gain,.06);set(N.warm.gain,0);set(N.sw.gain,0);
-  txt='<b>지금 방식</b> · 기울인 쪽으로 소리가 옮겨 가고 고음/저음만 살짝 바뀌어요.';return;}
- set(N.hs.gain,0);set(N.ls.gain,0);
- // 잔이 정하는 반응: need = 반응 시작 기울기, curve = 반응 곡선
- const r=Math.pow(Math.max(0,(a-g.need*.35)/(1-g.need*.35)),g.curve)*Math.sign(t);   // −1..1
- // ① 층: 왼쪽 = 바닥의 베이스가 앞으로, 오른쪽 = 위쪽의 리큐르·가니쉬가 떠오름
- if(E('eLayer')){const down=Math.max(0,-r),up=Math.max(0,r);
-  set(L.base.g.gain,1+.9*down-.75*up);set(L.base.f.frequency,18000*Math.pow(.06,up));
-  set(L.liq.g.gain,1+.8*up-.7*down);set(L.liq.f.frequency,18000*Math.pow(.08,down));
-  set(L.gar.g.gain,1+1.2*up-.8*down);set(L.gar.f.frequency,18000*Math.pow(.1,down));
-  set(L.base.p.pan,-r*g.width*.9);set(L.liq.p.pan,r*g.width*.6);set(L.gar.p.pan,r*g.width);}
- else ['base','liq','gar'].forEach(k=>{set(L[k].g.gain,1);set(L[k].f.frequency,18000);set(L[k].p.pan,r*g.width*.8);});
- // ② 잠김: 많이 기울일수록 먹먹하게 (잔마다 세기)
- const deep=Math.max(0,(a-.55)/.45)*g.sink;set(N.sink.frequency,E('eSink')?18000*Math.pow(.025,deep):18000,.08);set(N.sink.Q.value!==undefined?N.sink.Q:N.sink.Q,E('eSink')?.7+deep*5:.7);
- // ③ 림 공명: 기울기 따라 음높이가 미끄러짐
- set(N.rim.frequency,g.f0*Math.pow(2,r*g.oct));set(N.rim.Q,g.q);set(N.rim.gain,E('eRim')?6+8*Math.min(1,a*1.4):0);
- // 모으는 잔: 오래 들고 있으면 따뜻해짐
- held=g.warm?Math.min(1,held+dt*(a>.1?.06:-.12)):0;set(N.warm.gain,held*9,.3);
- // 잔향 = 잔 몸통
- set(N.vWet.gain,g.verb+deep*.25);
- // ④ 출렁임
- set(N.sw.gain,E('eSlosh')?Math.min(.9,slosh*.55)*g.slosh:0,.03);set(N.swF.frequency,500+slosh*1600+r*400);
- txt=`<b>${g.n}</b> · `+(a<.08?'잔을 세우면 모든 재료가 고르게 들려요.':r<-.05?`왼쪽 → 바닥의 <b>베이스</b>가 앞으로, 리큐르는 멀어져요.`:r>.05?`오른쪽 → 위쪽의 <b>리큐르·가니쉬</b>가 떠올라요.`:`이 잔은 더 기울여야 반응해요.`)+(deep>.05&&E('eSink')?' 잔 속으로 잠겨 먹먹해져요.':'')+(held>.3?' 손 온도로 따뜻해지는 중.':'')+(slosh>.2&&E('eSlosh')?' 출렁!':'');}
-// ── 그림: 잔이 기울고 액체 면은 수평 유지, 재료는 층으로
+ // 실제 녹음된 브라운·핑크 노이즈
+ const [brown,pink]=await Promise.all([loadOr('brown.mp3',()=>genBuf(8,(d,sr,n)=>brownGen(d,n))),loadOr('pink.mp3',()=>genBuf(8,(d,sr,n)=>brownGen(d,n,.06)))]);
+ loop(brown,N.L.base.g,.9);loop(pink,N.L.base.g,.75);
+ // 리큐르: 파도(숨) + 시계(박자) — 앱과 같은 합성
+ const waves=genBuf(16,(d,sr,n)=>{let l=0;for(let i=0;i<n;i++){const t=i/sr,w=Math.random()*2-1;l=(l+.02*w)/1.02;const ph=(t%8)/8;d[i]=(l*3+w*.03)*(.12+.88*Math.pow(Math.max(0,Math.sin(Math.PI*ph)),1.8));}});
+ const clock=genBuf(8,(d,sr,n)=>{for(let k=0;k<16;k++){const st=Math.round(k*.5*sr),f=k%2?1200:1600;for(let j=0;j<sr*.08&&st+j<n;j++){const t=j/sr;d[st+j]+=(Math.sin(2*Math.PI*f*t)*.8+Math.sin(2*Math.PI*f*.5*t)*.4)*Math.exp(-t*60);}}},.07);
+ loop(waves,N.L.liq.g,1.1);loop(clock,N.L.liq.g,.6);
+ setModel();gTimer();}
+function bell(v=1,f=1046.5){if(!AC)return;const t=AC.currentTime+.01;[[1,1],[2.01,.35],[3.0,.12]].forEach(([m,a])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f*m;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.14*v*a,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+1.6/m);o.connect(g);g.connect(N.L.gar.g);o.start(t);o.stop(t+1.8);});}
+const NOTES=[1046.5,1318.5,1568,1174.7,1396.9];
+function gTimer(){let k=0;setInterval(()=>{if(AC&&AC.state==='running')bell(.9,NOTES[k++%NOTES.length]);},1500);}
+$('play').onclick=async()=>{
+ if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){try{await DeviceOrientationEvent.requestPermission();}catch(_){}}
+ if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){try{await DeviceMotionEvent.requestPermission();}catch(_){}}
+ if(!AC){$('play').textContent='불러오는 중…';await start();await AC.resume();$('play').textContent='❚❚ 소리 끄기';return;}
+ if(AC.state==='running'){await AC.suspend();$('play').textContent='▶ 소리 켜기';}else{await AC.resume();$('play').textContent='❚❚ 소리 끄기';}};
+function kick(p){for(const k in LY){const L=LY[k],a=Math.random()*Math.PI*2;L.vx+=Math.cos(a)*p*L.w;L.vy+=Math.sin(a)*p*L.w;}}
+$('shake').onclick=()=>kick(5);
+
+// ── 기울기 입력 (2D): 끌기 · 폰 기울기 · 스월링
+const st=$('stage');let drag=false,tx=0,ty=0,ori=null,cal={b:40,g:0},swA=-Math.PI/2;
+const toV=e=>{const r=st.getBoundingClientRect(),R=r.width*.4;let x=(e.clientX-r.left-r.width/2)/R,y=(e.clientY-r.top-r.height/2)/R;const m=Math.hypot(x,y);if(m>1){x/=m;y/=m;}tx=x;ty=y;};
+st.addEventListener('pointerdown',e=>{st.setPointerCapture(e.pointerId);drag=true;swirl=false;$('swirl').setAttribute('aria-pressed','false');toV(e);});
+st.addEventListener('pointermove',e=>{if(drag)toV(e);});
+const up=()=>{drag=false;};st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
+addEventListener('deviceorientation',e=>{if(e.gamma==null||Math.abs(e.beta||0)+Math.abs(e.gamma)<.5)return;ori={b:e.beta,g:e.gamma};$('calRow').hidden=false;});
+$('cal').onclick=()=>{if(ori)cal={...ori};};
+let lastAcc=null;addEventListener('devicemotion',e=>{const a=e.acceleration;if(!a||a.x==null)return;const m=Math.hypot(a.x,a.y,a.z);if(m>9&&(!lastAcc||performance.now()-lastAcc>300)){lastAcc=performance.now();kick(Math.min(7,m*.4));}});
+let vx=0,vy=0; // 실제 기울기(부드럽게)
+function input(dt){let ix=0,iy=0;
+ if(drag){ix=tx;iy=ty;}
+ else if(swirl){swA+=dt*2.4;ix=Math.cos(swA)*.7;iy=Math.sin(swA)*.7;}
+ else if(ori){ix=Math.max(-1,Math.min(1,(ori.g-cal.g)/40));iy=Math.max(-1,Math.min(1,-(ori.b-cal.b)/40));const m=Math.hypot(ix,iy);if(m>1){ix/=m;iy/=m;}}
+ const a=1-Math.exp(-dt*(drag?14:5));vx+=(ix-vx)*a;vy+=(iy-vy)*a;}
+
+// ── 물리: 기울인 쪽으로 액체가 쏠림 → 재료마다 다른 목표점, 스프링으로 따라감
+let theta=-Math.PI/2,lastHit=0;
+function physics(dt){const g=GL[glass],m=Math.min(1,Math.hypot(vx,vy));if(m>.04){let d=Math.atan2(vy,vx)-theta;d=Math.atan2(Math.sin(d),Math.cos(d));theta+=d*Math.min(1,dt*10);}
+ for(const k in LY){const L=LY[k];let ang,rad;
+  if(mode==='old'){ang=-Math.PI/2;rad=0;L.tx=vx*.9;L.ty=-.6;}
+  else{
+   const near=E('eNear')?g.near:0;
+   if(k==='base'){ang=theta;rad=.2+.6*m;}             // 무거운 베이스: 기운 쪽 바닥으로 쏠림
+   else{ang=theta+L.off*(g.spread/2.1)*(1-g.conv*m)*(1);rad=(.92-near*m)*(k==='gar'?1:.95);} // 리큐르·가니쉬: 기울수록 한쪽에 모이며 귀 가까이
+   L.tx=Math.cos(ang)*rad;L.ty=Math.sin(ang)*rad;}
+  const kk=g.k*(1+L.w*.4)*(1-g.lag*(L.w-1)*.3),damp=E('eSlosh')?2*Math.sqrt(kk)*.45:2*Math.sqrt(kk);
+  L.vx+=((L.tx-L.x)*kk-L.vx*damp)*dt;L.vy+=((L.ty-L.y)*kk-L.vy*damp)*dt;L.x+=L.vx*dt;L.y+=L.vy*dt;
+  const r=Math.hypot(L.x,L.y);if(r>1){ // 잔 벽
+   const nx=L.x/r,ny=L.y/r,vn=L.vx*nx+L.vy*ny;L.x=nx;L.y=ny;if(vn>0){L.vx-=1.6*vn*nx;L.vy-=1.6*vn*ny;
+    if(E('eSlosh')&&mode==='new'&&vn>.8&&performance.now()-lastHit>220){lastHit=performance.now();bell(Math.min(1,vn*.5),NOTES[(Math.random()*5)|0]*2*.5);}}}}}
+
+// ── 위치 → 소리
+const set=(p,v,tc=.05)=>p.setTargetAtTime(v,AC.currentTime,tc);
+function audio(dt){if(!AC)return;const g=GL[glass];
+ for(const k in LY){const L=LY[k],n=N.L[k],d=Math.min(1,Math.hypot(L.x,L.y));
+  // 거리 1 = 잔 끝(멀리), 0 = 귀 바로 옆
+  const S=3,px=L.x*S,pz=L.y*S,py=(mode==='new'&&E('eHeight'))?L.el*S*.8:0;
+  const mag=Math.max(.35,Math.hypot(px,py,pz));const fx=px/mag*Math.max(.35,mag),fy=py/mag*Math.max(.35,mag),fz=pz/mag*Math.max(.35,mag);
+  if(n.p.positionX){set(n.p.positionX,fx);set(n.p.positionY,fy);set(n.p.positionZ,fz);}else n.p.setPosition(fx,fy,fz);
+  if(mode==='old'){set(n.g.gain,k==='base'?1:.8);set(n.f.frequency,16000);set(n.near.gain,0);set(n.s.gain,.12);continue;}
+  const close=1-d; // 가까울수록 1
+  const base=k==='base'?1:.85;
+  set(n.g.gain,base*(.28+1.25*Math.pow(close,1.6)));            // 크기
+  set(n.f.frequency,1800*Math.pow(16000/1800,Math.pow(close,.7))); // 멀면 어둡게
+  set(n.near.gain,k==='base'?0:7*Math.pow(close,2));               // 가까우면 근접 저음(귀 옆 느낌)
+  set(n.s.gain,.05+.85*d*d*(.5+g.verb*1.5));}                      // 멀면 잔 울림 속으로
+ held=g.warm?Math.min(1,held+dt*.07):0;set(N.warm.gain,held*7,.3);}
+
+// ── 설명
+function describe(){const g=GL[glass],m=Math.hypot(vx,vy);
+ if(!AC)return;if(mode==='old')return '<b>지금 방식</b> · 소리가 왼쪽·오른쪽으로만 옮겨 가요. 앞뒤·위아래·가까움이 없어요.';
+ const dir=['오른쪽으로','오른쪽 뒤로','뒤로','왼쪽 뒤로','왼쪽으로','왼쪽 앞으로','앞으로','오른쪽 앞으로'][((Math.round(theta/(Math.PI/4))%8)+8)%8];
+ const dl=Math.hypot(LY.liq.x,LY.liq.y),dg=Math.hypot(LY.gar.x,LY.gar.y);
+ let s=`<b>${g.n}</b> · `;
+ if(m<.08&&!swirl)s+='잔을 세우면 리큐르·가니쉬는 멀리 둘레에서, 베이스는 바로 앞 아래에서 들려요.';
+ else s+=`<b>${dir}</b> 기울임 → 베이스가 그쪽 바닥으로 쏠리고, `+(E('eNear')?`리큐르(${dl<.45?'<b>귀 바로 옆</b>':dl<.75?'가까이':'멀리'})·가니쉬(${dg<.45?'<b>귀 바로 옆</b>':dg<.75?'가까이':'멀리'})가 다가와요.`:'리큐르·가니쉬도 함께 돌아요.');
+ if(swirl)s+=' 스월링 — 재료가 나를 한 바퀴씩 휘돌아요.';if(held>.3)s+=' 손 온도로 따뜻해지는 중.';return s;}
+
+// ── 그림 (위에서 본 잔)
 const cv=$('cv'),cx=cv.getContext('2d');
 function fit(){const r=cv.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);cv.width=r.width*d;cv.height=r.height*d;cx.setTransform(d,0,0,d,0,0);}addEventListener('resize',fit);fit();
-function glassPath(k,s){const p=new Path2D();
- if(k==='flute'){p.moveTo(-34*s,-170*s);p.bezierCurveTo(-38*s,-40*s,-30*s,60*s,0,92*s);p.bezierCurveTo(30*s,60*s,38*s,-40*s,34*s,-170*s);p.closePath();}
- else if(k==='snifter'){p.moveTo(-46*s,-120*s);p.bezierCurveTo(-120*s,-60*s,-120*s,80*s,0,92*s);p.bezierCurveTo(120*s,80*s,120*s,-60*s,46*s,-120*s);p.closePath();}
- else if(k==='rocks'){p.moveTo(-95*s,-70*s);p.lineTo(-84*s,92*s);p.lineTo(84*s,92*s);p.lineTo(95*s,-70*s);p.closePath();}
- else{p.moveTo(-70*s,-140*s);p.bezierCurveTo(-110*s,-40*s,-100*s,70*s,0,92*s);p.bezierCurveTo(100*s,70*s,110*s,-40*s,70*s,-140*s);p.closePath();}
- return p;}
 let T=0;
-function draw(dt){T+=dt;const r=cv.getBoundingClientRect(),W=r.width,H=r.height;cx.clearRect(0,0,W,H);const s=Math.min(W,H)/360,g=GL[glass];
- const cxp=W/2,cyp=H*.54,ang=tilt*Math.PI/180;const gp=glassPath(g.shape,s);
- cx.save();cx.translate(cxp,cyp);cx.rotate(ang);
- // 잔 안쪽을 클립 → 세계 좌표의 수평 층을 그림
- cx.save();cx.clip(gp);cx.rotate(-ang);
- const lvl=-10*s,wob=Math.sin(T*6)*slosh*22*s,tiltY=x=>lvl+x*Math.sin(T*3+1)*slosh*.12+wob*(x/(120*s));
- const band=(y0,y1,col,a)=>{cx.beginPath();cx.moveTo(-200*s,y0);for(let x=-200*s;x<=200*s;x+=8)cx.lineTo(x,y0+tiltY(x)-lvl);cx.lineTo(200*s,y1);cx.lineTo(-200*s,y1);cx.closePath();cx.fillStyle=col;cx.globalAlpha=a;cx.fill();cx.globalAlpha=1;};
- const L=Math.max(0,-tilt/60),U=Math.max(0,tilt/60);
- band(lvl,lvl+60*s,`rgba(120,190,255,${.55+.35*U})`,1);         // 위: 리큐르
- band(lvl+40*s,lvl+300*s,`rgba(240,110,70,${.6+.35*L})`,1);       // 아래: 베이스 (브라운+핑크)
- band(lvl+80*s,lvl+300*s,`rgba(250,80,160,${.45+.3*L})`,.7);
- // 가니쉬 반짝 (위쪽)
- const sp=.6+.4*Math.sin(T*4);cx.fillStyle=`rgba(255,255,255,${.5+.5*U})`;for(let i=0;i<3;i++){const x=(-40+i*40)*s+Math.sin(T+i)*6*s,y=lvl-6*s+Math.cos(T*1.3+i)*3*s+tiltY(x)-lvl;cx.beginPath();for(let k=0;k<12;k++){const a2=k*Math.PI/6,rr=(k%2?3:8)*s*sp;cx.lineTo(x+Math.cos(a2)*rr,y+Math.sin(a2)*rr);}cx.fill();}
- cx.restore();
- cx.lineWidth=2.5*s;cx.strokeStyle='rgba(255,255,255,.85)';cx.stroke(gp);
- cx.fillStyle='rgba(255,255,255,.12)';cx.fill(gp);
- cx.restore();}
+function draw(dt){T+=dt;const r=cv.getBoundingClientRect(),W=r.width,H=r.height,R=W*.4,C={x:W/2,y:H/2},g=GL[glass];cx.clearRect(0,0,W,H);
+ const P=(x,y)=>[C.x+x*R,C.y+y*R];
+ // 거리 고리
+ cx.strokeStyle='rgba(255,255,255,.07)';cx.lineWidth=1;[.33,.66].forEach(q=>{cx.beginPath();cx.arc(C.x,C.y,R*q,0,7);cx.stroke();});
+ // 액체(기운 쪽으로 쏠림)
+ const m=Math.min(1,Math.hypot(vx,vy)),lx=C.x+Math.cos(theta)*m*R*.35,ly=C.y+Math.sin(theta)*m*R*.35;
+ const lg=cx.createRadialGradient(lx,ly,0,lx,ly,R*1.05);lg.addColorStop(0,'rgba(255,140,170,.20)');lg.addColorStop(1,'rgba(255,140,170,0)');cx.fillStyle=lg;cx.beginPath();cx.arc(C.x,C.y,R,0,7);cx.fill();
+ // 잔 림
+ cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=2.5;cx.beginPath();cx.arc(C.x,C.y,R,0,7);cx.stroke();
+ cx.strokeStyle='rgba(255,255,255,.25)';cx.lineWidth=1;cx.beginPath();cx.arc(C.x,C.y,R*g.rim,0,7);cx.setLineDash([3,5]);cx.stroke();cx.setLineDash([]);
+ // 기울기 화살표
+ if(m>.05){const [ax,ay]=P(Math.cos(theta)*m*.9,Math.sin(theta)*m*.9);cx.strokeStyle='rgba(255,255,255,.45)';cx.lineWidth=2;cx.beginPath();cx.moveTo(C.x,C.y);cx.lineTo(ax,ay);cx.stroke();cx.beginPath();cx.arc(ax,ay,4,0,7);cx.fillStyle='#fff';cx.fill();}
+ // 재료
+ for(const k of['base','liq','gar']){const L=LY[k],[x,y]=P(L.x,L.y),d=Math.min(1,Math.hypot(L.x,L.y)),close=1-d;
+  cx.strokeStyle=`rgba(${L.c},${.12+.4*close})`;cx.lineWidth=1;cx.setLineDash([2,4]);cx.beginPath();cx.moveTo(C.x,C.y);cx.lineTo(x,y);cx.stroke();cx.setLineDash([]);
+  const sz=(k==='base'?46:k==='liq'?34:22)*(.75+.6*close);
+  if(k==='gar'){const sp=.75+.25*Math.sin(T*5);for(let i=0;i<3;i++){const a=T*.8+i*2.1,qx=x+Math.cos(a)*sz*.6,qy=y+Math.sin(a)*sz*.6;cx.fillStyle='#fff';cx.beginPath();for(let j=0;j<12;j++){const b=j*Math.PI/6,rr=(j%2?2.5:7)*sp*(.8+.5*close);cx.lineTo(qx+Math.cos(b)*rr,qy+Math.sin(b)*rr);}cx.fill();}}
+  else{const gr=cx.createRadialGradient(x,y,0,x,y,sz);gr.addColorStop(0,`rgba(${L.c},.95)`);gr.addColorStop(1,`rgba(${L.c},0)`);cx.fillStyle=gr;cx.beginPath();cx.arc(x,y,sz,0,7);cx.fill();}
+  cx.fillStyle='rgba(255,255,255,.85)';cx.font='600 12px Pretendard,system-ui,sans-serif';cx.textAlign='center';cx.fillText(L.n,x,y+sz+14);}
+ // 나 (머리 · 위 = 앞)
+ cx.fillStyle='#fff';cx.beginPath();cx.arc(C.x,C.y,13,0,7);cx.fill();cx.beginPath();cx.moveTo(C.x-5,C.y-11);cx.lineTo(C.x,C.y-20);cx.lineTo(C.x+5,C.y-11);cx.fill();
+ cx.fillRect(C.x-16,C.y-4,4,8);cx.fillRect(C.x+12,C.y-4,4,8);
+ cx.fillStyle='rgba(255,255,255,.5)';cx.font='11px Pretendard,system-ui,sans-serif';cx.fillText('앞',C.x,C.y-R-10);cx.fillText('뒤',C.x,C.y+R+20);}
 let last=performance.now();
-(function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;tilt+=(tTarget-tilt)*(1-Math.exp(-dt*8));
- sloshV+=(-slosh*30-sloshV*2.5)*dt;slosh=Math.max(0,slosh+sloshV*dt*.0);slosh*=Math.exp(-dt*1.4);
- // 벽에 닿는 순간 가니쉬
- if(E('eSlosh')&&mode==='new'&&slosh>.5&&now-lastWall>380){lastWall=now;ping(Math.min(1,slosh),2093);}
- audio(dt);draw(dt);$('hT').textContent=`기울기 ${Math.round(tilt)}°`;$('hS').textContent=GL[glass].n+(mode==='old'?' · 지금 방식':'');if(AC)$('now').innerHTML=txt;
+(function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;input(dt);physics(dt);audio(dt);draw(dt);
+ $('hT').textContent=GL[glass].n+(mode==='old'?' · 지금 방식':' · 360°');$('hS').textContent=swirl?'스월링 중':'';if(AC)$('now').innerHTML=describe();
  requestAnimationFrame(fr);})(last);
 })();
 </script></body></html>
