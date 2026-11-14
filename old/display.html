@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NØISE BAR · Display</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:Mulmaru;src:url(assets/fonts/Mulmaru.woff2) format("woff2");font-display:block}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;color:#fff}
+#rot{position:absolute;left:50%;top:50%;transform-origin:50% 50%;overflow:hidden;background:#000}
+.fr{position:absolute;left:0;top:0;border:0;transform-origin:0 0;opacity:0;transition:opacity 3s ease;pointer-events:none}
+.fr.on{opacity:1}
+#ui{position:absolute;inset:0;pointer-events:none;font-family:Inter,"Pretendard",-apple-system,sans-serif}
+#num{position:absolute;left:calc(40px*var(--u));top:calc(80px*var(--u));font:400 calc(64px*var(--u))/1 Mulmaru,monospace;letter-spacing:-.02em;color:#f4f4f4;transition:opacity 1.2s}
+#band{position:absolute;left:0;right:0;bottom:0;padding:calc(60px*var(--u)) calc(16px*var(--u)) calc(8px*var(--u));background:linear-gradient(to bottom,rgba(0,0,0,0),rgba(0,0,0,.22) 45%,rgba(0,0,0,.32));transition:opacity 1.2s}
+.out{opacity:0!important}
+#name{font-size:calc(20.16px*var(--u));font-weight:600;letter-spacing:-.01em;line-height:1.1}
+#maker{font-size:calc(10.8px*var(--u));opacity:.85;margin-top:calc(2.88px*var(--u))}
+#rec{font-size:calc(9.36px*var(--u));opacity:.7;margin-top:calc(12.96px*var(--u))}
+#rows{margin-top:calc(10.08px*var(--u));display:grid;grid-template-columns:calc(44.64px*var(--u)) 1fr;row-gap:calc(6.48px*var(--u));font-size:calc(0.72px*var(--u))}
+#rows b{font-size:calc(7.2px*var(--u));font-weight:500;letter-spacing:.12em;opacity:.55;align-self:center}
+#rows span{font-size:calc(9.36px*var(--u));display:flex;align-items:center;gap:calc(4.32px*var(--u));flex-wrap:wrap}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;margin-right:.35em}
+#foot{margin-top:calc(15.84px*var(--u));display:flex;align-items:center;gap:calc(7.2px*var(--u))}
+#bar{flex:1;height:calc(1.44px*var(--u));background:rgba(255,255,255,.22);border-radius:9px;overflow:hidden}
+#bar i{display:block;height:100%;width:0;background:#fff}
+#next{font-size:calc(7.2px*var(--u));letter-spacing:.12em;opacity:.65;white-space:nowrap}
+#gtHost{display:none!important}
+#start{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);font-size:3vmin;letter-spacing:.2em;z-index:9;cursor:pointer}
+#start.hide{display:none}
+</style></head><body>
+<div id="rot">
+  <iframe class="fr" id="f0" allow="autoplay"></iframe>
+  <iframe class="fr" id="f1" allow="autoplay"></iframe>
+  <div id="ui">
+    <div id="num">01</div>
+    <div id="band">
+      <div id="name"></div><div id="maker"></div>
+      <div id="rec">Recipe ›</div>
+      <div id="rows"><b>BASE</b><span id="rb"></span><b>LIQUEUR</b><span id="rl"></span><b>GARNISH</b><span id="rg"></span></div>
+      <div id="foot"><div id="bar"><i></i></div><div id="next"></div></div>
+    </div>
+  </div>
+</div>
+<div id="start">화면을 탭하면 소리와 함께 시작해요</div>
+<script>
+const Q=new URLSearchParams(location.search);
+let ROT=+(Q.get('rot')??-90);           // -90: 모니터 위쪽이 오른쪽 / 90 / 0
+const DUR=(+Q.get('t')||45)*1000;
+const COL={brown:'#C95F19',pink:'#EC4290',white:'#F4F1EC',blue:'#5584F6'};
+const KO={brown:'브라운',pink:'핑크',white:'화이트',blue:'블루'};
+const TH={breath:['숨','#6F8FF0'],flow:['흐름','#8FC7E8'],beat:['박자','#C7B7F2'],scatter:['흩뿌림','#F0A070']};
+const GK={fizz:'FIZZ',spark:'SPARK',blossom:'BLOSSOM',melt:'MELT'};
+// 샘플 칵테일 (추후 사용자 제작 데이터로 교체)
+const LIST=[
+ {t:'Midnight',m:'James adam',pk:'brown,blue',s:'.6,.4',ln:'파도',lv:60,lq:'breath:60',g:'blossom-5'},
+ {t:'Pink Rain',m:'Yuna',pk:'pink,white',s:'.55,.45',ln:'빗소리',lv:55,lq:'scatter:55',g:'fizz-3'},
+ {t:'Morning Desk',m:'Hoon',pk:'white,blue',s:'.5,.5',ln:'키보드',lv:50,lq:'beat:50',g:'spark-4'},
+ {t:'Warm Stove',m:'Mina',pk:'brown,pink',s:'.7,.3',ln:'모닥불',lv:65,lq:'flow:65',g:'melt-2'},
+ {t:'Cricket Night',m:'Seo',pk:'blue,brown,white',s:'.4,.35,.25',ln:'귀뚜라미',lv:45,lq:'scatter:45',g:'spark-6'}
+];
+const F=[f0,f1];let cur=0,i=0,t0=0,started=false;
+function src(c){return 'play.html?'+new URLSearchParams({pk:c.pk,s:c.s,ln:c.ln,lv:c.lv,lq:c.lq,g:c.g,t:c.t,mk:c.m}).toString()}
+function layout(){
+  const W=innerWidth,H=innerHeight,side=ROT%180!==0;
+  const sw=side?H:W, sh=side?W:H;
+  rot.style.width=sw+'px';rot.style.height=sh+'px';
+  rot.style.transform=`translate(-50%,-50%) rotate(${ROT}deg)`;
+  const k=sw/402;rot.style.setProperty('--u',k);
+  F.forEach(f=>{f.style.width='402px';f.style.height=(sh/k)+'px';f.style.transform=`scale(${k})`});
+}
+addEventListener('resize',layout);layout();
+function clean(f){ // 폰용 버튼/텍스트는 숨기고 메타볼·그래프만
+  try{const d=f.contentDocument;const s=d.createElement('style');
+   s.textContent='#ply>*:not(#bgc):not(canvas),#lis>*:not(#gw),#toast,#mutex,#bk,#vol,#mode,#pause,#prev,#next,#timer,#recipe,#hint{display:none!important}#gw{transform:translateY(-4%)}html,body{background:#000!important}#bgc{position:fixed!important;left:-4vw!important;top:-4vh!important;width:108vw!important;height:108vh!important;transform:none!important;z-index:0}.ph{background:transparent!important}#lis{z-index:1}';d.head.appendChild(s);const bg=d.getElementById('bgc');if(bg)d.body.prepend(bg);
+   const re=()=>d.querySelectorAll('[data-band=top],[data-band=bot]').forEach(e=>e.style.display='none');re();setTimeout(re,800);
+  }catch(e){}
+}
+function mute(f,on){try{f.contentWindow.setMute(on)}catch(e){}}
+function wake(f){try{f.contentWindow.ensureA();f.contentWindow.AC&&f.contentWindow.AC.resume()}catch(e){}
+  try{f.contentDocument.body.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))}catch(e){}}
+function info(c){
+  const n=i%LIST.length,nx=LIST[(n+1)%LIST.length];
+  num.textContent=String(n+1).padStart(2,'0');
+  document.getElementById('name').textContent=c.t;maker.textContent=c.m;
+  const pk=c.pk.split(','),s=c.s.split(',');
+  rb.innerHTML=pk.map((k,j)=>`<em style="font-style:normal"><i class="dot" style="background:${COL[k]}"></i>${KO[k]} ${Math.round(s[j]*100)}</em>`).join('');
+  const [th,v]=c.lq.split(':');rl.innerHTML=`<em style="font-style:normal"><i class="dot" style="background:${TH[th][1]}"></i>${c.ln} ${v}% · ${TH[th][0]}</em>`;
+  const [g,gn]=c.g.split('-');rg.textContent=`${GK[g]} ${gn}`;
+  next.textContent='NEXT  '+nx.t;
+}
+function show(n,first){
+  const c=LIST[n%LIST.length],nf=F[1-cur],of=F[cur];
+  nf.onload=()=>{nf.onload=null;clean(nf);if(started)wake(nf);mute(nf,!started);
+    requestAnimationFrame(()=>{nf.classList.add('on');of.classList.remove('on');mute(of,true);
+      setTimeout(()=>{of.src='about:blank'},3200)});
+    band.classList.add('out');num.classList.add('out');
+    setTimeout(()=>{info(c);band.classList.remove('out');num.classList.remove('out')},1200);
+    cur=1-cur;t0=performance.now();};
+  nf.src=src(c);
+}
+show(0,true);
+start.onclick=()=>{started=true;start.classList.add('hide');F.forEach(f=>{wake(f)});mute(F[cur],false);
+  try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}};
+addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R'){ROT=ROT===-90?90:ROT===90?0:-90;layout()}
+  if(e.key==='ArrowRight'){i++;show(i)}});
+(function tick(){const p=Math.min(1,(performance.now()-t0)/DUR);document.querySelector('#bar i').style.width=p*100+'%';
+    if(t0&&p>=1){t0=0;i++;show(i)}requestAnimationFrame(tick)})();
+</script></body></html>

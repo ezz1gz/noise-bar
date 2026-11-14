@@ -1,0 +1,12 @@
+:root{--bg:#e9e9ec}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a1e}}
+:root[data-theme="dark"]{--bg:#1b1a1e}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
+.ph{position:relative;width:393px;height:852px;border-radius:44px;overflow:hidden;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.18);flex:none}
+.ph>svg{position:absolute;inset:0;display:block}
+.hit{position:absolute;border-radius:50%;cursor:pointer;background:none;border:0;padding:0}
+#bar{position:absolute;left:16px;top:746px;width:260px;height:60px;display:flex;align-items:center;padding:6px 32px 0;box-sizing:border-box;pointer-events:none;color:#000;letter-spacing:-.02em}
+#bar i{width:16px;height:16px;border-radius:50%;flex:none}
+#bar .n{flex:1;text-align:center;font-size:14px;font-weight:500}
+#bar .v{font-size:14px}#bar .v b{font-size:16px;font-weight:500}

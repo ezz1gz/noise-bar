@@ -1,0 +1,55 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="mode.js"></script>
+<title>Name</title>
+<style>
+@font-face{font-family:Mulmaru;src:url(assets/fonts/Mulmaru.woff2) format("woff2");font-display:block}
+html,body{margin:0;height:100%;background:#fff;color:#141117;font-family:Pretendard,'Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif}
+.wrap{position:relative;max-width:430px;height:100vh;height:100dvh;margin:0 auto;overflow:hidden;display:flex;flex-direction:column}
+.gnb{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 54px) 16px 0;height:48px}
+.gnb button{border:0;background:none;padding:8px;margin:-8px;cursor:pointer;display:grid;place-items:center}
+h1{margin:12px 20px 0;font:400 46px/1 Mulmaru,monospace;letter-spacing:.01em}
+.sub{margin:10px 20px 0;font-size:14px;color:#77727c}
+.drink{flex:1;display:flex;align-items:center;justify-content:center;min-height:200px}
+.ball{width:min(62vw,260px);aspect-ratio:1;border-radius:50%;background:#eee center/cover;box-shadow:0 18px 40px rgba(120,60,120,.16),inset 0 0 0 1.5px rgba(255,255,255,.6);outline:6px solid #fff;outline-offset:0;position:relative}
+.ball span{position:absolute;left:0;right:0;bottom:-46px;text-align:center;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.ball small{position:absolute;left:0;right:0;bottom:-68px;text-align:center;font-size:14px;color:#77727c}
+form{padding:0 16px calc(env(safe-area-inset-bottom) + 24px);display:flex;flex-direction:column;gap:10px}
+label{display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;border-radius:28px;background:#f2f1f4}
+label b{font-size:12px;font-weight:500;color:#8a8590;width:54px;flex:none}
+input{flex:1;min-width:0;border:0;background:none;font:600 17px inherit;font-family:inherit;color:#141117;outline:none}
+input::placeholder{color:#b4b0b8;font-weight:400}
+.row{display:flex;gap:10px;align-items:center;margin-top:6px}
+.go{flex:1;height:60px;border-radius:30px;border:0;background:#141117;color:#fff;font:600 16px inherit;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.go:disabled{opacity:.35}
+.note{font-size:12px;color:#8a8590;text-align:center;margin-top:2px}
+</style></head><body>
+<div class="wrap">
+  <div class="gnb"><button type="button" id="bk" aria-label="이전 단계"><img src="assets/gnb-back.svg" width="28" height="28" alt=""></button><button type="button" id="gVol" aria-label="소리 끄기"><img src="assets/gnb-volume.svg" width="24" height="24" alt=""></button></div>
+  <h1>Name</h1>
+  <p class="sub">잔에 이름을 붙이면 소리의 바다로 보내져요</p>
+  <div class="drink"><div class="ball" id="ball"><span id="pvN">이름 없는 잔</span><small id="pvM">@guest</small></div></div>
+  <form id="f" autocomplete="off">
+    <label><b>칵테일</b><input id="nm" maxlength="20" placeholder="예) 새벽 세시" enterkeyhint="next"></label>
+    <label><b>닉네임</b><input id="mk" maxlength="12" placeholder="예) 지우" enterkeyhint="done"></label>
+    <div class="row"><button class="go" id="go" type="submit" disabled>완성하고 바다로 보내기 ›</button></div>
+    <p class="note">이름과 닉네임은 전시장 화면에 함께 보여요</p>
+  </form>
+</div>
+<script>
+const Q=new URLSearchParams(location.search);
+try{const u=sessionStorage.getItem('nb-mixshot')||localStorage.getItem('nb-mixshot');if(u)document.getElementById('ball').style.backgroundImage=`url("${u}")`;}catch(_){}
+if(!document.getElementById('ball').style.backgroundImage){const H={brown:'#C95F19',pink:'#EC4290',white:'#F4F1EC',blue:'#5584F6'},pk=(Q.get('pk')||'pink,blue').split(',').map(k=>H[k]).filter(Boolean);document.getElementById('ball').style.background=`radial-gradient(circle at 30% 35%,${pk[0]} 0,transparent 60%),radial-gradient(circle at 70% 70%,${pk[1]||pk[0]} 0,transparent 60%),${pk[0]}`;}
+const nm=document.getElementById('nm'),mk=document.getElementById('mk'),go=document.getElementById('go');
+try{mk.value=localStorage.getItem('nb-nick')||'';}catch(_){}
+nm.value=Q.get('nm')||'';if(Q.get('mk'))mk.value=Q.get('mk');
+const clean=s=>s.replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
+function upd(){document.getElementById('pvN').textContent=clean(nm.value)||'이름 없는 잔';document.getElementById('pvM').textContent='@'+(clean(mk.value)||'guest');go.disabled=!clean(nm.value)||!clean(mk.value);}
+nm.oninput=mk.oninput=upd;upd();
+nm.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();mk.focus();}});
+document.getElementById('f').onsubmit=e=>{e.preventDefault();if(go.disabled){(clean(nm.value)?mk:nm).focus();return;}
+  try{localStorage.setItem('nb-nick',clean(mk.value));}catch(_){}
+  Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));location.href='play.html?'+Q;};
+document.getElementById('bk').onclick=()=>{Q.delete('nm');Q.delete('mk');location.href='garnish.html?'+Q;};
+</script>
+</body></html>
