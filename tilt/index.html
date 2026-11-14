@@ -9,7 +9,7 @@ body{margin:0;background:#f6f4f8;color:var(--ink);font:14px/1.5 Pretendard,'Appl
 @media(max-width:860px){.wrap{grid-template-columns:1fr;padding:18px 14px 40px}}
 h1{grid-column:1/-1;margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
 .lead{grid-column:1/-1;margin:-10px 0 0;color:var(--mute)}
-.stage{position:relative;background:radial-gradient(120% 90% at 50% 40%,#2b2340,#120f1a);border-radius:22px;aspect-ratio:1/1;overflow:hidden;touch-action:none;cursor:grab}
+.stage{position:relative;background:radial-gradient(120% 90% at 50% 35%,#3a2d55,#120f1a);border-radius:22px;aspect-ratio:1/1;overflow:hidden;touch-action:none;cursor:grab}
 .stage:active{cursor:grabbing}
 canvas{width:100%;height:100%;display:block}
 .hint{position:absolute;left:0;right:0;top:14px;text-align:center;color:#fff;font-size:13px;opacity:.75;pointer-events:none}
@@ -34,11 +34,28 @@ canvas{width:100%;height:100%;display:block}
 .now{font-size:12.5px;color:#4a4550;background:#f7f5f9;border-radius:12px;padding:10px 12px;line-height:1.65;min-height:76px}
 .now b{color:var(--ink)}
 .dis .nw{opacity:.4;pointer-events:none}
+.radar{position:absolute;right:14px;top:44px;width:118px;height:118px;border-radius:50%;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+#gl{position:absolute;inset:0}
+.snd{grid-column:1/-1;background:#fff;border-radius:20px;padding:18px 20px;box-shadow:0 0 0 1px rgba(20,17,23,.06),0 14px 40px rgba(40,20,50,.08);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px 28px;align-items:center}
+@media(min-width:861px){.snd{grid-row:3}}
+@media(max-width:860px){.radar{width:76px;height:76px;top:40px;right:10px}.hint{font-size:11px;padding:0 10px}.panel{order:-1}.stage{order:-2}}
+@media(max-width:860px){.snd{grid-template-columns:1fr}}
+.snd .up{font-size:13px;color:var(--mute);margin:0}
+.snd .big{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.35;margin:2px 0 0;min-height:60px}
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:52px 1fr 44px;gap:10px;align-items:center;font-size:12.5px}
+.bar i{display:block;height:8px;border-radius:4px;background:#efedf2;overflow:hidden}.bar i b{display:block;height:100%;border-radius:4px;transition:width .25s}
+.bar em{font-style:normal;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.bar small{grid-column:2/4;margin-top:-6px;color:var(--mute);font-size:11.5px}
 </style></head><body>
 <div class="wrap">
 <h1>청감 모드 · 360° 소리 시범</h1>
-<p class="lead">위에서 내려다본 잔이에요. 가운데가 듣는 나(코가 위쪽 = 앞)예요. 이어폰을 꼭 끼고 들어보세요. 샘플 잔: 브라운 50·핑크 50 + 리큐르 파도·시계 + 가니쉬 SPARK.</p>
-<div class="stage" id="stage"><canvas id="cv"></canvas><div class="hint" id="hint">기울이고 싶은 방향으로 끌어보세요 · 폰은 직접 기울이기</div><div class="hud"><span id="hT"></span><span id="hS"></span></div></div>
+<p class="lead">내 앞에 든 잔이에요. 끄는 방향으로 잔이 기울고, 오른쪽 위 작은 원은 위에서 본 소리 위치(가운데 = 나)예요. 이어폰을 꼭 끼고 들어보세요. 샘플 잔: 브라운 50·핑크 50 + 리큐르 파도·시계 + 가니쉬 SPARK.</p>
+<div class="stage" id="stage"><div id="gl"></div><canvas class="radar" id="cv"></canvas><div class="hint" id="hint">끌어서 잔 기울이기 · 위로 끌면 앞으로, 아래로 끌면 내 쪽으로</div><div class="hud"><span id="hT"></span><span id="hS"></span></div></div>
+<section class="snd" aria-live="polite">
+ <div><p class="up" id="sUp">묵직하게 숨 쉬고 박자 맞추고, 반짝임이 얹힌</p><p class="big" id="sBig">소리를 켜면 지금 들리는 소리를 알려드려요</p></div>
+ <div class="bars" id="bars"></div>
+</section>
 <aside class="panel">
   <div class="row"><button class="btn pri" id="play">▶ 소리 켜기</button><button class="btn" id="swirl" aria-pressed="false">↻ 스월링</button><button class="btn pk" id="shake">흔들기</button></div>
   <div class="grp"><b>비교</b><div class="seg"><button id="mOld" aria-pressed="false">지금 방식 (좌우만)</button><button id="mNew" aria-pressed="true">새 방식 (360°)</button></div></div>
@@ -52,7 +69,8 @@ canvas{width:100%;height:100%;display:block}
   <div class="now" id="now">소리를 켜고 화면을 끌거나 스월링을 눌러보세요.</div>
 </aside>
 </div>
-<script>
+<script type="module">
+import * as THREE from './three.min.js';
 (()=>{
 const $=id=>document.getElementById(id);
 // 잔: k = 따라오는 빠르기, near = 얼마나 가까이 오는지, conv = 재료가 한쪽으로 모이는 정도, spread = 기본 벌어짐, verb = 잔 몸통 울림, lag = 재료끼리 시차
@@ -158,55 +176,88 @@ function audio(dt){if(!AC)return;const g=GL[glass];
   const S=3,px=L.x*S,pz=L.y*S,py=(mode==='new'&&E('eHeight'))?L.el*S*.8:0;
   const mag=Math.max(.35,Math.hypot(px,py,pz));const fx=px/mag*Math.max(.35,mag),fy=py/mag*Math.max(.35,mag),fz=pz/mag*Math.max(.35,mag);
   if(n.p.positionX){set(n.p.positionX,fx);set(n.p.positionY,fy);set(n.p.positionZ,fz);}else n.p.setPosition(fx,fy,fz);
-  if(mode==='old'){set(n.g.gain,k==='base'?1:.8);set(n.f.frequency,16000);set(n.near.gain,0);set(n.s.gain,.12);continue;}
+  if(mode==='old'){EFF[k]=k==='base'?1:.8;set(n.g.gain,k==='base'?1:.8);set(n.f.frequency,16000);set(n.near.gain,0);set(n.s.gain,.12);continue;}
   const close=1-d; // 가까울수록 1
   const base=k==='base'?1:.85;
-  set(n.g.gain,base*(.28+1.25*Math.pow(close,1.6)));            // 크기
+  EFF[k]=base*(.28+1.25*Math.pow(close,1.6))*(1+(k==='base'?0:.25*close*close));set(n.g.gain,base*(.28+1.25*Math.pow(close,1.6)));            // 크기
   set(n.f.frequency,1800*Math.pow(16000/1800,Math.pow(close,.7))); // 멀면 어둡게
   set(n.near.gain,k==='base'?0:7*Math.pow(close,2));               // 가까우면 근접 저음(귀 옆 느낌)
   set(n.s.gain,.05+.85*d*d*(.5+g.verb*1.5));}                      // 멀면 잔 울림 속으로
  held=g.warm?Math.min(1,held+dt*.07):0;set(N.warm.gain,held*7,.3);}
 
-// ── 설명
-function describe(){const g=GL[glass],m=Math.hypot(vx,vy);
- if(!AC)return;if(mode==='old')return '<b>지금 방식</b> · 소리가 왼쪽·오른쪽으로만 옮겨 가요. 앞뒤·위아래·가까움이 없어요.';
- const dir=['오른쪽으로','오른쪽 뒤로','뒤로','왼쪽 뒤로','왼쪽으로','왼쪽 앞으로','앞으로','오른쪽 앞으로'][((Math.round(theta/(Math.PI/4))%8)+8)%8];
- const dl=Math.hypot(LY.liq.x,LY.liq.y),dg=Math.hypot(LY.gar.x,LY.gar.y);
- let s=`<b>${g.n}</b> · `;
- if(m<.08&&!swirl)s+='잔을 세우면 리큐르·가니쉬는 멀리 둘레에서, 베이스는 바로 앞 아래에서 들려요.';
- else s+=`<b>${dir}</b> 기울임 → 베이스가 그쪽 바닥으로 쏠리고, `+(E('eNear')?`리큐르(${dl<.45?'<b>귀 바로 옆</b>':dl<.75?'가까이':'멀리'})·가니쉬(${dg<.45?'<b>귀 바로 옆</b>':dg<.75?'가까이':'멀리'})가 다가와요.`:'리큐르·가니쉬도 함께 돌아요.');
- if(swirl)s+=' 스월링 — 재료가 나를 한 바퀴씩 휘돌아요.';if(held>.3)s+=' 손 온도로 따뜻해지는 중.';return s;}
+// ── 들리는 비율 · 표현
+const LV={base:1,liq:.8,gar:.5};const EFF={base:1,liq:.3,gar:.2};
+const DIRS=['오른쪽','오른쪽 뒤','뒤','왼쪽 뒤','왼쪽','왼쪽 앞','앞','오른쪽 앞'];
+const dirOf=L=>DIRS[((Math.round(Math.atan2(L.y,L.x)/(Math.PI/4))%8)+8)%8];
+const distOf=L=>{const d=Math.hypot(L.x,L.y);return d<.42?'귀 바로 옆':d<.72?'가까이':'멀리';};
+const COL={base:'linear-gradient(90deg,#C95F19,#FF2294)',liq:'#4583FF',gar:'#b9a6ff'};
+$('bars').innerHTML=['base','liq','gar'].map(k=>`<div class="bar"><span>${LY[k].n}</span><i><b id="b_${k}" style="background:${COL[k]};width:33%"></b></i><em id="p_${k}">–</em><small id="w_${k}"></small></div>`).join('');
+let pct={base:34,liq:33,gar:33},phT=0,lastBig='';
+function share(){let tot=0;const p={};for(const k in EFF){p[k]=Math.pow(EFF[k]*LV[k],1.25);tot+=p[k];}let acc=0;const ks=['base','liq','gar'];ks.forEach(k=>{pct[k]=Math.round(p[k]/tot*100);acc+=pct[k];});pct.base+=100-acc;}
+function phrase(){const g=GL[glass],m=Math.hypot(vx,vy),top=['base','liq','gar'].sort((a,b)=>pct[b]-pct[a])[0];
+ if(mode==='old')return pct.base>=60?'노이즈가 왼쪽 오른쪽으로만 옮겨 다니는 소리':'재료가 한 덩어리로 좌우를 오가는 소리';
+ const dl=distOf(LY.liq),dg=distOf(LY.gar),dL=dirOf(LY.liq),dG=dirOf(LY.gar),dB=dirOf(LY.base);
+ let pre=swirl?'나를 휘감아 돌며 ':'';const warm=held>.3?'손 온도로 데워진 ':'';
+ if(m<.08&&!swirl)return `${warm}묵직한 노이즈가 앞 아래에 깔리고, 파도와 반짝임은 멀리서 맴도는 소리`;
+ if(top==='gar'&&pct.gar>=30)return `${pre}반짝임이 ${dG}에서 ${dg==='귀 바로 옆'?'귀 바로 옆까지 쏟아지는':'톡톡 다가오는'} ${warm}소리`;
+ if(top==='liq'||pct.liq>=35)return `${pre}파도가 ${dL} ${dl==='귀 바로 옆'?'귀 옆까지 밀려와 숨 쉬는':dl==='가까이'?'가까이 밀려오는':'멀리서 숨 쉬는'} ${warm}소리`;
+ return `${pre}${warm}묵직한 노이즈가 ${dB} 아래로 고이고, 파도가 ${dl==='멀리'?'멀리서 따라오는':dL+'에서 다가오는'} 소리`;}
+function ui(dt){share();for(const k of['base','liq','gar']){$('b_'+k).style.width=pct[k]+'%';$('p_'+k).textContent=pct[k]+'%';
+  const L=LY[k],h=k==='base'?'아래':k==='liq'?'귀 높이':'머리 위';$('w_'+k).textContent=mode==='old'?(Math.abs(L.x)<.15?'가운데':L.x<0?'왼쪽':'오른쪽'):`${dirOf(L)} · ${distOf(L)} · ${E('eHeight')?h:'귀 높이'}`;}
+ phT-=dt;if(phT<=0){phT=.45;const b=phrase();if(b!==lastBig){lastBig=b;$('sBig').textContent=b;}}
+ const g=GL[glass],m=Math.hypot(vx,vy);
+ $('now').innerHTML=mode==='old'?'<b>지금 방식</b> · 왼쪽·오른쪽만 바뀌어요. 앞뒤·위아래·거리감이 없어요.':`<b>${g.n}</b> · 기울기 ${Math.round(m*50)}° · `+({flute:'빠르게 한쪽으로 모이고 귀 바로 옆까지 와요.',snifter:'가운데로 모이고, 오래 들면 따뜻해져요.',rocks:'넓게 흩어져 사방에서 들려요.',wine:'늦게 따라오며 크게 출렁이고 울림이 커요.'})[glass];}
 
-// ── 그림 (위에서 본 잔)
+// ── 3D 와인잔 (앞에서 본 모습)
+const host=$('gl');const R3=new THREE.WebGLRenderer({antialias:true,alpha:true});R3.localClippingEnabled=true;R3.setPixelRatio(Math.min(2,devicePixelRatio||1));host.appendChild(R3.domElement);
+const scene=new THREE.Scene();const cam=new THREE.PerspectiveCamera(32,1,.1,100);cam.position.set(0,2.4,11.5);cam.lookAt(0,-.7,0);
+scene.add(new THREE.HemisphereLight(0xffffff,0x332244,1.1));const dl1=new THREE.DirectionalLight(0xffffff,1.6);dl1.position.set(3,5,4);scene.add(dl1);const dl2=new THREE.DirectionalLight(0xff9ac8,.8);dl2.position.set(-4,1,-3);scene.add(dl2);
+// 잔 모양들 (y: 볼 중심 = 0)
+const PROF={
+ wine:[[0,-3.2],[1.05,-3.15],[1.1,-3.08],[.16,-2.95],[.08,-2.6],[.07,-1.6],[.12,-1.35],[.55,-1.2],[.95,-.85],[1.18,-.3],[1.2,.2],[1.08,.75],[.88,1.25]],
+ flute:[[0,-3.2],[.95,-3.15],[1,-3.08],[.14,-2.95],[.07,-2.5],[.06,-1.9],[.12,-1.75],[.38,-1.5],[.55,-.9],[.62,0],[.64,.8],[.66,1.5]],
+ snifter:[[0,-3.2],[1,-3.15],[1.05,-3.08],[.15,-2.95],[.09,-2.4],[.1,-2.0],[.6,-1.75],[1.2,-1.1],[1.45,-.4],[1.42,.2],[1.15,.7],[.72,1.1]],
+ rocks:[[0,-1.8],[1.15,-1.8],[1.2,-1.7],[1.22,-1.3],[1.25,-.5],[1.3,.4],[1.33,.9]]};
+const BOWL={wine:-1.25,flute:-1.6,snifter:-1.8,rocks:-1.3};
+const grp=new THREE.Group();scene.add(grp);let glassMesh,rimMesh,liqMeshes=[];
+const glassMat=new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.16,roughness:.05,metalness:0,clearcoat:1,side:THREE.DoubleSide,depthWrite:false});
+const P0=new THREE.Plane(new THREE.Vector3(0,-1,0),0),P1=new THREE.Plane(new THREE.Vector3(0,1,0),0),P2=new THREE.Plane(new THREE.Vector3(0,-1,0),0);
+const baseMat=new THREE.MeshStandardMaterial({color:0xd8564a,emissive:0x5a1020,roughness:.4,side:THREE.DoubleSide,clippingPlanes:[P0],transparent:true,opacity:.92});
+const liqMat=new THREE.MeshStandardMaterial({color:0x4583ff,emissive:0x0c2266,roughness:.3,side:THREE.DoubleSide,clippingPlanes:[P1,P2],transparent:true,opacity:.8});
+function build(k){[glassMesh,rimMesh,...liqMeshes].forEach(o=>o&&grp.remove(o));const pts=PROF[k].map(([r,y])=>new THREE.Vector2(r,y));
+ glassMesh=new THREE.Mesh(new THREE.LatheGeometry(pts,72),glassMat);glassMesh.renderOrder=2;grp.add(glassMesh);
+ const top=PROF[k][PROF[k].length-1];rimMesh=new THREE.Mesh(new THREE.TorusGeometry(top[0],.025,8,96),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.7}));rimMesh.rotation.x=Math.PI/2;rimMesh.position.y=top[1];grp.add(rimMesh);
+ const inner=PROF[k].filter(([r,y])=>y>=BOWL[k]).map(([r,y])=>new THREE.Vector2(Math.max(.001,r*.95),y));inner.unshift(new THREE.Vector2(0,BOWL[k]+.02));
+ const lg=new THREE.LatheGeometry(inner,72);liqMeshes=[new THREE.Mesh(lg,baseMat),new THREE.Mesh(lg,liqMat)];liqMeshes.forEach(o=>{o.renderOrder=1;grp.add(o);});}
+build(glass);
+document.getElementById('glasses').addEventListener('click',()=>build(glass));
+// 가니쉬 반짝이 (액체 면 위에 뜸)
+const sprC=document.createElement('canvas');sprC.width=sprC.height=64;{const c=sprC.getContext('2d');c.translate(32,32);c.fillStyle='#fff';c.beginPath();for(let j=0;j<16;j++){const a=j*Math.PI/8,r=j%2?5:30;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);}c.fill();const g=c.createRadialGradient(0,0,0,0,0,14);g.addColorStop(0,'#fff');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.beginPath();c.arc(0,0,14,0,7);c.fill();}
+const sprT=new THREE.CanvasTexture(sprC);const sparks=[];for(let i=0;i<7;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:sprT,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));s.renderOrder=3;scene.add(s);sparks.push({s,a:i/7*Math.PI*2,r:.25+Math.random()*.45,h:Math.random()});}
+function fit3(){const r=host.getBoundingClientRect();R3.setSize(r.width,r.height,false);R3.domElement.style.width='100%';R3.domElement.style.height='100%';cam.aspect=r.width/r.height;cam.updateProjectionMatrix();}addEventListener('resize',fit3);fit3();
+let T=0,spin=0;const n=new THREE.Vector3();
+function draw3(dt){T+=dt;const m=Math.min(1,Math.hypot(vx,vy)),A=.9;
+ grp.rotation.set(vy*A,0,-vx*A);
+ // 액체 면은 수평 유지 + 출렁임으로 살짝 기울어짐
+ const sl=E('eSlosh')?1:.3;const sx=LY.liq.vx*.06*sl,sz=LY.liq.vy*.06*sl,wob=Math.sin(T*5)*.03*sl;
+ n.set(-sx,1,-sz).normalize();const h1=-.45+m*.15+wob,h2=.15+m*.1+wob;
+ P0.normal.copy(n).negate();P0.constant=h1;P1.normal.copy(n);P1.constant=-h1;P2.normal.copy(n).negate();P2.constant=h2;
+ // 가니쉬: 면 위에서 소리 위치 쪽으로 몰려 돌기
+ spin+=dt*(swirl?2.4:.4);const gx=LY.gar.x*.55,gz=LY.gar.y*.55,pulse=.75+.25*Math.sin(T*6);
+ sparks.forEach((p,i)=>{const a=p.a+spin*(1+p.h*.4);const x=gx+Math.cos(a)*p.r*(1-.5*m),z=gz+Math.sin(a)*p.r*(1-.5*m);p.s.position.set(x,h2+.05+Math.sin(T*3+i)*.04,z);const sc=(.16+.1*p.h)*pulse*(1+.6*(1-Math.min(1,Math.hypot(LY.gar.x,LY.gar.y))));p.s.scale.set(sc,sc,1);p.s.material.opacity=.6+.4*pulse;});
+ R3.render(scene,cam);}
+// ── 작은 원: 위에서 본 소리 위치
 const cv=$('cv'),cx=cv.getContext('2d');
 function fit(){const r=cv.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);cv.width=r.width*d;cv.height=r.height*d;cx.setTransform(d,0,0,d,0,0);}addEventListener('resize',fit);fit();
-let T=0;
-function draw(dt){T+=dt;const r=cv.getBoundingClientRect(),W=r.width,H=r.height,R=W*.4,C={x:W/2,y:H/2},g=GL[glass];cx.clearRect(0,0,W,H);
- const P=(x,y)=>[C.x+x*R,C.y+y*R];
- // 거리 고리
- cx.strokeStyle='rgba(255,255,255,.07)';cx.lineWidth=1;[.33,.66].forEach(q=>{cx.beginPath();cx.arc(C.x,C.y,R*q,0,7);cx.stroke();});
- // 액체(기운 쪽으로 쏠림)
- const m=Math.min(1,Math.hypot(vx,vy)),lx=C.x+Math.cos(theta)*m*R*.35,ly=C.y+Math.sin(theta)*m*R*.35;
- const lg=cx.createRadialGradient(lx,ly,0,lx,ly,R*1.05);lg.addColorStop(0,'rgba(255,140,170,.20)');lg.addColorStop(1,'rgba(255,140,170,0)');cx.fillStyle=lg;cx.beginPath();cx.arc(C.x,C.y,R,0,7);cx.fill();
- // 잔 림
- cx.strokeStyle='rgba(255,255,255,.75)';cx.lineWidth=2.5;cx.beginPath();cx.arc(C.x,C.y,R,0,7);cx.stroke();
- cx.strokeStyle='rgba(255,255,255,.25)';cx.lineWidth=1;cx.beginPath();cx.arc(C.x,C.y,R*g.rim,0,7);cx.setLineDash([3,5]);cx.stroke();cx.setLineDash([]);
- // 기울기 화살표
- if(m>.05){const [ax,ay]=P(Math.cos(theta)*m*.9,Math.sin(theta)*m*.9);cx.strokeStyle='rgba(255,255,255,.45)';cx.lineWidth=2;cx.beginPath();cx.moveTo(C.x,C.y);cx.lineTo(ax,ay);cx.stroke();cx.beginPath();cx.arc(ax,ay,4,0,7);cx.fillStyle='#fff';cx.fill();}
- // 재료
- for(const k of['base','liq','gar']){const L=LY[k],[x,y]=P(L.x,L.y),d=Math.min(1,Math.hypot(L.x,L.y)),close=1-d;
-  cx.strokeStyle=`rgba(${L.c},${.12+.4*close})`;cx.lineWidth=1;cx.setLineDash([2,4]);cx.beginPath();cx.moveTo(C.x,C.y);cx.lineTo(x,y);cx.stroke();cx.setLineDash([]);
-  const sz=(k==='base'?46:k==='liq'?34:22)*(.75+.6*close);
-  if(k==='gar'){const sp=.75+.25*Math.sin(T*5);for(let i=0;i<3;i++){const a=T*.8+i*2.1,qx=x+Math.cos(a)*sz*.6,qy=y+Math.sin(a)*sz*.6;cx.fillStyle='#fff';cx.beginPath();for(let j=0;j<12;j++){const b=j*Math.PI/6,rr=(j%2?2.5:7)*sp*(.8+.5*close);cx.lineTo(qx+Math.cos(b)*rr,qy+Math.sin(b)*rr);}cx.fill();}}
-  else{const gr=cx.createRadialGradient(x,y,0,x,y,sz);gr.addColorStop(0,`rgba(${L.c},.95)`);gr.addColorStop(1,`rgba(${L.c},0)`);cx.fillStyle=gr;cx.beginPath();cx.arc(x,y,sz,0,7);cx.fill();}
-  cx.fillStyle='rgba(255,255,255,.85)';cx.font='600 12px Pretendard,system-ui,sans-serif';cx.textAlign='center';cx.fillText(L.n,x,y+sz+14);}
- // 나 (머리 · 위 = 앞)
- cx.fillStyle='#fff';cx.beginPath();cx.arc(C.x,C.y,13,0,7);cx.fill();cx.beginPath();cx.moveTo(C.x-5,C.y-11);cx.lineTo(C.x,C.y-20);cx.lineTo(C.x+5,C.y-11);cx.fill();
- cx.fillRect(C.x-16,C.y-4,4,8);cx.fillRect(C.x+12,C.y-4,4,8);
- cx.fillStyle='rgba(255,255,255,.5)';cx.font='11px Pretendard,system-ui,sans-serif';cx.fillText('앞',C.x,C.y-R-10);cx.fillText('뒤',C.x,C.y+R+20);}
+const RC={base:'255,120,80',liq:'95,150,255',gar:'255,255,255'};
+function radar(){const r=cv.getBoundingClientRect(),W=r.width,C=W/2,R=W*.42;cx.clearRect(0,0,W,W);
+ cx.strokeStyle='rgba(255,255,255,.12)';cx.beginPath();cx.arc(C,C,R*.5,0,7);cx.stroke();
+ for(const k of['base','liq','gar']){const L=LY[k],x=C+L.x*R,y=C+L.y*R,cl=1-Math.min(1,Math.hypot(L.x,L.y));cx.fillStyle=`rgba(${RC[k]},.95)`;cx.beginPath();cx.arc(x,y,(k==='base'?6:k==='liq'?5:3.5)*(.8+.6*cl),0,7);cx.fill();}
+ cx.fillStyle='#fff';cx.beginPath();cx.arc(C,C,4,0,7);cx.fill();cx.beginPath();cx.moveTo(C-3,C-3);cx.lineTo(C,C-9);cx.lineTo(C+3,C-3);cx.fill();
+ cx.fillStyle='rgba(255,255,255,.55)';cx.font='10px Pretendard,system-ui,sans-serif';cx.textAlign='center';cx.fillText('앞',C,11);cx.fillText('뒤',C,W-4);}
 let last=performance.now();
-(function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;input(dt);physics(dt);audio(dt);draw(dt);
- $('hT').textContent=GL[glass].n+(mode==='old'?' · 지금 방식':' · 360°');$('hS').textContent=swirl?'스월링 중':'';if(AC)$('now').innerHTML=describe();
+(function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;input(dt);physics(dt);audio(dt);draw3(dt);radar();ui(dt);
+ $('hT').textContent=GL[glass].n+(mode==='old'?' · 지금 방식':' · 360°');$('hS').textContent=swirl?'스월링 중':'';
  requestAnimationFrame(fr);})(last);
 })();
 </script></body></html>
