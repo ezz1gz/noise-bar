@@ -428,22 +428,22 @@ const stage=$('stage'),cv=$('gl');
 const HEX={brown:'#b06840',orange:'#f48048',pink:'#f04696',violet:'#9e58dc',blue:'#4678f6',sky:'#78bef8',white:'#d6d2ec',coral:'#f86060',lime:'#c4e25a',teal:'#3ec8c0'};
 const NOISE_HEX={PINK:'#f04696',WHITE:'#d6d2ec',BLUE:'#4678f6',BROWN:'#b06840'};
 const MIXES=[
- {n:'midnight laundry',tag:'BROWN · 세탁기',by:'@yuna',sv:'812',c:['brown','orange','coral'],b:[15,10,5,70],lq:'세탁기 · 탈수',gn:'Tick ×1',gl:'Rocks'},
- {n:'rain on tin roof',tag:'PINK · 빗소리',by:'@minho',sv:'2.1k',c:['pink','violet','coral'],b:[45,25,20,10],lq:'빗소리 · 양철지붕',gn:'Drop ×2',gl:'Martini'},
- {n:'library 3F',tag:'WHITE · 종이 넘김',by:'@sora',sv:'430',c:['white','sky','violet'],b:[20,60,15,5],lq:'종이 넘김',gn:'Leaf ×1',gl:'Coupe'},
- {n:'subway home',tag:'BROWN · 지하철',by:'@jun',sv:'1.3k',c:['coral','brown','orange'],b:[20,5,15,60],lq:'지하철 · 터널',gn:'Tick ×2',gl:'Highball'},
- {n:'ocean nap',tag:'BLUE · 파도',by:'@hana',sv:'3.4k',c:['blue','sky','teal'],b:[15,15,55,15],lq:'파도 · 자갈',gn:'Star ×1',gl:'Coupe'},
- {n:'cafe corner',tag:'PINK · 웅성임',by:'@dami',sv:'960',c:['pink','orange','coral'],b:[50,15,10,25],lq:'카페 웅성임',gn:'Spark ×1',gl:'Rocks'},
- {n:'deep focus',tag:'BLUE · 키보드',by:'@kei',sv:'1.8k',c:['violet','blue','pink'],b:[20,10,50,20],lq:'키보드 타건',gn:'Tick ×3',gl:'Martini'},
- {n:'fridge hum',tag:'BROWN · 냉장고',by:'@ari',sv:'205',c:['sky','white','blue'],b:[10,20,20,50],lq:'냉장고 험',gn:'없음',gl:'Highball'},
- {n:'moss walk',tag:'PINK · 숲길',by:'@eun',sv:'670',c:['lime','teal','sky'],b:[40,20,20,20],lq:'숲길 발소리',gn:'Leaf ×2',gl:'Coupe'},
- {n:'night bus',tag:'BROWN · 버스',by:'@woo',sv:'1.1k',c:['violet','brown','blue'],b:[15,10,20,55],lq:'버스 엔진',gn:'Drop ×1',gl:'Rocks'},
- {n:'laundromat 2am',tag:'WHITE · 건조기',by:'@yeji',sv:'540',c:['orange','pink','white'],b:[20,50,10,20],lq:'건조기 회전',gn:'Spark ×1',gl:'Highball'},
- {n:'first snow',tag:'WHITE · 눈 밟기',by:'@seo',sv:'2.7k',c:['white','sky','pink'],b:[15,65,15,5],lq:'눈 밟는 소리',gn:'Star ×2',gl:'Coupe'},
- {n:'ferry deck',tag:'BLUE · 배 갑판',by:'@tae',sv:'390',c:['teal','blue','brown'],b:[10,15,45,30],lq:'갑판 · 갈매기',gn:'Drop ×1',gl:'Highball'},
- {n:'rooftop fan',tag:'WHITE · 환풍기',by:'@lin',sv:'150',c:['sky','orange','white'],b:[15,55,20,10],lq:'환풍기',gn:'Tick ×1',gl:'Rocks'},
- {n:'piano room',tag:'PINK · 연습실',by:'@nari',sv:'880',c:['pink','violet','white'],b:[45,30,10,15],lq:'건반 · 페달',gn:'Spark ×2',gl:'Martini'},
- {n:'train window',tag:'BROWN · 기차',by:'@hyun',sv:'1.6k',c:['brown','violet','orange'],b:[20,10,15,55],lq:'기차 레일',gn:'Tick ×2',gl:'Coupe'}
+ {n:'한밤의 빨래',tag:'브라운 · 세탁기',by:'@yuna',sv:'812',c:['brown','orange','coral'],b:[15,10,5,70],lq:'세탁기 · 탈수',gn:'똑딱 ×1',gl:'락'},
+ {n:'양철지붕 위 비',tag:'핑크 · 빗소리',by:'@minho',sv:'2.1k',c:['pink','violet','coral'],b:[45,25,20,10],lq:'빗소리 · 양철지붕',gn:'방울 ×2',gl:'마티니'},
+ {n:'도서관 3층',tag:'화이트 · 종이 넘김',by:'@sora',sv:'430',c:['white','sky','violet'],b:[20,60,15,5],lq:'종이 넘김',gn:'잎사귀 ×1',gl:'쿠페'},
+ {n:'지하철 퇴근길',tag:'브라운 · 지하철',by:'@jun',sv:'1.3k',c:['coral','brown','orange'],b:[20,5,15,60],lq:'지하철 · 터널',gn:'똑딱 ×2',gl:'하이볼'},
+ {n:'바닷가 낮잠',tag:'블루 · 파도',by:'@hana',sv:'3.4k',c:['blue','sky','teal'],b:[15,15,55,15],lq:'파도 · 자갈',gn:'별 ×1',gl:'쿠페'},
+ {n:'카페 구석자리',tag:'핑크 · 웅성임',by:'@dami',sv:'960',c:['pink','orange','coral'],b:[50,15,10,25],lq:'카페 웅성임',gn:'반짝 ×1',gl:'락'},
+ {n:'깊은 집중',tag:'블루 · 키보드',by:'@kei',sv:'1.8k',c:['violet','blue','pink'],b:[20,10,50,20],lq:'키보드 타건',gn:'똑딱 ×3',gl:'마티니'},
+ {n:'냉장고 웅웅',tag:'브라운 · 냉장고',by:'@ari',sv:'205',c:['sky','white','blue'],b:[10,20,20,50],lq:'냉장고 험',gn:'없음',gl:'하이볼'},
+ {n:'이끼 숲 산책',tag:'핑크 · 숲길',by:'@eun',sv:'670',c:['lime','teal','sky'],b:[40,20,20,20],lq:'숲길 발소리',gn:'잎사귀 ×2',gl:'쿠페'},
+ {n:'밤 버스',tag:'브라운 · 버스',by:'@woo',sv:'1.1k',c:['violet','brown','blue'],b:[15,10,20,55],lq:'버스 엔진',gn:'방울 ×1',gl:'락'},
+ {n:'새벽 2시 빨래방',tag:'화이트 · 건조기',by:'@yeji',sv:'540',c:['orange','pink','white'],b:[20,50,10,20],lq:'건조기 회전',gn:'반짝 ×1',gl:'하이볼'},
+ {n:'첫눈',tag:'화이트 · 눈 밟기',by:'@seo',sv:'2.7k',c:['white','sky','pink'],b:[15,65,15,5],lq:'눈 밟는 소리',gn:'별 ×2',gl:'쿠페'},
+ {n:'여객선 갑판',tag:'블루 · 배 갑판',by:'@tae',sv:'390',c:['teal','blue','brown'],b:[10,15,45,30],lq:'갑판 · 갈매기',gn:'방울 ×1',gl:'하이볼'},
+ {n:'옥상 환풍기',tag:'화이트 · 환풍기',by:'@lin',sv:'150',c:['sky','orange','white'],b:[15,55,20,10],lq:'환풍기',gn:'똑딱 ×1',gl:'락'},
+ {n:'피아노 연습실',tag:'핑크 · 연습실',by:'@nari',sv:'880',c:['pink','violet','white'],b:[45,30,10,15],lq:'건반 · 페달',gn:'반짝 ×2',gl:'마티니'},
+ {n:'기차 창가',tag:'브라운 · 기차',by:'@hyun',sv:'1.6k',c:['brown','violet','orange'],b:[20,10,15,55],lq:'기차 레일',gn:'똑딱 ×2',gl:'쿠페'}
 ];
 const hex2=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);
 
@@ -629,7 +629,7 @@ function focus(m){
   $('dName').textContent=m.n;$('dBy').textContent=`${m.by} · 저장 ${m.sv} · 리믹스 ${Math.round(parseFloat(m.sv)*(m.sv.includes('k')?70:.07))||0}`;
   const keys=['PINK','WHITE','BLUE','BROWN'];
   $('dStack').innerHTML=keys.map((k,i)=>m.b[i]?`<span style="width:${m.b[i]}%;background:${NOISE_HEX[k]}"></span>`:'').join('');
-  $('dLegend').innerHTML=keys.map((k,i)=>m.b[i]?`<span><i style="background:${NOISE_HEX[k]}"></i>${k} ${m.b[i]}</span>`:'').join('');
+  $('dLegend').innerHTML=keys.map((k,i)=>m.b[i]?`<span><i style="background:${NOISE_HEX[k]}"></i>${({PINK:'핑크',WHITE:'화이트',BLUE:'블루',BROWN:'브라운'})[k]} ${m.b[i]}</span>`:'').join('');
   $('dTags').innerHTML=`<span class="tg"><em>LIQUEUR</em>${m.lq}</span><span class="tg"><em>GARNISH</em>${m.gn}</span><span class="tg"><em>GLASS</em>${m.gl}</span>`;
   playMix(m);
 }
@@ -845,7 +845,7 @@ function lsrc(l,dest){const mk=b=>{const s=AC.createBufferSource();s.buffer=b;s.
   if(!LBUF[l.src])LBUF[l.src]=genBuf(LEN[l.src],GEN[l.src],l.src==='clock'?.08:.11);return{s:mk(LBUF[l.src])};}
 function gPer(d){const r=window.NBREC&&NBREC.slot(d.k,d.n);return r?Math.max(PER[d.k],r.dur+.6):PER[d.k];}
 const LBUF={};
-const NK={pink:'PINK',white:'WHITE',blue:'BLUE',brown:'BROWN'},NKR={pink:'PINK',white:'WHITE',blue:'BLUE',brown:'BROWN'};
+const NK={pink:'PINK',white:'WHITE',blue:'BLUE',brown:'BROWN'},NKR={pink:'핑크',white:'화이트',blue:'블루',brown:'브라운'};
 const BHEX={pink:'#f04696',white:'#d6d2ec',blue:'#4678f6',brown:'#b06840'};
 const FAMC={fizz:[8,10,12,14],spark:[4,5,6,8],blossom:[4,5,6,8],melt:[3,4,5,6]},PER={spark:1.6,fizz:2.2,blossom:2.8,melt:2},VOL={S:.5,M:.75,L:1},GN={fizz:'FIZZ',spark:'SPARK',blossom:'BLOSSOM',melt:'MELT'};
 const seen=new Set();let realN=0;
@@ -860,7 +860,7 @@ function toMix(d){
   const cols=[BHEX[order[0]],BHEX[order[1]]||BHEX[order[0]],lt[0]||(lk[0]&&LBY[lk[0]].c)||BHEX[order[2]]||BHEX[order[0]]];
   const ln=lk.map(k=>LBY[k].n);
   const hh=new Date(d.t||Date.now());
-  return{n:(d.name&&String(d.name).slice(0,20))||(ln.length?ln.join(' + '):NKR[order[0]].toLowerCase()+' mix'),tag:`${NKR[order[0]]} · ${ln[0]||'베이스만'}`,by:'@'+String(d.who||'guest').slice(0,12),sv:'NEW',
+  return{n:(d.name&&String(d.name).slice(0,20))||(ln.length?ln.join(' + '):NKR[order[0]]+' 믹스'),tag:`${NKR[order[0]]} · ${ln[0]||'베이스만'}`,by:'@'+String(d.who||'guest').slice(0,12),sv:'NEW',
     hexCol:cols,b,lq:ln.join(' · ')||'없음',gn:g.length?g.map(x=>GN[x.k]+' '+x.n).join(' · '):'없음',gl:'—',live:{lk,lv,g},t:hh};}
 function place(m){
   // 예시 믹스 자리부터 채우고, 다 차면 가장 오래된 새 믹스 자리를 씀
@@ -936,7 +936,7 @@ function zv(){return (stage.getBoundingClientRect().width/REFW)*((S.zoom||170)/1
 function fitUI(){UI.style.transform=`scale(${uiScale()})`;document.body.style.setProperty('--us',uiScale().toFixed(4));const F=uiScale()/zv();document.getElementById('labels').style.setProperty('--F',F.toFixed(4));}
 new ResizeObserver(fitUI).observe(stage);fitUI();
 const NOW0=Date.now();
-function ago(m){const t=m.t?+m.t:(NOW0-((m.n.length*97)%55+3)*60000);const d=Math.max(0,(Date.now()-t)/60000);return d<1?'just now':d<60?Math.round(d)+'m ago':d<1440?Math.round(d/60)+'h ago':Math.round(d/1440)+'d ago';}
+function ago(m){const t=m.t?+m.t:(NOW0-((m.n.length*97)%55+3)*60000);const d=Math.max(0,(Date.now()-t)/60000);return d<1?'방금':d<60?Math.round(d)+'분 전':d<1440?Math.round(d/60)+'시간 전':Math.round(d/1440)+'일 전';}
 function relabel(m){if(!m.el||m.el.dataset.v2===m.n)return;m.el.dataset.v2=m.n;
   const v=document.createElement('div');v.className='v2';v.innerHTML=`<span class="dt"></span><span class="nm"></span><span class="us"></span><span class="ago"></span>`;
   v.querySelector('.nm').textContent=m.n;v.querySelector('.us').textContent=(m.by||'').replace(/^@/,'');[...m.el.querySelectorAll('.v2')].forEach(x=>x.remove());m.el.appendChild(v);}
