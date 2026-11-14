@@ -331,6 +331,20 @@
  ],
  "garnish": [
   {
+   "id": "GN-FIZZ-08",
+   "k": "rec_can_lo",
+   "n": "캔 따는 소리 (낮게)",
+   "fam": "fizz",
+   "count": 8,
+   "url": "snd/gn/rec_can_lo.wav",
+   "dur": 3.1,
+   "color": "white",
+   "slope": -1.37,
+   "src": "rec_can.wav ×0.84",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
    "id": "GN-FIZZ-10",
    "k": "rec_can",
    "n": "캔 따는 소리",
@@ -342,6 +356,34 @@
    "slope": -0.79,
    "src": "alex_jauk-opening-beer-can-noise-421403.mp3",
    "note": "치익 — 기포가 터지는 높은 소리 (화이트 대역)"
+  },
+  {
+   "id": "GN-FIZZ-12",
+   "k": "rec_can_hi",
+   "n": "캔 따는 소리 (높게)",
+   "fam": "fizz",
+   "count": 12,
+   "url": "snd/gn/rec_can_hi.wav",
+   "dur": 2.18,
+   "color": "white",
+   "slope": -0.36,
+   "src": "rec_can.wav ×1.19",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
+   "id": "GN-FIZZ-14",
+   "k": "rec_can_hi2",
+   "n": "캔 따는 소리 (더 높게)",
+   "fam": "fizz",
+   "count": 14,
+   "url": "snd/gn/rec_can_hi2.wav",
+   "dur": 1.84,
+   "color": "white",
+   "slope": -0.24,
+   "src": "rec_can.wav ×1.41",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
   },
   {
    "id": "GN-SPARK-04",
@@ -357,6 +399,20 @@
    "note": "높은 클릭·휘파람 (블루 대역)"
   },
   {
+   "id": "GN-SPARK-05",
+   "k": "rec_dolphin_hi",
+   "n": "돌고래 딸깍 (높게)",
+   "fam": "spark",
+   "count": 5,
+   "url": "snd/gn/rec_dolphin_hi.wav",
+   "dur": 2.02,
+   "color": "blue",
+   "slope": 2.23,
+   "src": "rec_dolphin.wav ×1.19",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
    "id": "GN-SPARK-06",
    "k": "rec_spray",
    "n": "스프레이 치익",
@@ -368,6 +424,76 @@
    "slope": 1.51,
    "src": "alex_jauk-spray-can-noise-478948.mp3",
    "note": "아주 높은 바람 새는 소리 (블루 경계)"
+  },
+  {
+   "id": "GN-SPARK-08",
+   "k": "rec_dolphin_hi2",
+   "n": "돌고래 딸깍 (더 높게)",
+   "fam": "spark",
+   "count": 8,
+   "url": "snd/gn/rec_dolphin_hi2.wav",
+   "dur": 1.7,
+   "color": "blue",
+   "slope": 2.2,
+   "src": "rec_dolphin.wav ×1.41",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
+   "id": "GN-BLOSSOM-04",
+   "k": "rec_step1",
+   "n": "숲길 한 걸음 1",
+   "fam": "blossom",
+   "count": 4,
+   "url": "snd/gn/rec_step1.wav",
+   "dur": 0.55,
+   "color": "pink",
+   "slope": -3.96,
+   "src": "dbsound-footsteps-on-nature-trail-246038.mp3 @5.51s",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
+   "id": "GN-BLOSSOM-05",
+   "k": "rec_step2",
+   "n": "숲길 한 걸음 2",
+   "fam": "blossom",
+   "count": 5,
+   "url": "snd/gn/rec_step2.wav",
+   "dur": 0.55,
+   "color": "pink",
+   "slope": -3.37,
+   "src": "dbsound-footsteps-on-nature-trail-246038.mp3 @7.96s",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
+   "id": "GN-BLOSSOM-06",
+   "k": "rec_step3",
+   "n": "숲길 한 걸음 3",
+   "fam": "blossom",
+   "count": 6,
+   "url": "snd/gn/rec_step3.wav",
+   "dur": 0.55,
+   "color": "pink",
+   "slope": -2.64,
+   "src": "dbsound-footsteps-on-nature-trail-246038.mp3 @7.29s",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
+  },
+  {
+   "id": "GN-BLOSSOM-08",
+   "k": "rec_step4",
+   "n": "숲길 한 걸음 4",
+   "fam": "blossom",
+   "count": 8,
+   "url": "snd/gn/rec_step4.wav",
+   "dur": 0.55,
+   "color": "pink",
+   "slope": -1.88,
+   "src": "dbsound-footsteps-on-nature-trail-246038.mp3 @11.65s",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
   },
   {
    "id": "GN-MELT-03",
@@ -407,6 +533,20 @@
    "slope": -4.95,
    "src": "alex_jauk-goat-noise-192570.mp3",
    "note": "측정상 브라운 경계(−4.95), 핑크와 가까움"
+  },
+  {
+   "id": "GN-MELT-06",
+   "k": "rec_hit_hi",
+   "n": "퍽 (타격음, 높게)",
+   "fam": "melt",
+   "count": 6,
+   "url": "snd/gn/rec_hit_hi.wav",
+   "dur": 0.34,
+   "color": "brown",
+   "slope": -4.64,
+   "src": "rec_hit.wav ×1.19",
+   "note": "임시 샘플 — 녹음을 높이·잘라서 채움",
+   "temp": true
   }
  ]
 }

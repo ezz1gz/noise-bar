@@ -905,7 +905,7 @@ addEventListener('pointerdown',()=>{initAudio();if(AC&&AC.state==='suspended')AC
 // ═══ 듣는 원: 원 가까이 있는 믹스일수록 크게, 멀어질수록 안 들림
 const EAR={x:0,y:0,tx:0,ty:0,r:120,R:560,last:0,anchor:null};
 const ear=document.createElement('div');ear.className='ear';document.getElementById('labels').appendChild(ear);
-const EXK={'세탁기':'washer','빗소리':'rain','종이':'library','지하철':'subway','파도':'waves','카페':'cafe','키보드':'clock','냉장고':'fridge','숲길':'forest','버스':'street','건조기':'washer','눈':'steps','갑판':'waves','환풍기':'aircon','연습실':'cafe','기차':'train'};
+const EXK={'세탁기':'washer','빗소리':'rain','종이':'library','지하철':'subway','파도':'waves','카페':'rec_crowd','키보드':'clock','냉장고':'fridge','숲길':'rec_trail','버스':'street','건조기':'washer','눈':'steps','갑판':'waves','환풍기':'aircon','연습실':'cafe','기차':'train'};
 function liqKeys(m){if(m.live)return m.live.lk.map((k,i)=>[k,m.live.lv[i]||.5]);const w=(m.lq||'').split(/[ ·]/)[0];for(const k in EXK)if(w.indexOf(k)===0||m.lq.includes(k))return[[EXK[k],.55]];return[];}
 let amb=null;
 function ambInit(){if(amb||!AC)return;initAudio();amb={base:{},liq:{},gn:new Map()};
@@ -992,8 +992,8 @@ function slots(b){const ks=['pink','white','blue','brown'],tot=b.reduce((a,x)=>a
   q.forEach(o=>o.n=Math.floor(o.v));let left=3-q.reduce((a,o)=>a+o.n,0);q.slice().sort((x,y)=>(y.v-y.n)-(x.v-x.n)).forEach(o=>{if(left>0&&o.v>0){o.n++;left--;}});
   const out=[];q.sort((x,y)=>y.v-x.v).forEach(o=>{for(let i=0;i<o.n;i++)out.push(o.k);});while(out.length<3)out.push(out[0]||'white');return out.slice(0,3);}
 function recipeOf(m){if(m.live)return m.live;if(m._rec)return m._rec;
-  const lk=(typeof liqKeys==='function'?liqKeys(m):[]).map(x=>x[0]);const G={Tick:['spark',5],Drop:['fizz',10],Leaf:['blossom',5],Spark:['spark',6],Star:['spark',8]};
-  const g=[];const mm=(m.gn||'').match(/^(\w+)\s*×(\d)/);if(mm&&G[mm[1]]){for(let i=0;i<+mm[2];i++)g.push({k:G[mm[1]][0],n:G[mm[1]][1]+ (i?1:0),sz:'M'});}
+  const lk=(typeof liqKeys==='function'?liqKeys(m):[]).map(x=>x[0]);const G={'똑딱':['spark',5],'방울':['fizz',10],'잎사귀':['blossom',5],'반짝':['spark',6],'별':['spark',8],Tick:['spark',5],Drop:['fizz',10],Leaf:['blossom',5],Spark:['spark',6],Star:['spark',8]};
+  const g=[];const mm=(m.gn||'').match(/^(\S+)\s*×(\d)/);if(mm&&G[mm[1]]){for(let i=0;i<+mm[2];i++)g.push({k:G[mm[1]][0],n:G[mm[1]][1]+ (i?1:0),sz:'M'});}
   return m._rec={lk,lv:lk.map(()=>.55),g};}
 function recolor(m){const r=recipeOf(m),lq=r.lk&&r.lk[0]&&LIVE.lby(r.lk[0]);const lc=lq?lq.c:null;const key=m.b.join(',')+'|'+lc;if(m._ck===key)return;m._ck=key;
   const sl=slots(m.b);m.hexCol=[MBC[sl[0]],MBC[sl[1]],lc||MBC[sl[2]]];
