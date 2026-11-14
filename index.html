@@ -1444,7 +1444,33 @@ $$('l2bar').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.pr
 $$('l2sg').addEventListener('click',()=>closeSheet());
 // 손잡이 끌기: 바는 위로 → 열기, 시트는 아래로 → 닫기
 function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if((e.clientY-y)*dir>28){y=null;fn();}});addEventListener('pointerup',()=>{y=null;});}
-dragOpen($$('l2bar'),-1,()=>{wake();openSheet();});dragOpen($$('l2sg'),1,closeSheet);
+// 바 ↔ 시트: 손가락을 따라 올라오고 내려가며(고무줄·젤리), 놓으면 쫀득하게 자리 잡기 · 탭도 OK
+(()=>{const bar=$$('l2bar'),sh=$$('l2sheet');let G=null,ate=0;
+  const span=()=>sh.offsetHeight+30;
+  const rub=p=>p<0?-.1*(1-1/(1+(-p)*3)):p>1?1+.06*(1-1/(1+(p-1)*3)):p;
+  const paintQ=(q,j)=>{const f=Math.max(0,Math.min(1,q));
+    sh.style.transition='none';bar.style.transition='none';
+    sh.style.transform=`translate(-50%,${(1-q)*span()}px) scale(${1-j},${1+j*.6})`;sh.style.transformOrigin='50% 100%';sh.style.opacity=String(Math.min(1,f*1.8));
+    bar.style.opacity=String(Math.max(0,1-f*2.4));bar.style.transform=`translateY(${-f*30}px) scale(${1+f*.06},${1-f*.04})`;};
+  const settle=open=>{const ez=open?'cubic-bezier(.34,1.45,.62,1)':'cubic-bezier(.36,0,.2,1.15)';
+    sh.style.transition=`transform ${open?.62:.5}s ${ez},opacity .28s`;bar.style.transition=`transform .5s cubic-bezier(.34,1.4,.62,1),opacity .3s`;
+    requestAnimationFrame(()=>{sh.style.transform='';sh.style.opacity='';bar.style.transform='';bar.style.opacity='';});
+    clearTimeout(settle.t);settle.t=setTimeout(()=>{sh.style.transition='';bar.style.transition='';sh.style.transformOrigin='';},700);};
+  const zone=e=>{if(!L2.open)return bar.contains(e.target);if(!sh.contains(e.target))return false;if(e.target.closest('.l2grab'))return true;
+    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect();return e.clientY-r.top<56;};
+  addEventListener('pointerdown',e=>{if(step!==2||!zone(e))return;wake();G={y0:e.clientY,open:L2.open,moved:false,T:[[performance.now(),e.clientY]]};try{e.target.setPointerCapture(e.pointerId);}catch(_){}},true);
+  addEventListener('pointermove',e=>{if(!G)return;const dy=e.clientY-G.y0;G.T.push([performance.now(),e.clientY]);if(G.T.length>8)G.T.shift();
+    if(!G.moved){if(Math.abs(dy)<6)return;G.moved=true;if(!G.open){sh.style.transition='none';S.classList.add('l2open');S.classList.remove('l2intro');render();}}
+    const p=G.open?1-dy/span():-dy/span(),T=G.T,v=(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]);
+    paintQ(rub(p),Math.max(-.035,Math.min(.035,Math.abs(v)*.025)));},true);
+  const up=e=>{if(!G)return;const g=G;G=null;ate=performance.now();
+    if(!g.moved){if(!g.open){openSheet();settle(true);}else{closeSheet();settle(false);}return;}
+    const T=g.T,vy=(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]),dy=e.clientY-g.y0,p=g.open?1-dy/span():-dy/span();
+    const open=e.type==='pointercancel'?g.open:(vy<-.4?true:vy>.4?false:(g.open?p>.72:p>.25));
+    if(open){openSheet();settle(true);}else{closeSheet();settle(false);}};
+  addEventListener('pointerup',up,true);addEventListener('pointercancel',up,true);
+  addEventListener('click',e=>{if(performance.now()-ate<450&&(bar.contains(e.target)||e.target.closest('.l2grab'))){e.stopPropagation();e.preventDefault();}},true);
+})();
 function go(){const L=ld();if(!L.length){(window.nbNotice?nbNotice(['리큐르를 하나 이상 담아요'],stage):toast('리큐르를 하나 이상 담아요'));openSheet();return;}closeSheet();openFlow(L);}
 $$('l2next').addEventListener('click',()=>{wake();ld().length?go():openSheet();});
 $$('l2mix').addEventListener('click',()=>{wake();go();});
@@ -1573,6 +1599,47 @@ frame();
    const tr=tray.getBoundingClientRect();tray.classList.toggle('nbLt',bgL(tr.top+20-cr.top)>.55);}
  setInterval(adapt,180);
  window.__nbT={share:a=>{share=a;placeLabs();},solo:i=>{setSolo(i);placeLabs();},sel:i=>{setSel(i);placeLabs();},bar:st=>setBar(st)};
+
+ // ── 하단 바: 손가락을 따라 늘어나고(고무줄) 놓으면 스프링으로 쫀득하게 열림/닫힘 · 탭도 OK
+ {let G=null,ate=0;const mx=16;
+  const geo=st=>{const pw=tray.offsetParent?tray.offsetParent.clientWidth:W;return st==='open'?{x:mx,w:pw-2*mx,h:tray.classList.contains('nbSel')?361:308,r:8}:{x:mx,w:pw-mx-(mx+101),h:60,r:10};};
+  const rub=(p)=>p<0?-.12*(1-1/(1+(-p)*3)):p>1?1+.08*(1-1/(1+(p-1)*3)):p;
+  const views=()=>[$('vIdle'),$('vOpen')];
+  stage.addEventListener('pointerdown',e=>{
+    if(step!==1||!tray.contains(e.target))return;
+    if(barState!=='idle'&&barState!=='open')return;
+    if(barState==='open'&&e.target.closest('.trk,button,.bsec,.bcta'))return;
+    e.stopPropagation();wake();window.__nbMorphStop&&__nbMorphStop();
+    const A=geo(barState),B=geo(barState==='open'?'idle':'open');
+    const r=tray.getBoundingClientRect(),pr=tray.offsetParent.getBoundingClientRect();
+    G={y0:e.clientY,st:barState,A,B,moved:false,T:[[performance.now(),e.clientY]],c:{x:r.left-pr.left,w:r.width,h:r.height,r:parseFloat(getComputedStyle(tray).borderTopLeftRadius)||A.r}};
+    try{tray.setPointerCapture(e.pointerId);}catch(_){}},true);
+  stage.addEventListener('pointermove',e=>{if(!G)return;e.stopPropagation();const dy=e.clientY-G.y0;G.T.push([performance.now(),e.clientY]);if(G.T.length>8)G.T.shift();
+    if(!G.moved){if(Math.abs(dy)<6)return;G.moved=true;tray.classList.add('nodrag');}
+    const span=Math.abs(G.B.h-G.A.h)||1,p=(G.st==='idle'?-dy:dy)/span,q=rub(p);
+    const L=k=>G.A[k]+(G.B[k]-G.A[k])*q;
+    // 젤리: 빠르게 늘릴수록 살짝 좁아짐
+    const T=G.T,v=T.length>1?(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]):0,j=Math.max(-.04,Math.min(.04,-v*.03));
+    tray.style.left=L('x')+'px';tray.style.right=(tray.offsetParent.clientWidth-L('x')-L('w'))+'px';tray.style.height=Math.max(40,L('h'))+'px';tray.style.borderRadius=L('r')+'px';
+    tray.style.transformOrigin='50% 100%';tray.style.transform=`scale(${1-Math.abs(j)},${1+Math.abs(j)*.6})`;
+    const [vi,vo]=views(),f=Math.max(0,Math.min(1,q));if(G.st==='idle')vi.style.opacity=String(Math.max(0,1-f*2.2));else vo.style.opacity=String(Math.max(0,1-f*1.8));},true);
+  const up=e=>{if(!G)return;e.stopPropagation();const g=G;G=null;ate=performance.now();
+    const [vi,vo]=views();vi.style.opacity='';vo.style.opacity='';
+    if(!g.moved){tray.classList.remove('nodrag');setBar(g.st==='idle'?'open':'idle');return;}
+    const T=g.T,vy=T.length>1?(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]):0;   // px/ms (아래 +)
+    const dy=e.clientY-g.y0,span=Math.abs(g.B.h-g.A.h)||1,p=(g.st==='idle'?-dy:dy)/span;
+    const toward=g.st==='idle'?-vy:vy;const go=e.type!=='pointercancel'&&(p>.28||toward>.4)&&!(toward<-.3);
+    const r=tray.getBoundingClientRect(),pr=tray.offsetParent.getBoundingClientRect();
+    const from={x:r.left-pr.left,w:r.width,h:tray.offsetHeight,r:parseFloat(tray.style.borderRadius)||g.A.r};
+    tray.style.transform='';tray.classList.remove('nodrag');
+    const vh=(g.st==='idle'?-vy:vy)*1000*(go?1:-1)*(g.st==='idle'?1:-1);
+    if(go){window.__nbFrom=from;window.__nbVH=-vy*1000;setBar(g.st==='idle'?'open':'idle');}
+    else if(window.__nbSnap)__nbSnap(from,-vy*1000);};
+  stage.addEventListener('pointerup',up,true);stage.addEventListener('pointercancel',up,true);
+  // 이미 처리한 탭/끌기 뒤에 따라오는 click은 무시 (두 번 열고 닫히지 않게)
+  stage.addEventListener('click',e=>{if(performance.now()-ate<450&&tray.contains(e.target)&&!e.target.closest('.trk,button'))
+    {e.stopPropagation();e.preventDefault();}},true);
+ }
 
  const LINES={
   base:[['베이스','네 가지 노이즈를 쌓아 바탕 소리를 만들어요','색 띠를 위아래로 끌면 비율이 바뀌고','띠를 탭하면 그 소리만 들려요','아래 바를 올리면 자세히 조절해요']],
@@ -1793,8 +1860,8 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
  const clear=()=>props.forEach(p=>t.style[p]='');
  const meas=()=>{const P=t.offsetParent;const pw=P?P.clientWidth:innerWidth;const cs=getComputedStyle(t);return{x:t.offsetLeft,w:t.offsetWidth,h:t.offsetHeight,r:parseFloat(cs.borderTopLeftRadius)||0,pw};};
  let prev=meas(),cur=null,raf=0,last=t.dataset.state;
- function run(from,to,open){cancelAnimationFrame(raf);
-  const K=open?260:300,C=open?19:27;const keys=['x','w','h','r'];const s={},v={};keys.forEach(k=>{s[k]=from[k];v[k]=cur&&cur.v?cur.v[k]:0;});
+ function run(from,to,open,vh){cancelAnimationFrame(raf);
+  const K=open?240:280,C=open?17:23;const keys=['x','w','h','r'];const s={},v={};keys.forEach(k=>{s[k]=from[k];v[k]=cur&&cur.v?cur.v[k]:0;});if(vh)v.h=vh;
   t.classList.add('nb-anim');t.style.transformOrigin='50% 100%';let lt=performance.now();
   if(open){t.classList.add('nb-grow');setTimeout(()=>t.classList.remove('nb-grow'),140);}
   const step=now=>{const dt=Math.min(.032,(now-lt)/1000);lt=now;let moving=false;
@@ -1807,10 +1874,14 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
   raf=requestAnimationFrame(step);}
  new MutationObserver(()=>{const st=t.dataset.state;if(st===last)return;const was=last;last=st;
    if(t.classList.contains('nodrag')||st==='drag'||was==='drag'||st==='liqcap'||was==='liqcap'){cancelAnimationFrame(raf);cur=null;clear();t.classList.remove('nb-anim');prev=meas();return;}
-   const from=cur?{...cur.s,pw:prev.pw}:prev;
+   const ff=window.__nbFrom;window.__nbFrom=null;const vh=window.__nbVH||0;window.__nbVH=0;const from=ff?{...ff,pw:prev.pw}:cur?{...cur.s,pw:prev.pw}:prev;
    t.classList.add('nb-anim');clear();const to=meas();
    t.style.left=from.x+'px';t.style.right=(to.pw-from.x-from.w)+'px';t.style.height=from.h+'px';t.style.borderRadius=from.r+'px';t.style.transformOrigin='50% 100%';
-   const open=to.h>from.h+4;run(from,to,open);}).observe(t,{attributes:true,attributeFilter:['data-state']});
+   const open=to.h>from.h+4;run(from,to,open,vh);}).observe(t,{attributes:true,attributeFilter:['data-state']});
+  // 손가락으로 끌던 모양에서 그대로 제자리(같은 상태)로 쫀득하게 되돌아가기
+  window.__nbSnap=(from,vh)=>{cancelAnimationFrame(raf);cur=null;clear();const to=meas();from={...from,pw:to.pw};t.classList.add('nb-anim');
+    t.style.left=from.x+'px';t.style.right=(to.pw-from.x-from.w)+'px';t.style.height=from.h+'px';t.style.borderRadius=from.r+'px';t.style.transformOrigin='50% 100%';run(from,to,to.h>from.h,vh);};
+  window.__nbMorphStop=()=>{cancelAnimationFrame(raf);cur=null;};
  addEventListener('resize',()=>{if(!cur)prev=meas();});
 })();
 </script>
@@ -1897,6 +1968,7 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
 #stage.s1 #tray.nbLt{box-shadow:0 6px 30px rgba(0,0,0,.18),inset 0 0 0 .75px rgba(0,0,0,.15)!important}
 #stage.s1 .crw.nbLt .nbL small,#stage.s1 .crw.nbLt .nbR,#stage.s1 .crw.nbLt .pv small{color:#141117!important}
 #stage.s1 .crw.nbDk .pv b,#stage.s1 .crw.nbDk .pv b em{color:#fff!important}
+#stage.s1 #tray{touch-action:none}
 </style>
 
 <link rel="stylesheet" href="liq2.css">

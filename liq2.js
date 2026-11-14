@@ -49,7 +49,33 @@ $$('l2bar').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.pr
 $$('l2sg').addEventListener('click',()=>closeSheet());
 // 손잡이 끌기: 바는 위로 → 열기, 시트는 아래로 → 닫기
 function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if((e.clientY-y)*dir>28){y=null;fn();}});addEventListener('pointerup',()=>{y=null;});}
-dragOpen($$('l2bar'),-1,()=>{wake();openSheet();});dragOpen($$('l2sg'),1,closeSheet);
+// 바 ↔ 시트: 손가락을 따라 올라오고 내려가며(고무줄·젤리), 놓으면 쫀득하게 자리 잡기 · 탭도 OK
+(()=>{const bar=$$('l2bar'),sh=$$('l2sheet');let G=null,ate=0;
+  const span=()=>sh.offsetHeight+30;
+  const rub=p=>p<0?-.1*(1-1/(1+(-p)*3)):p>1?1+.06*(1-1/(1+(p-1)*3)):p;
+  const paintQ=(q,j)=>{const f=Math.max(0,Math.min(1,q));
+    sh.style.transition='none';bar.style.transition='none';
+    sh.style.transform=`translate(-50%,${(1-q)*span()}px) scale(${1-j},${1+j*.6})`;sh.style.transformOrigin='50% 100%';sh.style.opacity=String(Math.min(1,f*1.8));
+    bar.style.opacity=String(Math.max(0,1-f*2.4));bar.style.transform=`translateY(${-f*30}px) scale(${1+f*.06},${1-f*.04})`;};
+  const settle=open=>{const ez=open?'cubic-bezier(.34,1.45,.62,1)':'cubic-bezier(.36,0,.2,1.15)';
+    sh.style.transition=`transform ${open?.62:.5}s ${ez},opacity .28s`;bar.style.transition=`transform .5s cubic-bezier(.34,1.4,.62,1),opacity .3s`;
+    requestAnimationFrame(()=>{sh.style.transform='';sh.style.opacity='';bar.style.transform='';bar.style.opacity='';});
+    clearTimeout(settle.t);settle.t=setTimeout(()=>{sh.style.transition='';bar.style.transition='';sh.style.transformOrigin='';},700);};
+  const zone=e=>{if(!L2.open)return bar.contains(e.target);if(!sh.contains(e.target))return false;if(e.target.closest('.l2grab'))return true;
+    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect();return e.clientY-r.top<56;};
+  addEventListener('pointerdown',e=>{if(step!==2||!zone(e))return;wake();G={y0:e.clientY,open:L2.open,moved:false,T:[[performance.now(),e.clientY]]};try{e.target.setPointerCapture(e.pointerId);}catch(_){}},true);
+  addEventListener('pointermove',e=>{if(!G)return;const dy=e.clientY-G.y0;G.T.push([performance.now(),e.clientY]);if(G.T.length>8)G.T.shift();
+    if(!G.moved){if(Math.abs(dy)<6)return;G.moved=true;if(!G.open){sh.style.transition='none';S.classList.add('l2open');S.classList.remove('l2intro');render();}}
+    const p=G.open?1-dy/span():-dy/span(),T=G.T,v=(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]);
+    paintQ(rub(p),Math.max(-.035,Math.min(.035,Math.abs(v)*.025)));},true);
+  const up=e=>{if(!G)return;const g=G;G=null;ate=performance.now();
+    if(!g.moved){if(!g.open){openSheet();settle(true);}else{closeSheet();settle(false);}return;}
+    const T=g.T,vy=(T[T.length-1][1]-T[0][1])/Math.max(1,T[T.length-1][0]-T[0][0]),dy=e.clientY-g.y0,p=g.open?1-dy/span():-dy/span();
+    const open=e.type==='pointercancel'?g.open:(vy<-.4?true:vy>.4?false:(g.open?p>.72:p>.25));
+    if(open){openSheet();settle(true);}else{closeSheet();settle(false);}};
+  addEventListener('pointerup',up,true);addEventListener('pointercancel',up,true);
+  addEventListener('click',e=>{if(performance.now()-ate<450&&(bar.contains(e.target)||e.target.closest('.l2grab'))){e.stopPropagation();e.preventDefault();}},true);
+})();
 function go(){const L=ld();if(!L.length){(window.nbNotice?nbNotice(['리큐르를 하나 이상 담아요'],stage):toast('리큐르를 하나 이상 담아요'));openSheet();return;}closeSheet();openFlow(L);}
 $$('l2next').addEventListener('click',()=>{wake();ld().length?go():openSheet();});
 $$('l2mix').addEventListener('click',()=>{wake();go();});
