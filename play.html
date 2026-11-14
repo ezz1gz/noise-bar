@@ -692,7 +692,7 @@ addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gt
 })();
 </script>
 <script>
-document.getElementById('ocn').onclick=()=>{let me='';try{me=sessionStorage.getItem('nb-sea-me')||'';}catch(_){}location.href='sea/'+(me?'?me='+me:'');};
+document.getElementById('ocn').onclick=()=>{let me='';try{me=sessionStorage.getItem('nb-sea-me')||'';}catch(_){}location.href='ocean/'+(me?'?me='+me:'');};
 // ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
 (()=>{try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
 const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
