@@ -40,21 +40,20 @@ const sh=document.createElement('section');sh.className='g2sheet';sh.setAttribut
 sh.innerHTML='<button type="button" class="grab" id="g2sg" aria-label="닫기"><img src="assets/l2-grab.svg" width="33.5" height="1.5" alt=""></button><div class="g2tabs" id="g2tabs" role="tablist"></div><div class="g2fl"><span>빈도</span><b id="g2fv"></b></div><div class="g2freq" id="g2freq" role="group" aria-label="빈도"></div><div class="g2line"></div><div class="g2vol"><div class="g2pill" id="g2pill" role="slider" tabindex="0" aria-label="볼륨" aria-valuemin="0" aria-valuemax="100"><i class="g2fill"></i><span id="g2pn">볼륨</span><img class="g2tick" id="g2tk" src="assets/l2-tick.svg" width="1.5" height="13.5" alt=""></div><b id="g2vp"></b></div><button type="button" class="g2serve" id="g2serve"><span>서빙하기</span><img src="assets/l2-chevw.svg" width="24" height="24" alt=""></button>';
 [bar,nx,sh].forEach(e=>{e.dataset.band='bot';ph.appendChild(e);});sh.dataset.band='bot';
 let act=null;
-// 새로 넣은 가니쉬는 빈도·볼륨을 둘 다 정하기 전까지 다른 조작 막음
-const need=()=>ITEMS().find(d=>d._nf||d._nv)||null;
-function nudge(){const d=need();if(!d)return;act=d;ph.classList.add('g2open');render();const m=[];if(d._nf)m.push('빈도');if(d._nv)m.push('볼륨');note([FAM[d.k].n+' '+numOf(d),m.join('·')+'을 먼저 정해요']);}
-const lockGate=e=>{if(!need())return;if(sh.contains(e.target)&&!e.target.closest('#g2sg,#g2serve,.g2tab'))return;if(e.target.closest&&e.target.closest('.nbIntro,.nbNotice'))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(e.type==='pointerdown')nudge();};
-['pointerdown','pointerup','click','touchstart','mousedown'].forEach(t=>addEventListener(t,lockGate,{capture:true,passive:false}));
+// 새로 넣은 가니쉬: 빈도나 볼륨을 한 번도 안 누르고 시트를 닫거나 다른 데로 가면 취소(잔에서 빠짐)
+const need=()=>ITEMS().find(d=>d._nf&&d._nv)||null;
+const confirmD=d=>{if(d){d._nf=0;d._nv=0;}};
+function cancelPending(){const d=need();if(!d)return false;const w=[...LOOP].find(x=>x._loop&&x._loop.d===d);if(w){LOOP.delete(w);w.animate([{opacity:getComputedStyle(w).opacity},{opacity:0,transform:w.style.transform+' scale(.6)'}],{duration:240}).onfinish=()=>{w.remove();render();};}if(act===d)act=null;return true;}
 const note=t=>{try{nbNotice(t);}catch(_){}};
 function open(){if(!ITEMS().length){note(['가니쉬를 잔에 올려요','탭하거나 끌어서 넣어요']);return;}ph.classList.add('g2open');render();}
-function close(){if(need()){nudge();return;}ph.classList.remove('g2open');}
+function close(){cancelPending();ph.classList.remove('g2open');}
 bar.onclick=open;bar.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
 $('g2sg').onclick=close;
 {let y=null;bar.addEventListener('pointerdown',e=>{y=e.clientY;});$('g2sg').addEventListener('pointerdown',e=>{y=-e.clientY;});addEventListener('pointermove',e=>{if(y===null)return;if(y>0&&y-e.clientY>28){y=null;open();}else if(y<0&&e.clientY+y>28){y=null;close();}});addEventListener('pointerup',()=>{y=null;});}
 // 밖(잔·빈 곳)을 누르면 시트 닫기
 ph.addEventListener('pointerdown',e=>{if(ph.classList.contains('g2open')&&!sh.contains(e.target))close();},true);
 let serving=false;
-function serve(){const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(need()){nudge();return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
+function serve(){if(cancelPending()){setTimeout(serve,260);return;}const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
   q.set('g',L.map(d=>`${d.k}-${d.n}-${d.sz}-f${d.f||3}-v${Math.round((d.vol==null?.6:d.vol)*100)}`).join(','));const go=()=>{location.href='name.html?'+q;};
   toFront().then(go,go);}
 // 서빙: 위에서 본 원 → 앞에서 본 잔 (글라스 고를 때의 역순) — 원이 림 타원으로 눕고, 납작했던 잔 몸통이 펴지며 나타남
@@ -84,18 +83,18 @@ function render(){const L=ITEMS();
   $('g2lab').textContent=L.length?`${L.length}/3`:'Garnish';bar.setAttribute('aria-label',`가니쉬 ${L.length}/3 · 설정 열기`);
   if(!L.includes(act))act=L[L.length-1]||null;
   // 탭: 담은 가니쉬 이름 + 소리 번호
-  $('g2tabs').innerHTML='';L.forEach(d=>{const b=document.createElement('button');b.type='button';b.className='g2tab';b.setAttribute('role','tab');b.setAttribute('aria-pressed',String(d===act));b.classList.toggle('need',!!(d._nf||d._nv));b.innerHTML=`<span>${FAM[d.k].n} ${numOf(d)}</span><i></i>`;b.onclick=()=>{act=d;render();};$('g2tabs').appendChild(b);});
+  $('g2tabs').innerHTML='';L.forEach(d=>{const b=document.createElement('button');b.type='button';b.className='g2tab';b.setAttribute('role','tab');b.setAttribute('aria-pressed',String(d===act));b.classList.toggle('need',!!(d._nf&&d._nv));b.innerHTML=`<span>${FAM[d.k].n} ${numOf(d)}</span><i></i>`;b.onclick=()=>{if(need()&&need()!==d)cancelPending();act=d;render();};$('g2tabs').appendChild(b);});
   if(!act)return;
   // 빈도 칸 5개: 채운 만큼 자주 울림
   const f=act.f||3;$('g2freq').innerHTML='';for(let i=0;i<5;i++){const b=document.createElement('button');b.type='button';b.className='g2f';b.setAttribute('aria-label',`빈도 ${i+1}/5`);b.setAttribute('aria-pressed',String(i<f));b.innerHTML=i<f?fillOf(act):blankOf(act.k,act.n,act.seed,68);
-    b.onclick=()=>{act.f=i+1;act._nf=0;render();};$('g2freq').appendChild(b);}
+    b.onclick=()=>{act.f=i+1;confirmD(act);render();};$('g2freq').appendChild(b);}
   // 빈도 안내: 실제로 울리는 간격(가니쉬마다 기본 간격 × 3/빈도)을 '10초에 N번'으로
   {const w=[...LOOP].find(x=>x._loop&&x._loop.d===act),per=w?w._loop.per:({spark:1.6,fizz:2.2,blossom:2.8,melt:2})[act.k],iv=per*3/f,n=Math.round(10/iv);
-   $('g2fv').textContent=act._nf?'칸을 눌러 정해요':(n>=1?`10초에 ${n}번`:`${Math.round(iv)}초에 1번`);$('g2freq').setAttribute('aria-label',`빈도 ${f}/5 · ${$('g2fv').textContent}`);}
-  const v=act.vol==null?.6:act.vol,P=$('g2pill');P.style.setProperty('--s',v.toFixed(3));P.style.setProperty('--c',`linear-gradient(90deg,${FAM[act.k].c[0]},${FAM[act.k].c[1]})`);$('g2pn').textContent=FAM[act.k].n+' 볼륨';$('g2freq').classList.toggle('need',!!act._nf);P.classList.toggle('need',!!act._nv);$('g2vp').textContent=Math.round(v*100)+'%';$('g2pill').setAttribute('aria-valuenow',Math.round(v*100));head();}
+   $('g2fv').textContent=n>=1?`10초에 ${n}번`:`${Math.round(iv)}초에 1번`;$('g2freq').setAttribute('aria-label',`빈도 ${f}/5 · ${$('g2fv').textContent}`);}
+  const v=act.vol==null?.6:act.vol,P=$('g2pill');P.style.setProperty('--s',v.toFixed(3));P.style.setProperty('--c',`linear-gradient(90deg,${FAM[act.k].c[0]},${FAM[act.k].c[1]})`);$('g2pn').textContent=FAM[act.k].n+' 볼륨';$('g2freq').classList.toggle('need',!!(act._nf&&act._nv));P.classList.toggle('need',!!(act._nf&&act._nv));$('g2vp').textContent=Math.round(v*100)+'%';$('g2pill').setAttribute('aria-valuenow',Math.round(v*100));head();}
 {const p=$('g2pill');let on=false;const set=e=>{if(!act)return;const r=p.getBoundingClientRect();act.vol=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));render();};
-  p.addEventListener('pointerdown',e=>{on=true;p.classList.add('on');p.setPointerCapture(e.pointerId);set(e);});p.addEventListener('pointermove',e=>{if(on)set(e);});const up=()=>{if(!on)return;on=false;p.classList.remove('on');if(act){act._nv=0;try{playG(act,0);}catch(_){}render();}};p.addEventListener('pointerup',up);p.addEventListener('pointercancel',up);
-  p.addEventListener('keydown',e=>{if(!act)return;const d=(e.key==='ArrowRight'||e.key==='ArrowUp')?.05:(e.key==='ArrowLeft'||e.key==='ArrowDown')?-.05:0;if(d){act.vol=Math.max(0,Math.min(1,(act.vol==null?.6:act.vol)+d));act._nv=0;render();}});}
+  p.addEventListener('pointerdown',e=>{on=true;p.classList.add('on');p.setPointerCapture(e.pointerId);set(e);});p.addEventListener('pointermove',e=>{if(on)set(e);});const up=()=>{if(!on)return;on=false;p.classList.remove('on');if(act){confirmD(act);try{playG(act,0);}catch(_){}render();}};p.addEventListener('pointerup',up);p.addEventListener('pointercancel',up);
+  p.addEventListener('keydown',e=>{if(!act)return;const d=(e.key==='ArrowRight'||e.key==='ArrowUp')?.05:(e.key==='ArrowLeft'||e.key==='ArrowDown')?-.05:0;if(d){act.vol=Math.max(0,Math.min(1,(act.vol==null?.6:act.vol)+d));confirmD(act);render();}});}
 // 잔 속 가니쉬를 잡아 잔 밖으로 끌어내면 빠짐
 function pullOut(w){let st=null;const k=()=>ph.getBoundingClientRect().width/393;
   w.addEventListener('pointerdown',e=>{e.stopPropagation();w.setPointerCapture(e.pointerId);const m=(w.style.transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/)||[0,0,0]);st={x0:e.clientX,y0:e.clientY,tx:+m[1],ty:+m[2],s:w.offsetWidth};w.style.zIndex=5;});
@@ -105,7 +104,7 @@ function pullOut(w){let st=null;const k=()=>ph.getBoundingClientRect().width/393
     if(Math.hypot(cx-159,cy-159)>159-o.s*.15){LOOP.delete(w);w.animate([{opacity:.35},{opacity:0,transform:w.style.transform+' scale(.6)'}],{duration:260}).onfinish=()=>{w.remove();render();};try{note([FAM[w._loop.d.k].n+' 가니쉬를 뺐어요']);}catch(_){} }
     else{w.style.opacity='';if(Math.hypot(dx,dy)<6){act=w._loop.d;ph.classList.add('g2open');render();}}};
   w.addEventListener('pointerup',end);w.addEventListener('pointercancel',end);}
-window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;d._nf=1;d._nv=1;act=d;pullOut(w);setTimeout(()=>{ph.classList.add('g2open');render();note([FAM[d.k].n+' '+numOf(d),'빈도와 볼륨을 정해요']);},380);},serve};
+window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;d._nf=1;d._nv=1;act=d;pullOut(w);if(need()&&need()!==d)cancelPending();setTimeout(()=>{ph.classList.add('g2open');render();},380);},serve};
 // 잔에서 빠질 때(3개 넘게 넣으면 오래된 것 빠짐)도 갱신
 setInterval(()=>{const k=ITEMS().length;if(k!==render._k){render._k=k;render();}},400);
 head();render();

@@ -29,7 +29,17 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 .ing svg{position:absolute;inset:0;overflow:visible}
 .tag{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);font-size:12px;color:#555;background:rgba(255,255,255,.85);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s}
 .tag.on{opacity:1}
-@media (prefers-reduced-motion:reduce){.g .bob,.ing .fl{animation:none}}
+@media (prefers-reduced-motion:reduce){.g .bob,.ing .fl{animation:none}
+/* 잔 속 가니쉬: 계열마다 다르게 움직임 */
+.ing.k-melt .fl{animation:gMelt 4.8s ease-in-out infinite;transform-origin:50% 30%}
+@keyframes gMelt{0%,100%{transform:translateY(0) scale(1,1)}40%{transform:translateY(5px) scale(.93,1.09)}65%{transform:translateY(6px) scale(1.05,.95)}82%{transform:translateY(2px) scale(.98,1.02)}}
+.ing.k-fizz .fl{animation:gFizz 1.7s ease-in-out infinite}
+@keyframes gFizz{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(1.6px,-3px) scale(1.04)}50%{transform:translate(-1.2px,-5.5px) scale(.97)}75%{transform:translate(1px,-2.5px) scale(1.03)}}
+.ing.k-spark .fl{animation:gSpark 2.2s linear infinite}
+@keyframes gSpark{0%,100%{transform:rotate(0) scale(1);opacity:1}8%{transform:rotate(10deg) scale(1.14);opacity:.75}16%{transform:rotate(0) scale(.95);opacity:1}52%{transform:rotate(-5deg) scale(1.06)}60%{transform:rotate(0) scale(1)}}
+.ing.k-blossom .fl{animation:gBloom 3.8s ease-in-out infinite}
+@keyframes gBloom{0%,100%{transform:rotate(-8deg) translate(-2px,0)}50%{transform:rotate(8deg) translate(2px,-2px)}}
+@media (prefers-reduced-motion:reduce){.ing .fl{animation:none!important}}}
 .ph{background:#fff}
 
 /* 가니쉬_01~07 (Figma 65:12450 …) — 예전 그림 속 바·다음 원은 숨기고 새 바·시트로 */
@@ -315,6 +325,8 @@ function blob(cx,cy,n,R,seed){const N=n*16,pts=[];let r0=Math.floor(seed*1e5)+7;
   let s=`M${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;for(let i=0;i<N;i++){const p0=pts[(i-1+N)%N],p1=pts[i],p2=pts[(i+1)%N],p3=pts[(i+2)%N];s+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(2)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(2)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(2)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(2)} ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;}return s+'Z';}
 // 채워진(잔 속·빈칸 채움) 가니쉬: 피그마 단색 fill
 const FLAT={melt:['#EC5B2B',.6],blossom:['#FF589E',.6],spark:['#1AA6E1',.6],fizz:['#EBEBEB',1]};
+// 잔 속에서는 메타볼이 비치게 반투명 (화이트도 불투명하지 않게)
+const GLA={melt:.55,blossom:.55,spark:.55,fizz:.55};
 function flatMarkup(k,n,seed,S){const f=FAM[k],P=shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed),id='f'+(UID++);return `<svg viewBox="0 0 72 72" width="${S||72}" height="${S||72}" style="overflow:visible"><defs><filter id="${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".1"/></filter></defs><path d="${P}" fill="${FLAT[k][0]}" fill-opacity="${FLAT[k][1]}" ${k==='fizz'?`filter="url(#${id})"`:''}/></svg>`;}
 function shapePath(k,n,cx,cy,seed){return k==='spark'?star(cx,cy,n,28.5,.4):k==='fizz'?star(cx,cy,n,27,.69):k==='blossom'?lobes(cx,cy,n,23.5):blob(cx,cy,n,25,seed);}
 // 기본형(피그마 에셋 그대로) 배치 — 72 상자 기준
@@ -383,9 +395,9 @@ setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()
 
 function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=cy-GC[1],r=Math.hypot(dx,dy),lim=GR-s/2-8;
   const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-37.5,gy=GC[1]+dy*k-263;
-  const w=document.createElement('div');w.className='ing';w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
+  const w=document.createElement('div');w.className='ing k-'+d.k;w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
   const id='q'+(UID++),f=FAM[d.k],P=shapePath(d.k,d.n,36-f.off[0]/2,36-f.off[1]/2,d.seed);
-  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg)"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="${id}s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".1"/></filter><linearGradient id="${id}g" x1="36" y1="6" x2="36" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="${f.c[0]}"/><stop offset="1" stop-color="${f.c[1]}"/></linearGradient></defs><path d="${P}" fill="${FLAT[d.k][0]}" fill-opacity="${FLAT[d.k][1]}" ${d.k==='fizz'?`filter="url(#${id}s)"`:''}/></svg></div>`;
+  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg)"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="${id}s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".14"/></filter><linearGradient id="${id}g" x1="36" y1="6" x2="36" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="${f.c[0]}"/><stop offset="1" stop-color="${f.c[1]}"/></linearGradient></defs><path d="${P}" fill="${FLAT[d.k][0]==='#EBEBEB'?'#FFFFFF':FLAT[d.k][0]}" fill-opacity="${GLA[d.k]}" filter="url(#${id}s)"/></svg></div>`;
   glass.appendChild(w);if(!el._fake)playG(d,(gx/318)*2-1);loopG(w,d);w.animate([{opacity:0,scale:'1.5'},{opacity:.6,scale:'1'}],{duration:500,easing:'cubic-bezier(.45,1.45,.8,1)'});
   while(glass.children.length>3){const o=glass.firstElementChild;o.animate([{opacity:.6},{opacity:0}],{duration:300}).onfinish=()=>o.remove();glass.appendChild(glass.firstElementChild);o.remove();break;}
   tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;if(window.__g2)__g2.added(w,d);tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
