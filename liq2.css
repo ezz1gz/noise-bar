@@ -80,3 +80,12 @@
 .l2it.fo .l2n{color:#000!important;text-shadow:0 0 6px rgba(255,255,255,.8)!important}
 .l2it.in{box-shadow:0 0 0 1px rgba(255,255,255,.75),0 0 18px 2px var(--c51)!important;-webkit-backdrop-filter:blur(6px) saturate(1.3);backdrop-filter:blur(6px) saturate(1.3)}
 .l2it.in.fo{box-shadow:0 0 0 1px #000,0 0 18px 2px var(--c51)!important}
+/* 조작 바 = 베이스 줄과 같은 생김새 (높이 34 · r5 · 이름 12 · 눈금 · 오른쪽 안쪽 % 14) */
+.l2size{position:relative;padding:0 16px!important}
+.l2pill{width:100%!important;height:34px!important}
+.l2pill span{font-size:12px!important}
+.l2size b{position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:14px!important;letter-spacing:-.28px!important;pointer-events:none}
+/* 테마 탭 좌우 여백 넓게 */
+.l2tabs{gap:14px!important;padding:0 20px!important}
+.l2tab,.l2tab[aria-pressed="true"]{padding:7px 10px!important}
+.l2open .l2bl,.l2open .l2ring{visibility:hidden}
