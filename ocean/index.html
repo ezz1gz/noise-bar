@@ -495,7 +495,7 @@ const VS=`#version 300 es
 in vec2 a;void main(){gl_Position=vec4(a,0.,1.);}`;
 const FS=`#version 300 es
 precision highp float;
-uniform vec2 uRes;uniform float uDpr,uTime,uTh,uSpread,uGlow,uScale,uGrain,uSat,uDim,uWash,uWashR,uSwirlMix;
+uniform vec2 uRes;uniform float uDpr,uTime,uTh,uSpread,uGlow,uScale,uGrain,uSat,uDim,uWash,uWashR,uSwirlMix;uniform vec4 uGrade;
 uniform vec2 uCam;uniform int uN;uniform int uFocus;
 uniform vec4 uBall[${MAXB}];uniform vec3 uCol[${MAXM*3}];uniform vec3 uBg;
 out vec4 o;
@@ -548,6 +548,12 @@ void main(){
   lum=dot(wcol,vec3(.299,.587,.114));wcol=mix(vec3(lum),wcol,uSat);
   vec3 base=mix(uBg,clamp(wcol,0.,1.),wa);
   vec3 c=mix(base,clamp(col,0.,1.),a);
+  // 색감: 색조 회전 · 밝기 · 대비 · 따뜻함 (메타볼 영역에만)
+  {float m=max(a,wa);vec3 g=c;
+   float ch=cos(uGrade.x),shh=sin(uGrade.x);mat3 toY=mat3(.299,.596,.211,.587,-.274,-.523,.114,-.322,.312);mat3 toR=mat3(1.,1.,1.,.956,-.272,-1.106,.621,-.647,1.703);
+   vec3 yiq=toY*g;yiq.yz=mat2(ch,shh,-shh,ch)*yiq.yz;g=toR*yiq;
+   g=(g-.5)*uGrade.z+.5+uGrade.y;g+=vec3(uGrade.w,uGrade.w*.25,-uGrade.w);
+   c=mix(c,clamp(g,0.,1.),m);}
   c+=(hash(gl_FragCoord.xy*1.7+uTime)-.5)*.06*uGrain*max(a,wa);
   o=vec4(clamp(c,0.,1.),1.);
 }`;
@@ -556,7 +562,7 @@ const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.a
 gl.bindAttribLocation(prog,0,'a');gl.linkProgram(prog);gl.useProgram(prog);
 const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
 gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
-const U={};['uRes','uDpr','uTime','uTh','uSpread','uGlow','uScale','uGrain','uSat','uDim','uWash','uWashR','uSwirlMix','uCam','uN','uFocus','uBall','uCol','uBg'].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
+const U={};['uRes','uDpr','uTime','uTh','uSpread','uGlow','uScale','uGrain','uSat','uDim','uWash','uWashR','uSwirlMix','uGrade','uCam','uN','uFocus','uBall','uCol','uBg'].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
 gl.uniform3f(U.uBg,.988,.984,.992);
 const ballBuf=new Float32Array(MAXB*4),colBuf=new Float32Array(MAXM*9);
 
@@ -695,7 +701,7 @@ function render(t,scaleDpr){
   gl.uniform2f(U.uRes,cv.width,cv.height);gl.uniform1f(U.uDpr,scaleDpr);gl.uniform1f(U.uTime,t);
   gl.uniform1f(U.uTh,.45+(1-S.goo/100)*1.3);gl.uniform1f(U.uSpread,.04+S.spread/100*.92);
   gl.uniform1f(U.uGlow,S.glow/100);gl.uniform1f(U.uScale,.0012+S.swirl/100*.006);
-  gl.uniform1f(U.uGrain,S.grain/100);gl.uniform1f(U.uWash,S.wash/100);gl.uniform1f(U.uWashR,.8+S.washR/100*3.);gl.uniform1f(U.uSwirlMix,.15+S.swirl/100*.7);gl.uniform1f(U.uSat,S.sat/100);gl.uniform1f(U.uDim,.22);
+  gl.uniform1f(U.uGrain,S.grain/100);gl.uniform1f(U.uWash,S.wash/100);gl.uniform1f(U.uWashR,.8+S.washR/100*3.);gl.uniform1f(U.uSwirlMix,.15+S.swirl/100*.7);gl.uniform1f(U.uSat,S.sat/100);gl.uniform4f(U.uGrade,(S.hue||0)*Math.PI/180,(S.bright||0)/250,(S.contrast??100)/100,(S.warm||0)/400);gl.uniform1f(U.uDim,.22);
   gl.uniform2f(U.uCam,cam.x,cam.y);gl.uniform1i(U.uN,n);gl.uniform1i(U.uFocus,fslot);
   gl.uniform4fv(U.uBall,ballBuf);gl.uniform3fv(U.uCol,colBuf);
   gl.drawArrays(gl.TRIANGLES,0,3);
@@ -721,11 +727,11 @@ function placeLabels(){
 }
 
 // ═══ 소리의 바다 (PC) · BuilD '수치 · 수정' 패널
-S.drift=25;DEF.drift=25;S.zoom=200;DEF.zoom=200;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=200;});
+S.drift=25;DEF.drift=25;Object.assign(DEF,{hue:0,bright:0,contrast:100,warm:0});['hue','bright','contrast','warm'].forEach(k=>{if(S[k]===undefined)S[k]=DEF[k];});Object.values(PRESETS).forEach(p=>{['hue','bright','contrast','warm'].forEach(k=>{if(p[k]===undefined)p[k]=DEF[k];});});S.zoom=200;DEF.zoom=200;Object.values(PRESETS).forEach(p=>{if(p.drift===undefined)p.drift=25;if(p.zoom===undefined)p.zoom=200;});
 const CFGKEY='nb-sea-cfg2';
 try{const sv=JSON.parse(localStorage.getItem(CFGKEY)||'null');if(sv)for(const k in DEF)if(typeof sv[k]==='number')S[k]=sv[k];}catch(_){}
 const SL2=[['경계',[['spread','퍼짐',0,100],['glow','번짐',0,100],['goo','뭉침',0,100]]],['물듦',[['wash','물듦',0,100],['washR','물듦 범위',0,100]]],
-  ['형태',[['size','크기',40,170],['gap','간격',60,160]]],['안쪽 색',[['flow','흐름',0,100],['swirl','소용돌이',0,100],['grain','입자',0,100],['sat','채도',30,150]]],['전시',[['zoom','보기 배율',100,300],['drift','자동 이동',0,100]]]];
+  ['형태',[['size','크기',40,170],['gap','간격',60,160]]],['색감',[['sat','채도',30,150],['hue','색조',-180,180],['bright','밝기',-50,50],['contrast','대비',50,150],['warm','따뜻함',-50,50]]],['안쪽 색',[['flow','흐름',0,100],['swirl','소용돌이',0,100],['grain','입자',0,100]]],['전시',[['zoom','보기 배율',100,300],['drift','자동 이동',0,100]]]];
 const IDS=SL2.flatMap(g=>g[1].map(x=>x[0])),MM={};SL2.forEach(g=>g[1].forEach(([id,,mn,mx])=>MM[id]=[mn,mx]));
 SL2.forEach(([t,it])=>{const g=document.createElement('div');g.className='grp';g.innerHTML=`<b>${t}</b><div class="row r2">${it.map(([id,lab])=>`<label><i>${lab}</i><input id="v-${id}" inputmode="decimal" value="${S[id]}"></label>`).join('')}</div>`;$('sliders2').appendChild(g);});
 const saved=()=>{try{return localStorage.getItem(CFGKEY);}catch(_){return null;}};
