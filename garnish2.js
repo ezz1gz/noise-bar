@@ -16,7 +16,8 @@ function lobesOutline(cx,cy,n,R){const pr=R*(n<=4?.5:n<=5?.45:n<=6?.4:.33),cr=R-
     let sp=Math.atan2(b[1]-c[1],b[0]-c[0])-Math.atan2(a[1]-c[1],a[0]-c[0]);while(sp<0)sp+=2*Math.PI;
     s+=(i?'':`M${a[0].toFixed(2)} ${a[1].toFixed(2)}`)+`A${pr} ${pr} 0 ${sp>Math.PI?1:0} 1 ${b[0].toFixed(2)} ${b[1].toFixed(2)}`;}return s+'Z';}
 const blankOf=(k,n,seed,S)=>{const f=FAM[k],P=k==='blossom'?lobesOutline(36-f.off[0]/2,36-f.off[1]/2,n,23.5):shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed);return `<svg viewBox="0 0 72 72" width="${S}" height="${S}" fill="none"><path d="${P}" stroke="#7A7A7A" stroke-width="${72/S*.71}" stroke-linecap="round" stroke-dasharray="${72/S*2} ${72/S*2.4}"/></svg>`;};
-const fillOf=d=>`<div class="sm">${d.n===FAM[d.k].base?baseMarkup(d.k):variantMarkup(d.k,d.n,d.seed)}</div>`;
+// 빈칸이 채워질 땐 두 겹(화면 위 가니쉬) 대신 피그마 단색 fill
+const fillOf=d=>`<div class="sm fl1">${flatMarkup(d.k,d.n,d.seed)}</div>`;
 // ── 머리: 윗줄 = 베이스 한 단어 + 리큐르 흐름 / 아랫줄 = 가니쉬 문장 (없으면 베이스 문장)
 const TOT=SH.reduce((a,b)=>a+b,0)||1,SHR={};PK.forEach((k,i)=>SHR[k]=SH[i]/TOT);
 const top=Object.entries(SHR).sort((a,b)=>b[1]-a[1])[0]||['white',0];

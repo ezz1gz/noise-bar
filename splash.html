@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<title>NØISE BAR</title>
+<style>
+html,body{margin:0;height:100%;background:#fff;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+#ph{position:absolute;left:50%;top:0;width:393px;height:852px;transform-origin:50% 0;cursor:pointer}
+.lg{position:absolute;z-index:3;pointer-events:none}
+#glass{position:absolute;left:13.6px;top:563.9px;width:352.842px;height:396.16px;overflow:visible;z-index:2}
+#liq{position:absolute;left:13.6px;top:563.9px;width:352.842px;height:200px;z-index:1}
+.gn{position:absolute;left:0;top:0;will-change:transform;pointer-events:none}
+.gn svg{display:block;width:100%;height:100%;overflow:hidden}
+.gn.back{z-index:2}.gn.front{z-index:4}.gn.inside{z-index:1}
+#hint{position:absolute;left:0;right:0;top:470px;text-align:center;font:400 14px/1.4 -apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;letter-spacing:-.28px;color:#9a9a9a;z-index:5;opacity:0;transition:opacity .6s}
+#hint.on{opacity:1}
+#ph.out{transition:opacity .45s;opacity:0}
+</style></head><body>
+<div id="ph" role="button" tabindex="0" aria-label="NØISE BAR — 화면을 누르면 시작해요">
+ <svg class="lg" style="left:52px;top:174.595px" width="218" height="151" viewBox="0 0 218 151" fill="#000" aria-hidden="true"><path d="M40.9997 88.0501C40.9997 79.4944 40.9997 70.9386 40.9997 62.3829C40.9997 57.0462 41.0844 51.6247 40.915 46.3727C40.915 44.255 40.4067 42.0525 42.8633 41.6289C44.2187 41.3748 48.2848 41.036 49.1319 42.3913C49.7248 43.4926 49.386 47.3045 49.386 48.7446C49.386 61.7899 49.386 74.92 49.386 88.0501C49.386 95.081 43.7104 100.672 36.7642 100.672C29.818 100.672 24.1424 95.081 24.1424 88.0501V54.3355C24.1424 52.0483 22.194 50.1 19.9069 50.1C17.535 50.1 15.6714 52.0483 15.6714 54.3355C15.6714 62.8912 15.6714 71.4469 15.6714 80.0873C15.6714 85.3394 15.5867 90.9302 15.7561 96.0975C15.8408 98.7236 16.2643 100.757 13.1301 100.926C11.9441 100.926 8.21688 101.095 7.5392 99.9942C6.86152 98.9777 7.28507 95.1657 7.28507 93.7257C7.28507 80.5956 7.28507 67.4655 7.28507 54.3355C7.28507 47.3892 12.9606 41.7137 19.9069 41.7137C26.8531 41.7137 32.5287 47.3892 32.5287 54.3355V88.0501C32.5287 90.422 34.477 92.2856 36.7642 92.2856C39.0514 92.2856 40.9997 90.422 40.9997 88.0501Z"/><path d="M114.248 100.841C113.316 100.757 112.554 100.672 111.961 99.9942C111.199 98.5541 111.622 95.4199 111.622 93.7257C111.707 82.5439 111.622 71.1928 111.622 59.9263C111.622 54.8437 111.707 49.8458 111.537 44.7632C111.453 41.3748 112.808 41.5442 115.858 41.4595C120.686 41.3748 120.178 42.8149 120.093 47.1351C119.924 52.3024 120.093 57.8086 120.093 63.0606C120.093 73.1411 120.009 83.2216 120.093 93.3021C120.093 94.9116 120.517 98.8083 119.754 99.9942C118.907 101.265 115.604 100.926 114.248 100.841Z"/><path d="M139.388 65.742C138.541 65.742 137.864 65.9961 137.186 66.3349C136.424 66.8432 136.085 67.775 136.085 68.961V73.027C136.085 73.7047 136.339 74.213 136.678 74.7212C136.932 75.2295 137.44 75.5683 138.118 75.9072C138.626 76.246 139.473 76.4154 140.659 76.4154H152.942C155.314 76.4154 157.432 76.839 159.041 77.5167C160.566 78.3638 161.921 79.3803 162.938 80.4815C163.87 81.6675 164.547 82.8534 165.056 84.0394C165.479 85.31 165.733 86.4112 165.733 87.2583V91.155C165.733 93.0186 165.394 94.4587 164.717 95.8141C164.039 97.1694 163.107 98.3554 162.176 99.2025C160.99 100.134 159.804 100.812 158.448 101.236C157.008 101.659 155.568 101.828 154.213 101.828H130.07C129.139 101.828 128.715 101.49 128.715 100.558V95.8141C128.715 94.967 129.139 94.4587 130.07 94.4587H154.213C154.89 94.4587 155.653 94.2046 156.415 93.6963C157.093 93.3575 157.516 92.5104 157.516 91.155V87.2583C157.516 87.2583 157.432 87.0889 157.432 86.6654C157.347 86.3265 157.178 85.903 156.923 85.3947C156.585 85.1406 156.076 84.717 155.483 84.2935C154.806 83.9546 154.043 83.7852 152.942 83.7852H140.659C138.203 83.7852 136.17 83.3617 134.645 82.5146C132.951 81.8369 131.68 80.9051 130.663 79.7191C129.732 78.7026 128.969 77.5167 128.546 76.246C128.037 75.0601 127.868 74.0436 127.868 73.1117V68.961C127.868 67.3515 128.207 65.8267 128.884 64.3866C129.562 63.116 130.325 62.0147 131.51 60.9982C132.527 60.2358 133.713 59.4734 135.238 58.9652C136.508 58.5416 137.948 58.2875 139.388 58.2875H162.768C163.531 58.2875 164.039 58.7957 164.039 59.6428V64.3866C164.039 65.3184 163.531 65.742 162.768 65.742H139.388Z"/><path d="M173.335 80.9344C173.335 79.0708 173.335 77.2919 173.335 75.4283V66.9573C173.335 59.6722 173.42 52.3871 173.25 45.0173C173.166 41.3748 174.606 41.5442 177.825 41.6289C183.077 41.7984 188.583 41.7137 193.75 41.7137C198.748 41.7137 203.915 41.7984 208.913 41.7137C212.725 41.6289 213.234 41.4595 213.234 45.5256C213.318 50.5235 213.318 50.2694 208.151 50.1847C200.527 50.0152 192.818 50.2694 185.195 50.0152C181.298 49.9305 181.552 51.2859 181.721 54.759C181.806 57.5544 181.806 60.3499 181.721 63.1453C181.552 67.4655 182.907 67.2114 186.804 67.042C191.548 66.8726 196.461 67.042 201.289 66.8726C205.101 66.7878 204.847 68.2279 204.932 71.6163C205.017 75.9365 203.577 75.5977 199.68 75.4283C194.851 75.3436 190.023 75.513 185.195 75.3436C181.383 75.1741 181.552 76.5295 181.721 80.0873C181.806 82.8828 181.806 85.6782 181.721 88.3889C181.552 92.7938 182.823 92.455 186.804 92.2856C191.802 92.2009 197.223 92.2856 202.306 92.2856C204.847 92.2856 207.219 92.2856 209.76 92.2009C213.234 92.1162 213.234 93.3021 213.403 96.5211C213.572 101.604 211.201 100.757 206.965 100.757C199.426 100.587 191.632 100.672 184.093 100.672C181.552 100.757 179.095 100.841 176.639 100.841C172.573 100.926 173.081 98.9777 173.25 95.5046C173.505 90.7608 173.335 85.6782 173.335 80.9344Z"/><path d="M68.349 95.5881H61.5156V47.7547H68.349V40.9214H88.849V34.0881H95.6823V47.7547H102.516V95.5881H95.6823V102.421H75.1823V109.255H68.349V95.5881ZM88.849 95.5881V75.0881H82.0156V95.5881H88.849ZM82.0156 68.2547V47.7547H75.1823V68.2547H82.0156Z"/></svg>
+ <svg class="lg" style="left:195.543px;top:278px" width="157" height="143" viewBox="0 0 157 143" fill="#000" aria-hidden="true"><path d="M70.1934 93.2441H63.311V79.4793H70.1934V72.5968H90.8407V65.7144H70.1934V58.832H97.7231V65.7144H104.605V100.126H70.1934V93.2441ZM90.8407 93.2441V79.4793H77.0758V93.2441H90.8407Z"/><path d="M131.455 100.971H115.396V96.9558H119.41V92.9411V88.9263V84.9116V80.8969V76.8821V72.8674V68.8526V64.8379H111.381V60.8232H119.41V56.8084H127.44V60.8232H131.455V56.8084H139.484V52.7937H147.514V56.8084H151.528V60.8232V64.8379H143.499V60.8232H135.469V64.8379H131.455V68.8526H127.44V72.8674V76.8821V80.8969V84.9116V88.9263V92.9411V96.9558H131.455V100.971Z"/><path d="M7.02005 97.43V37.1402H8.67183V35.4884H15.6093V37.1402H17.2611V41.9303H18.9128V40.2785H20.5646V38.6268H23.0423V36.1491H27.1717V34.4973H39.4775V36.1491H42.781V37.8009H46.0846V39.4526H47.7364V42.7562H49.3881V46.0598H51.0399V56.1356H49.3881V59.4391H47.7364V61.0909H46.0846V62.7427H44.4328V64.3945H41.1292V67.698H44.8457V69.3498H48.1493V71.8275H49.8011V74.3051H51.4529V76.7828H53.1046V89.3363H51.4529V92.6399H48.9752V95.1175H46.4975V96.7693H44.0199V98.4211H39.6426V100.073H24.6941V98.4211H22.2164V96.7693H20.5646V90.8229H22.2164V89.1711H27.1717V90.8229H35.8436V89.1711H39.1471V87.5194H40.7989V84.2158H42.4507V80.0864H40.7989V76.7828H39.1471V75.131H35.8436V73.4793H29.732V71.8275H22.2164V70.1757H20.5646V64.3945H22.2164V62.7427H32.953V61.0909H36.2565V59.4391H38.7342V56.1356H40.3859V49.6937H38.7342V46.3901H36.2565V43.9124H26.3458V45.5642H23.8682V48.0419H20.5646V51.3454H18.9128V54.649H17.2611V97.43H14.7834V99.0818H8.67183V97.43H7.02005Z"/></svg>
+ <canvas id="liq" aria-hidden="true"></canvas>
+ <svg id="glass" viewBox="0 0 352.842 396.16" fill="none" aria-hidden="true"></svg>
+ <div id="hint">화면을 눌러 시작해요</div>
+</div>
+<script>
+(()=>{const ph=document.getElementById('ph');
+const fit=()=>{const k=Math.min(innerWidth/393,innerHeight/852*1.08);ph.style.transform=`translateX(-50%) scale(${innerWidth/393})`;};fit();addEventListener('resize',fit);
+fetch('assets/splash-glass.svgfrag').then(r=>r.text()).then(t=>document.getElementById('glass').innerHTML=t);
+// ── 잔 속 액체: 잔 그릇(Union) 안에서 둥둥 떠다니는 메타볼 (믹스 때 떨어진 액체처럼)
+const BOWL=new Path2D('M197.19 161.26C185.801 173.351 166.58 173.351 155.19 161.26L15.9978 13.4917L336.383 13.4917L197.19 161.26Z');
+const cv=document.getElementById('liq'),dpr=Math.min(3,devicePixelRatio||1),CW=352.842,CH=200;cv.width=CW*dpr;cv.height=CH*dpr;const x=cv.getContext('2d');
+const COLS=['#ff2294','#4583ff','#9b5cff','#ff7a3d','#ff58c8'];
+const BL=Array.from({length:9},(_,i)=>({c:COLS[i%COLS.length],x:60+Math.random()*230,y:40+Math.random()*90,r:34+Math.random()*30,ph:Math.random()*6.28,sp:.4+Math.random()*.5}));
+let SURF=36;  // 액체 윗면(잔 좌표)
+function liquid(t){x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,CW,CH);x.save();x.clip(BOWL);
+  const w=Math.sin(t*1.3)*2.2;x.beginPath();x.moveTo(0,SURF+w);for(let i=0;i<=24;i++){const X=i/24*CW;x.lineTo(X,SURF+Math.sin(t*1.6+i*.55)*2.4+w*(i/24-.5));}x.lineTo(CW,CH);x.lineTo(0,CH);x.closePath();x.clip();
+  x.fillStyle='#c9a4ff';x.fillRect(0,0,CW,CH);x.filter='blur(16px)';
+  BL.forEach(b=>{const bx=b.x+Math.sin(t*b.sp+b.ph)*26,by=b.y+Math.cos(t*b.sp*.8+b.ph)*14;const g=x.createRadialGradient(bx,by,0,bx,by,b.r);g.addColorStop(0,b.c);g.addColorStop(1,b.c+'00');x.fillStyle=g;x.beginPath();x.arc(bx,by,b.r,0,7);x.fill();});
+  x.filter='none';const hl=x.createLinearGradient(0,SURF,0,SURF+30);hl.addColorStop(0,'rgba(255,255,255,.55)');hl.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=hl;x.fillRect(0,SURF-4,CW,34);x.restore();}
+// ── 가니쉬: 화면 위엔 두 겹(피그마 1줄), 잔에 들어가면 단색 fill(피그마 3줄)
+const VB={melt:['302 24 72 72','295 232 72 72'],blossom:['201.5 22 72 72','204.5 231.8 72 72'],spark:['117.5 29 72 72','119.5 229 72 72'],fizz:['18 28.5 72 72','20 234.5 72 72']};
+let GF='';fetch('assets/splash-garnish.svgfrag').then(r=>r.text()).then(t=>GF=t);
+const G=[];let started=false,t0=performance.now();
+const GX=13.6,GY=563.9; // 잔 위치(화면)
+function inBowlX(px){const lx=px-GX;return lx>40&&lx<312;}
+function drop(){const ks=Object.keys(VB);const n=7+Math.floor(Math.random()*3);
+  for(let i=0;i<n;i++){const k=ks[Math.floor(Math.random()*4)],s=34+Math.random()*64,el=document.createElement('div');el.className='gn '+(Math.random()<.5?'front':'back');el.style.width=el.style.height=s+'px';
+   el.innerHTML=`<svg viewBox="${VB[k][0]}">${GF}</svg>`;ph.appendChild(el);
+   const px=20+Math.random()*353,into=inBowlX(px)&&Math.random()<.75;
+   G.push({el,k,s,x:px,y:-s-Math.random()*260,vy:0,rot:(Math.random()-.5)*60,vr:(Math.random()-.5)*2,into,landed:false,ph:Math.random()*6});}}
+function landTo(g){const lx=g.x-GX;const half=Math.max(20,(lx<176?lx-15:336-lx)); // 그릇 안쪽 깊이
+  return GY+SURF+Math.min(70,half*.35)+g.s*.05;}
+function go(){try{sessionStorage.setItem('nbSplash','1');}catch(_){}ph.classList.add('out');setTimeout(()=>location.replace('index.html'+location.search),430);}
+function start(){if(started)return;started=true;document.getElementById('hint').classList.remove('on');drop();setTimeout(go,3000);}
+ph.addEventListener('pointerdown',start);ph.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')start();});
+setTimeout(()=>{if(!started)document.getElementById('hint').classList.add('on');},1600);
+let last=performance.now();
+(function fr(now){const t=(now-t0)/1000,dt=Math.min(.05,(now-last)/1000);last=now;liquid(t);
+  G.forEach(g=>{if(!g.landed){g.vy+=1400*dt;g.y+=g.vy*dt;g.rot+=g.vr;const ly=landTo(g);
+     if(g.into&&g.y>=ly){g.landed=true;g.y=ly;g.el.className='gn inside';g.el.innerHTML=`<svg viewBox="${VB[g.k][1]}">${GF}</svg>`;g.el.animate([{scale:'1.15'},{scale:'1'}],{duration:380,easing:'cubic-bezier(.3,1.6,.6,1)'});}}
+    else{g.y=landTo(g)+Math.sin(t*1.8+g.ph)*3;g.rot+=Math.sin(t+g.ph)*.15;}
+    g.el.style.transform=`translate(${g.x-g.s/2}px,${g.y-g.s/2}px) rotate(${g.rot}deg)`;});
+  requestAnimationFrame(fr);})(performance.now());
+})();
+</script></body></html>
