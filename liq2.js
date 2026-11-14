@@ -64,7 +64,7 @@ function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=
     requestAnimationFrame(()=>{sh.style.transform='';sh.style.opacity='';bar.style.transform='';bar.style.opacity='';});
     clearTimeout(settle.t);settle.t=setTimeout(()=>{sh.style.transition='';bar.style.transition='';sh.style.transformOrigin='';},700);};
   const zone=e=>{if(!L2.open)return bar.contains(e.target);if(!sh.contains(e.target))return false;if(e.target.closest('.l2grab'))return true;
-    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect();return e.clientY-r.top<56;};
+    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect(),k=r.width/(sh.offsetWidth||r.width);return e.clientY-r.top<30*k;};
   addEventListener('pointerdown',e=>{if(step!==2||!zone(e))return;wake();G={y0:e.clientY,open:L2.open,moved:false,T:[[performance.now(),e.clientY]]};try{e.target.setPointerCapture(e.pointerId);}catch(_){}},true);
   addEventListener('pointermove',e=>{if(!G)return;const dy=e.clientY-G.y0;G.T.push([performance.now(),e.clientY]);if(G.T.length>8)G.T.shift();
     if(!G.moved){if(Math.abs(dy)<6)return;G.moved=true;if(!G.open){sh.style.transition='none';S.classList.add('l2open');S.classList.remove('l2intro');render();}}

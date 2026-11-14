@@ -1459,7 +1459,7 @@ function dragOpen(el,dir,fn){let y=null;el.addEventListener('pointerdown',e=>{y=
     requestAnimationFrame(()=>{sh.style.transform='';sh.style.opacity='';bar.style.transform='';bar.style.opacity='';});
     clearTimeout(settle.t);settle.t=setTimeout(()=>{sh.style.transition='';bar.style.transition='';sh.style.transformOrigin='';},700);};
   const zone=e=>{if(!L2.open)return bar.contains(e.target);if(!sh.contains(e.target))return false;if(e.target.closest('.l2grab'))return true;
-    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect();return e.clientY-r.top<56;};
+    if(e.target.closest('button,.l2it,.l2pill,.l2tab,.l2scroll'))return false;const r=sh.getBoundingClientRect(),k=r.width/(sh.offsetWidth||r.width);return e.clientY-r.top<30*k;};
   addEventListener('pointerdown',e=>{if(step!==2||!zone(e))return;wake();G={y0:e.clientY,open:L2.open,moved:false,T:[[performance.now(),e.clientY]]};try{e.target.setPointerCapture(e.pointerId);}catch(_){}},true);
   addEventListener('pointermove',e=>{if(!G)return;const dy=e.clientY-G.y0;G.T.push([performance.now(),e.clientY]);if(G.T.length>8)G.T.shift();
     if(!G.moved){if(Math.abs(dy)<6)return;G.moved=true;if(!G.open){sh.style.transition='none';S.classList.add('l2open');S.classList.remove('l2intro');render();}}
@@ -1613,7 +1613,8 @@ frame();
   stage.addEventListener('pointerdown',e=>{
     if(step!==1||!tray.contains(e.target))return;
     if(barState!=='idle'&&barState!=='open')return;
-    if(barState==='open'&&e.target.closest('.trk,button,.bsec,.bcta'))return;
+    // 펼친 상태에선 맨 위 손잡이 줄에서만 끌기/탭으로 접힘 (안쪽을 누르거나 끌어도 안 접힘)
+    if(barState==='open'){const tr=tray.getBoundingClientRect(),k=tr.width/(tray.offsetWidth||tr.width);if(!(e.target.closest('#grab')||e.clientY-tr.top<34*k))return;}
     e.stopPropagation();wake();window.__nbMorphStop&&__nbMorphStop();
     const A=geo(barState),B=geo(barState==='open'?'idle':'open');
     const r=tray.getBoundingClientRect(),pr=tray.offsetParent.getBoundingClientRect();
@@ -1642,7 +1643,7 @@ frame();
     else if(window.__nbSnap)__nbSnap(from,-vy*1000);};
   stage.addEventListener('pointerup',up,true);stage.addEventListener('pointercancel',up,true);
   // 이미 처리한 탭/끌기 뒤에 따라오는 click은 무시 (두 번 열고 닫히지 않게)
-  stage.addEventListener('click',e=>{if(performance.now()-ate<450&&tray.contains(e.target)&&!e.target.closest('.trk,button'))
+  stage.addEventListener('click',e=>{if(performance.now()-ate<450&&tray.contains(e.target)&&(!e.target.closest('.trk,button')||e.target.closest('#grab')))
     {e.stopPropagation();e.preventDefault();}},true);
  }
 
