@@ -7,7 +7,7 @@
 
 /* 머리: 안내 문구 → 타이틀이 gnb로 (intro.js) → 베이스 문장 */
 .l2ph{position:absolute;left:50%;top:calc(max(54px,var(--safeT)) + 60px);width:338px;margin:0;transform:translateX(-50%);text-align:center;font-weight:200;font-size:32px;line-height:1.3;letter-spacing:1.6px;color:#141117;text-shadow:0 0 10px rgba(0,0,0,.1);white-space:nowrap;transition:opacity .5s .15s,transform .5s .15s}
-.l2intro .l2intro .l2intro .l2ph{opacity:0;transform:translate(-50%,8px);transition:opacity .2s,transform .2s}
+.l2intro .l2ph{opacity:0;transform:translate(-50%,8px);transition:opacity .2s,transform .2s}
 
 /* 피그마 Glass(빛 -45° · 세기 .8 · 굴절 .8 · 깊이 20 · 분산 .5) — 굴절·분산은 WebGL 배경에서, 빛·프로스트·테두리는 여기서 */
 .l2glass{position:absolute;overflow:hidden;background:rgba(255,255,255,0);-webkit-backdrop-filter:blur(var(--fr,2px)) saturate(1.12) brightness(1.03);backdrop-filter:blur(var(--fr,2px)) saturate(1.12) brightness(1.03);box-shadow:var(--sh),inset 0 0 10px rgba(0,0,0,.05)}
