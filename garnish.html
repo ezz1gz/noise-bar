@@ -30,7 +30,10 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 .tag.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.g .bob,.ing .fl{animation:none}}
 .ph{background:#fff}
-</style></head><body><div class="ph" id="ph">
+
+/* 가니쉬_01~07 (Figma 65:12450 …) — 예전 그림 속 바·다음 원은 숨기고 새 바·시트로 */
+svg g[filter="url(#filter0_di_22_8716)"],svg g[filter="url(#filter1_di_22_8716)"],#bar,#nx{display:none!important}
+</style><link rel="stylesheet" href="garnish2.css"></head><body><div class="ph" id="ph">
 <div class="drink" data-band="art" style="position:absolute;left:37.5px;top:263px"><div class="gm"></div><canvas id="mb" width="636" height="636"></canvas><div class="hl"></div></div>
 <svg width="393" height="852" viewBox="0 0 393 852" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g clip-path="url(#clip0_22_8716)">
@@ -330,7 +333,7 @@ function variantMarkup(k,n,seed){const f=FAM[k],id='v'+(UID++);const cx=36-f.off
 const ph=document.getElementById('ph'),lay=document.getElementById('lay'),glass=document.getElementById('gl'),tag=document.getElementById('tag');
 const GC=[196.5,422],GR=159;
 // 글라스 둘레 자리 (피그마 배치 기준 중심) · 자리마다 들어갈 수 있는 최대 크기
-const SLOTS=[{x:93.8,y:241.8,max:'M'},{x:349,y:173,max:'M'},{x:99,y:647,max:'L'},{x:272.5,y:646.5,max:'L'}];
+const SLOTS=[{x:72,y:236,max:'M'},{x:334,y:250,max:'M'},{x:92,y:660,max:'L'},{x:292,y:664,max:'L'}]; // 피그마 가니쉬_03 배치 · 머리 문장과 안 겹치게
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function rnd(slot){const k=pick(Object.keys(FAM)),f=FAM[k],n=pick(f.counts),sz=pick(slot.max==='L'?['S','M','L']:['S','M']);return{k,n,sz,seed:Math.random(),rot:(Math.random()-.5)*50};}
 function build(d){const el=document.createElement('div');el.className='g';const s=SIZES[d.sz];el.style.width=el.style.height=s+'px';
@@ -354,7 +357,7 @@ addEventListener('pointerdown',()=>ac(),{once:true,capture:true});
 const VOL={S:.5,M:.75,L:1};
 function noiseBuf(){if(noiseBuf.b)return noiseBuf.b;const a=ac(),b=a.createBuffer(1,a.sampleRate*.5,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return noiseBuf.b=b;}
 function env(g,t,a,peak,dec){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec);}
-function playG(d,pan=0){const a=ac();if(!a)return;const t=a.currentTime+.01,f=FAM[d.k],step=f.counts.indexOf(d.n),v=VOL[d.sz]*.9;
+function playG(d,pan=0){const a=ac();if(!a)return;const t=a.currentTime+.01,f=FAM[d.k],step=f.counts.indexOf(d.n),v=VOL[d.sz]*.9*((d.vol==null?.6:d.vol)/.6);
   const out=a.createStereoPanner?a.createStereoPanner():a.createGain();if(out.pan)out.pan.value=Math.max(-.8,Math.min(.8,pan));out.connect(MASTER);
   if(d.k==='spark'){ // 반짝: 높은 사인 핑 + 배음, 아주 짧게
     const base=[1318,1568,1760,2093][step];[1,2.01,3.02].forEach((m,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=base*m;env(g,t+i*.004,.003,v*[.32,.12,.05][i],.35-step*.05);o.connect(g);g.connect(out);o.start(t);o.stop(t+.6);});
@@ -370,8 +373,8 @@ function playG(d,pan=0){const a=ac();if(!a)return;const t=a.currentTime+.01,f=FA
 // 잔 안 가니쉬: 각자 박자로 울리고, 울릴 때 살짝 반짝
 const LOOP=new Set();
 function loopG(w,d){const per=({spark:1.6,fizz:2.2,blossom:2.8,melt:2.0})[d.k]*(1+.15*(Math.random()-.5));w._loop={d,per,next:performance.now()/1000+per*.5};LOOP.add(w);}
-setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()/1000;LOOP.forEach(w=>{if(!w.isConnected){LOOP.delete(w);return;}const L=w._loop;if(now>=L.next){L.next=now+L.per;const r=w.getBoundingClientRect(),pr=ph.getBoundingClientRect();playG(L.d,((r.left+r.width/2-pr.left)/pr.width)*2-1);
-  w.firstElementChild.animate([{filter:'brightness(1)'},{filter:'brightness(1.6) drop-shadow(0 0 6px rgba(255,255,255,.9))'},{filter:'brightness(1)'}],{duration:420,easing:'ease-out',composite:'add'});}});},40);
+setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()/1000;LOOP.forEach(w=>{if(!w.isConnected){LOOP.delete(w);return;}const L=w._loop;if(now>=L.next){L.next=now+L.per*(3/(L.d.f||3));const r=w.getBoundingClientRect(),pr=ph.getBoundingClientRect();playG(L.d,((r.left+r.width/2-pr.left)/pr.width)*2-1);
+  w.firstElementChild.animate([{filter:'brightness(1)'},{filter:'brightness(1.6) drop-shadow(0 0 6px rgba(255,255,255,.9))'},{filter:'brightness(1)'}],{duration:420,easing:'ease-out',composite:'add'});{const sv=w.querySelector('svg');if(sv)sv.animate([{scale:'1'},{scale:String(1.22+.06*(L.d.f||3))},{scale:'1'}],{duration:520,easing:'cubic-bezier(.3,1.6,.5,1)'});}}});},40);
 
 function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=cy-GC[1],r=Math.hypot(dx,dy),lim=GR-s/2-8;
   const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-37.5,gy=GC[1]+dy*k-263;
@@ -380,7 +383,7 @@ function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=
   w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg);filter:drop-shadow(0 0 1px rgba(255,255,255,.8))"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter></defs><path d="${P}" fill="#D9D9D9" fill-opacity=".2"/><path d="${P}" fill="#fff" fill-opacity=".55" filter="url(#${id})"/></svg></div>`;
   glass.appendChild(w);if(!el._fake)playG(d,(gx/318)*2-1);loopG(w,d);w.animate([{opacity:0,scale:'1.5'},{opacity:.6,scale:'1'}],{duration:500,easing:'cubic-bezier(.45,1.45,.8,1)'});
   while(glass.children.length>3){const o=glass.firstElementChild;o.animate([{opacity:.6},{opacity:0}],{duration:300}).onfinish=()=>o.remove();glass.appendChild(glass.firstElementChild);o.remove();break;}
-  tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
+  tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;if(window.__g2)__g2.added(w,d);tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
 function drag(el){let st=null;const s=()=>SIZES[el._d.sz];
   const pt=e=>{const r=document.getElementById('lay').getBoundingClientRect(),k=r.width/393;return[(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
   el.addEventListener('pointerdown',e=>{e.preventDefault();el.setPointerCapture(e.pointerId);ac();playG(el._d,(el._x/393)*2-1);const[px,py]=pt(e);st={ox:px-el._x,oy:py-el._y,x0:px,y0:py,moved:false};el.classList.add('drag');});
@@ -393,7 +396,7 @@ function drag(el){let st=null;const s=()=>SIZES[el._d.sz];
   el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);}
 SLOTS.forEach((_,i)=>setTimeout(()=>spawn(i,true),120+i*140));
 // 처음 잔 속 하나 (피그마처럼 BLOSSOM)
-setTimeout(()=>{const fake={_fake:true,_d:{k:'blossom',n:4,sz:'S',seed:.3,rot:50.63}};toGlass(fake,156,368);tag.classList.remove('on');},50);
+
 
 (()=>{const cv=document.getElementById('mb');const gl=cv.getContext('webgl',{premultipliedAlpha:true,antialias:true});if(!gl)return;
 const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
@@ -414,8 +417,9 @@ function fr(){gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uR,cv.width,cv.he
 
 [...document.getElementById('ph').children].forEach(el=>{if(!el.dataset.band)el.dataset.band='art';});barText();fit();addEventListener('resize',fit);
 document.getElementById('bk').onclick=()=>go('glass.html');
-document.getElementById('nx').onclick=()=>{const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='name.html?'+q;};
+document.getElementById('nx').onclick=()=>{if(window.__g2)return __g2.serve();const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='name.html?'+q;};
 </script>
+<script src="garnish2.js"></script>
 <script src="intro.js"></script>
 <script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'garnish',title:'auto',pages:[["가니쉬", "가니쉬는 소리에 작은 반짝임을 더해요", "가니쉬를 탭하거나 끌어서 잔에 올려요", "세 개까지 올릴 수 있어요"]]}),250));</script>
 </body></html>

@@ -1,0 +1,41 @@
+/* 가니쉬 단계 v2 — Figma 가니쉬_01~07 */
+.g2ph{position:absolute;left:50%;transform:translateX(-50%);margin:0;text-align:center;font-weight:300;color:#656565;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .6s .1s}
+.g2ph.on{opacity:1}
+#g2up{top:121px;font-size:14px;line-height:1.3;letter-spacing:.7px}
+#g2big{top:139px;font-size:32px;line-height:1.3;letter-spacing:1.6px}
+.g2bar{position:absolute;left:16px;top:746px;width:260px;height:60px;border-radius:10px;box-sizing:border-box;z-index:6;cursor:pointer;background:rgba(255,255,255,.04);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 6px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05),inset 0 0 0 .75px rgba(255,255,255,.7);transition:opacity .35s,transform .5s cubic-bezier(.32,.72,0,1)}
+.g2bar .grab{position:absolute;left:50%;top:9.25px;width:33.5px;height:1.5px;margin-left:-16.75px}
+.g2bar .row{position:absolute;left:16px;right:16px;top:16px;height:32px;display:flex;align-items:center;justify-content:space-between}
+.g2ics{display:flex;gap:10px}
+.g2ic{position:relative;width:32px;height:32px;flex:none;overflow:visible}
+.g2ic>svg{position:absolute;left:0;top:0}
+.g2ic .sm{position:absolute;left:0;top:0;width:72px;height:72px;transform:scale(.4444);transform-origin:0 0}
+.g2ic .sm>*{position:absolute}
+.g2lab{font-size:12px;font-weight:500;line-height:1.3;letter-spacing:-.24px;color:#000}
+.g2next{position:absolute;left:317px;top:746px;width:60px;height:60px;border-radius:50%;border:0;padding:0;cursor:pointer;z-index:6;background:rgba(0,0,0,.8);display:grid;place-items:center;
+  box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05);transition:opacity .35s,transform .5s cubic-bezier(.32,.72,0,1)}
+.g2open .g2bar,.g2open .g2next{opacity:0;transform:translateY(16px);pointer-events:none}
+.g2sheet{position:absolute;left:16px;bottom:46px;width:361px;box-sizing:border-box;border-radius:8px;z-index:7;padding:20px 0;display:flex;flex-direction:column;align-items:center;gap:20px;
+  background:rgba(255,255,255,.04);-webkit-backdrop-filter:blur(25px);backdrop-filter:blur(25px);
+  box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05),inset 0 0 0 .75px rgba(255,255,255,.7);
+  opacity:0;transform:translateY(calc(100% + 60px));pointer-events:none;transition:transform .5s cubic-bezier(.32,.72,0,1),opacity .3s}
+.g2open .g2sheet{opacity:1;transform:none;pointer-events:auto}
+.g2sheet .grab{padding:10px 30px;margin:-10px 0;box-sizing:content-box;cursor:grab;border:0;background:none}
+.g2tabs{display:flex;gap:6px;height:32px;align-items:center;padding:0 16px;width:100%;box-sizing:border-box}
+.g2tab{display:flex;align-items:flex-start;gap:2px;height:32px;box-sizing:border-box;padding:7px 12px;border:0;background:none;cursor:pointer;font:inherit;font-size:14px;font-weight:400;line-height:1.3;letter-spacing:-.28px;color:#555;white-space:nowrap}
+.g2tab[aria-pressed="true"]{padding:7px 8px;font-weight:600;color:#000;border-bottom:1.5px solid #000;height:34px}
+.g2tab i{display:none;width:4px;height:4px;border-radius:50%;background:#ededed}
+.g2tab[aria-pressed="true"] i{display:block}
+.g2freq{display:flex;justify-content:space-between;width:100%;padding:0 16px;box-sizing:border-box}
+.g2f{position:relative;width:68px;height:68px;border:0;background:none;padding:0;cursor:pointer}
+.g2f>svg{position:absolute;inset:0;overflow:visible}
+.g2f .sm{position:absolute;left:-2px;top:-2px;width:72px;height:72px}
+.g2f .sm>*{position:absolute}
+.g2line{width:329px;height:0;border-top:.75px solid #ededed}
+.g2vol{position:relative;width:329px;height:34px}
+.g2pill{position:absolute;left:0;top:0;width:233px;height:34px;border-radius:5px;background:rgba(0,0,0,.1);box-shadow:inset 0 0 10px rgba(0,0,0,.05);display:flex;align-items:center;padding:0 12px;box-sizing:border-box;touch-action:none;cursor:ew-resize}
+.g2pill span{font-size:14px;line-height:1.3;letter-spacing:-.28px;color:#000;pointer-events:none}
+.g2pill i{position:absolute;top:11px;width:1.5px;height:12px;border-radius:1px;background:#656565;margin-left:-.75px;pointer-events:none}
+.g2vol b{position:absolute;left:287px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:400;letter-spacing:-.28px;color:#000;font-variant-numeric:tabular-nums}
+.g2serve{display:flex;align-items:center;justify-content:center;gap:6px;width:329px;height:42px;border-radius:100px;border:0;cursor:pointer;background:rgba(0,0,0,.8);color:#fff;font:inherit;font-size:14px;font-weight:500;letter-spacing:-.28px;box-shadow:inset 0 0 10px rgba(0,0,0,.05)}
