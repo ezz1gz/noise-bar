@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script src="mode.js"></script>
+<script src="snd/rec.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="NØISE BAR">
 <link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#000000">
 <title>NØISE BAR</title>
@@ -776,6 +777,8 @@ const THM={flow:{n:'흐름',e:'FLOW',id:0,c:'#8fc7e8',tone:[.07,1,1,0],d:'이어
   beat:{n:'박자',e:'BEAT',id:2,c:'#c7b7f2',tone:[0,1.12,1.3,0],d:'끊기고 규칙적이에요 · 또렷하게 번져요'},
   scatter:{n:'흩뿌림',e:'SCATTER',id:3,c:'#f0a070',tone:[0,1,.92,1],d:'끊기고 불규칙해요 · 탁하고 부드럽게 번져요'}};
 const CATS=['breath','flow','beat','scatter'].filter(k=>THM[k]).concat(Object.keys(THM).filter(k=>!['breath','flow','beat','scatter'].includes(k))).map(k=>[k,THM[k].n]);
+// 녹음 리큐르(snd/rec.js) — 테마별 목록 뒤에 붙음
+(window.NBREC?NBREC.liqueurs:[]).forEach(r=>{if(!LIQ.some(l=>l.k===r.k))LIQ.push({k:r.k,n:r.n,th:r.th,grp:r.grp,src:'rec',url:r.url,c:r.c,per:r.per||undefined,rid:r.id});});
 const LBY=Object.fromEntries(LIQ.map(l=>[l.k,l]));
 const AMP=1.0; // 톤 변화가 확실히 보이게
 
@@ -1303,7 +1306,10 @@ function ensureAudio(){
 }
 function loop(buf){const s=AC.createBufferSource();s.buffer=buf;s.loop=true;const g=AC.createGain();g.gain.value=0;s.connect(g);g.connect(master);const off=Math.random()*buf.duration;s.start(0,off);g.buf=buf;g.src=s;g.t0=AC.currentTime;g.off=off;return g;}
 let VERB=null;
-const LBUF={};function liqGain(k){if(!LG[k]){const L=LBY[k],src=L.src;if(!LBUF[src])LBUF[src]=genBuf(LEN[src],GEN[src],src==='clock'?.08:.11);const s=AC.createBufferSource();s.buffer=LBUF[src];s.loop=true;const g=AC.createGain();g.gain.value=0;
+const LBUF={};function liqGain(k){if(!LG[k]){const L=LBY[k],src=L.src;let bf;
+  if(L.url&&window.NBREC){bf=NBREC.get(L.url);if(!bf){bf=NBREC.silent(AC);NBREC.load(AC,L.url).then(b=>{const g=LG[k];if(!g||g.buf===b)return;try{const s2=AC.createBufferSource();s2.buffer=b;s2.loop=true;s2.playbackRate.value=g.src.playbackRate.value;s2.connect(g);const off=Math.random()*b.duration;s2.start(0,off);try{g.src.stop();}catch(_){}g.src.disconnect();g.src=s2;g.buf=b;g.t0=AC.currentTime;g.off=off;}catch(_){}}).catch(()=>{});}}
+  else{if(!LBUF[src])LBUF[src]=genBuf(LEN[src],GEN[src],src==='clock'?.08:.11);bf=LBUF[src];}
+  const s=AC.createBufferSource();s.buffer=bf;s.loop=true;const g=AC.createGain();g.gain.value=0;
   const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=L.lp||18000;const pn=AC.createStereoPanner();const sd=AC.createGain();sd.gain.value=0;
   if(!VERB){VERB=AC.createConvolver();const sr=AC.sampleRate,n=sr*2.6,b=AC.createBuffer(2,n,sr);for(let c=0;c<2;c++){const q=b.getChannelData(c);for(let i=0;i<n;i++)q[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.4);}VERB.buffer=b;VERB.connect(master);}
   s.connect(g);g.connect(lp);lp.connect(pn);pn.connect(master);pn.connect(sd);sd.connect(VERB);const off=Math.random()*s.buffer.duration;s.start(0,off);g.src=s;g.buf=s.buffer;g.t0=AC.currentTime;g.off=off;g.lp=lp;g.pn=pn;g.sd=sd;LG[k]=g;}return LG[k];}

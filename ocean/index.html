@@ -417,6 +417,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     </section>
 </div>
 
+<script src="../snd/rec.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -836,7 +837,13 @@ const LIQ=[
   {k:'cafe',   n:'카페',     th:'scatter',grp:'도시',src:'cafe',  c:'#a77b52'},
   {k:'library',n:'도서관',   th:'scatter',grp:'실내',src:'cafe',  c:'#b8a58a',rate:.8,lp:2000},
   {k:'street', n:'밤거리',   th:'scatter',grp:'도시',src:'street',c:'#4b4f9c'}];
+(window.NBREC?NBREC.liqueurs:[]).forEach(r=>{if(!LIQ.some(l=>l.k===r.k))LIQ.push({k:r.k,n:r.n,th:r.th,grp:r.grp,src:'rec',url:r.url,c:r.c,per:r.per||undefined});});
 const LBY=Object.fromEntries(LIQ.map(l=>[l.k,l]));
+// 리큐르 소스: 녹음이면 받아서 바꿔 끼움(받는 동안은 무음)
+function lsrc(l,dest){const mk=b=>{const s=AC.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=l.rate||1;s.connect(dest);s.start(0,Math.random()*b.duration);return s;};
+  if(l.url&&window.NBREC){const b=NBREC.get(l.url);if(b)return{s:mk(b)};const h={s:mk(NBREC.silent(AC))};NBREC.load(AC,l.url).then(b=>{if(h.dead)return;const o=h.s;h.s=mk(b);try{o.stop();}catch(_){}}).catch(()=>{});return h;}
+  if(!LBUF[l.src])LBUF[l.src]=genBuf(LEN[l.src],GEN[l.src],l.src==='clock'?.08:.11);return{s:mk(LBUF[l.src])};}
+function gPer(d){const r=window.NBREC&&NBREC.slot(d.k,d.n);return r?Math.max(PER[d.k],r.dur+.6):PER[d.k];}
 const LBUF={};
 const NK={pink:'PINK',white:'WHITE',blue:'BLUE',brown:'BROWN'},NKR={pink:'PINK',white:'WHITE',blue:'BLUE',brown:'BROWN'};
 const BHEX={pink:'#f04696',white:'#d6d2ec',blue:'#4678f6',brown:'#b06840'};
@@ -873,23 +880,23 @@ let es=null;function listen(){try{es=new EventSource(`https://ntfy.sh/${SEA_TOPI
 listen();
 // ── 소리: 베이스(기존) + 리큐르(폰과 같은 소리 생성) + 가니쉬(폰과 같은 울림)
 let lvoices=[],gTimer=null;
-function stopLive(){if(!AC)return;const now=AC.currentTime;lvoices.forEach(v=>{try{v.g.gain.setTargetAtTime(0,now,.2);v.s.stop(now+1);}catch(_){}});lvoices=[];clearInterval(gTimer);gTimer=null;}
+function stopLive(){if(!AC)return;const now=AC.currentTime;lvoices.forEach(v=>{try{v.g.gain.setTargetAtTime(0,now,.2);v.h.dead=true;v.h.s.stop(now+1);}catch(_){}});lvoices=[];clearInterval(gTimer);gTimer=null;}
 function pingG(d){if(!AC||!master)return;const a=AC,t=a.currentTime+.01,st=Math.max(0,FAMC[d.k].indexOf(d.n)),v=VOL[d.sz]||.6;
+  {const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r){NBREC.play(a,r.url,master,v*.55,t);return;}}
   const tone=d.k==='spark'?[1318,1568,1760,2093][st]:d.k==='blossom'?[523,587,659,784][st]:d.k==='melt'?[180,220,262,311][st]:2600+st*900;
   const o=a.createOscillator(),g=a.createGain();o.type=d.k==='fizz'?'triangle':'sine';o.frequency.setValueAtTime(d.k==='melt'?tone*1.9:tone,t);if(d.k==='melt')o.frequency.exponentialRampToValueAtTime(tone,t+.09);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*(d.k==='fizz'?.12:.28),t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+(d.k==='blossom'?1:.3));o.connect(g);g.connect(master);o.start(t);o.stop(t+1.2);}
 function playLive(m){if(!AC||!m.live)return;const now=AC.currentTime,L=m.live;
-  L.lk.forEach((k,i)=>{const l=LBY[k];if(!LBUF[l.src])LBUF[l.src]=genBuf(LEN[l.src],GEN[l.src],l.src==='clock'?.08:.11);
-    const s=AC.createBufferSource();s.buffer=LBUF[l.src];s.loop=true;s.playbackRate.value=l.rate||1;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=l.lp||18000;
-    const g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(1.6*(L.lv[i]||.5)/Math.sqrt(L.lk.length*.8+.2),now+.8);s.connect(lp);lp.connect(g);g.connect(master);s.start(now,Math.random()*s.buffer.duration);lvoices.push({s,g});});
-  if(L.g.length){const nx=L.g.map((_,i)=>performance.now()/1000+.5+.4*i);gTimer=setInterval(()=>{const t=performance.now()/1000;L.g.forEach((d,i)=>{if(t>=nx[i]){nx[i]=t+PER[d.k];pingG(d);}});},50);}}
-function voice(k){const l=LBY[k];if(!l||!AC)return null;if(!LBUF[l.src])LBUF[l.src]=genBuf(LEN[l.src],GEN[l.src],l.src==='clock'?.08:.11);
-  const s=AC.createBufferSource();s.buffer=LBUF[l.src];s.loop=true;s.playbackRate.value=l.rate||1;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=l.lp||18000;const g=AC.createGain();g.gain.value=0;s.connect(lp);lp.connect(g);g.connect(master);s.start(0,Math.random()*s.buffer.duration);return g;}
+  L.lk.forEach((k,i)=>{const l=LBY[k];const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=l.lp||18000;
+    const g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(1.6*(L.lv[i]||.5)/Math.sqrt(L.lk.length*.8+.2),now+.8);lp.connect(g);g.connect(master);const h=lsrc(l,lp);lvoices.push({h,g});});
+  if(L.g.length){const nx=L.g.map((_,i)=>performance.now()/1000+.5+.4*i);gTimer=setInterval(()=>{const t=performance.now()/1000;L.g.forEach((d,i)=>{if(t>=nx[i]){nx[i]=t+gPer(d);pingG(d);}});},50);}}
+function voice(k){const l=LBY[k];if(!l||!AC)return null;const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=l.lp||18000;const g=AC.createGain();g.gain.value=0;lp.connect(g);g.connect(master);lsrc(l,lp);return g;}
 function pingW(d,w){if(!AC||!master||w<.05)return;const a=AC,t=a.currentTime+.01,st=Math.max(0,FAMC[d.k].indexOf(d.n)),v=(VOL[d.sz]||.6)*w;
+  {const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r){NBREC.play(a,r.url,master,v*.55,t);return;}}
   const tone=d.k==='spark'?[1318,1568,1760,2093][st]:d.k==='blossom'?[523,587,659,784][st]:d.k==='melt'?[180,220,262,311][st]:2600+st*900;
   const o=a.createOscillator(),g=a.createGain();o.type=d.k==='fizz'?'triangle':'sine';o.frequency.setValueAtTime(d.k==='melt'?tone*1.9:tone,t);if(d.k==='melt')o.frequency.exponentialRampToValueAtTime(tone,t+.09);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*(d.k==='fizz'?.12:.28),t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+(d.k==='blossom'?1:.3));o.connect(g);g.connect(master);o.start(t);o.stop(t+1.2);}
-return{playLive,stopLive,voice,ping:pingW,per:k=>PER[k],lby:k=>LBY[k]};})();
+return{playLive,stopLive,voice,ping:pingW,per:k=>PER[k],gper:gPer,lby:k=>LBY[k]};})();
 // 기존 재생에 리큐르·가니쉬도 같이
 
 // 처음 한 번 아무 데나 클릭하면 소리가 켜져요 (브라우저 정책)
@@ -908,7 +915,7 @@ function ambTick(dt,now){if(!AC||AC.state!=='running'){return;}ambInit();const Z
   const bw={PINK:0,WHITE:0,BLUE:0,BROWN:0},lw={};let tot=0;
   MIXES.forEach(m=>{if(!m.sp)return;const d=Math.hypot(m.sp[0]-EAR.x,m.sp[1]-EAR.y);const u=Math.max(0,Math.min(1,(d-EAR.r)/(EAR.R-EAR.r)));const w=Math.pow(1-u,2.2);m.hear=w;if(w<.01)return;tot+=w;
     ['PINK','WHITE','BLUE','BROWN'].forEach((k,i)=>bw[k]+=w*(m.b[i]||0)/100);liqKeys(m).forEach(([k,v])=>lw[k]=(lw[k]||0)+w*v);
-    if(m.live&&m.live.g.length){const st=amb.gn.get(m)||m.live.g.map((_,i)=>now+.4*i+Math.random());amb.gn.set(m,st);m.live.g.forEach((g,i)=>{if(now>=st[i]){st[i]=now+LIVE.per(g.k);LIVE.ping(g,w);}});}});
+    if(m.live&&m.live.g.length){const st=amb.gn.get(m)||m.live.g.map((_,i)=>now+.4*i+Math.random());amb.gn.set(m,st);m.live.g.forEach((g,i)=>{if(now>=st[i]){st[i]=now+LIVE.gper(g);LIVE.ping(g,w);}});}});
   const nrm=Math.max(1,tot),t=AC.currentTime;
   for(const k in amb.base)amb.base[k].gain.setTargetAtTime(bw[k]/nrm*.95,t,.12);
   const keys=new Set([...Object.keys(amb.liq),...Object.keys(lw)]);keys.forEach(k=>{const v=liqVoice(k);if(v)v.gain.setTargetAtTime((lw[k]||0)/nrm*1.4,t,.15);});
@@ -997,7 +1004,7 @@ function recolor(m){const r=recipeOf(m),lq=r.lk&&r.lk[0]&&LIVE.lby(r.lk[0]);cons
   const gl=$c('cGar');gl.innerHTML='';(r.g.length?r.g:[]).slice(0,3).forEach(x=>gl.appendChild(garIcon(x.k,x.n)));if(!r.g.length)gl.textContent='—';};}
 // 샘플 가니쉬도 소리 나게
 setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()/1000;MIXES.forEach(m=>{if(m.live)return;const r=recipeOf(m),w=m.hear||0;if(!r.g.length||w<.05)return;
-  m._gn=m._gn||r.g.map((_,i)=>now+.5+i*.4+Math.random());r.g.forEach((g,i)=>{if(now>=m._gn[i]){m._gn[i]=now+LIVE.per(g.k);LIVE.ping(g,w);}});});},60);
+  m._gn=m._gn||r.g.map((_,i)=>now+.5+i*.4+Math.random());r.g.forEach((g,i)=>{if(now>=m._gn[i]){m._gn[i]=now+LIVE.gper(g);LIVE.ping(g,w);}});});},60);
 // 가운데에 가장 가까운 믹스가 활성 (클릭하면 그 믹스)
 {const _pl=placeLabels;placeLabels=function(){MIXES.forEach(recolor);if(document.documentElement.classList.contains('phone'))return _pl();
   const cx=W/2,cy=H/2;let best=null,bd=1e9;MIXES.forEach(m=>{if(!m.vis||!m.sp)return;const d=Math.hypot(m.sp[0]-cx,m.sp[1]-cy);if(d<bd){bd=d;best=m;}});

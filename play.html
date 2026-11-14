@@ -1,5 +1,6 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="mode.js"></script>
+<script src="snd/rec.js"></script>
 <title>Play</title><link rel="stylesheet" href="common.css">
 <style>
 .ph{width:402px;height:874px;background:#000}
@@ -600,24 +601,25 @@ async function askOri(){try{if(window.DeviceOrientationEvent&&DeviceOrientationE
 // ── 소리: 베이스·리큐르는 바깥(프로토타입) 엔진, 가니쉬는 여기서 — 기울기에 따라 위치·음색이 바뀜
 const GL=(Q.get('g')||'').split(',').filter(Boolean).map(s=>{const[k,n,sz]=s.split('-');return{k,n:+n,sz};});
 let AC=null,OUT=null,PAN=null,SHELF=null;
-function ensureA(){if(AC){if(AC.state!=='running')AC.resume();return;}AC=new (window.AudioContext||window.webkitAudioContext)();OUT=AC.createGain();OUT.gain.value=.5;PAN=AC.createStereoPanner?AC.createStereoPanner():AC.createGain();SHELF=AC.createBiquadFilter();SHELF.type='highshelf';SHELF.frequency.value=2500;OUT.connect(SHELF);SHELF.connect(PAN);PAN.connect(AC.destination);}
+function ensureA(){if(AC){if(AC.state!=='running')AC.resume();return;}AC=new (window.AudioContext||window.webkitAudioContext)();OUT=AC.createGain();OUT.gain.value=.5;PAN=AC.createStereoPanner?AC.createStereoPanner():AC.createGain();SHELF=AC.createBiquadFilter();SHELF.type='highshelf';SHELF.frequency.value=2500;OUT.connect(SHELF);SHELF.connect(PAN);PAN.connect(AC.destination);if(window.NBREC)NBREC.preloadGarnish(AC);}
 addEventListener('pointerdown',()=>{ensureA();try{parent.__nbWake&&parent.__nbWake();}catch(_){}},{capture:true});
 const FAMC={fizz:[8,10,12,14],spark:[4,5,6,8],blossom:[4,5,6,8],melt:[3,4,5,6]},VOL={S:.5,M:.75,L:1};
 function env(g,t,a,p,d){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d);}
 function ping(d){if(!AC||paused||mutedAll)return;const a=AC,t=a.currentTime+.01,st=Math.max(0,FAMC[d.k].indexOf(d.n)),v=VOL[d.sz]||.6;
+  {const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r){NBREC.play(a,r.url,OUT,v*.55,t);return;}} // 녹음 가니쉬
   const tone=d.k==='spark'?[1318,1568,1760,2093][st]:d.k==='blossom'?[523,587,659,784][st]:d.k==='melt'?[180,220,262,311][st]:2600+st*900;
   const o=a.createOscillator(),g=a.createGain();o.type=d.k==='fizz'?'triangle':'sine';o.frequency.setValueAtTime(d.k==='melt'?tone*1.9:tone,t);if(d.k==='melt')o.frequency.exponentialRampToValueAtTime(tone,t+.09);
   env(g,t,.004,v*(d.k==='fizz'?.12:.28),d.k==='blossom'?1:.3);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+1.2);}
-const PER={spark:1.6,fizz:2.2,blossom:2.8,melt:2};let nexts=[];const GLOG=[];
+const PER={spark:1.6,fizz:2.2,blossom:2.8,melt:2};function gPer(d){const r=window.NBREC&&NBREC.slot(d.k,d.n);return r?Math.max(PER[d.k],r.dur+.6):PER[d.k];}let nexts=[];const GLOG=[];
 // 조절 패널에서 계열 미리보기를 켜면 그 계열 4단계를 울림
 function gList(){const f=NBG.previewFam;if(!f)return GL;if(!gList.c||gList.f!==f){gList.f=f;gList.c=FAMC[f].map((n,j)=>({k:f,n,sz:['S','M','M','L'][j]}));nexts=[];GLOG.length=0;}return gList.c;}
-let gLast=GL;NBG.gar=()=>{const now=NBG.clock||0,L=gList();if(L!==gLast){gLast=L;}const out=GLOG.slice();L.forEach((d,i)=>{if(nexts[i]===undefined)return;for(let k=0;k<4;k++)out.push({i,k:d.k,n:d.n,sz:d.sz,t:nexts[i]+k*(d.per||PER[d.k]),lv:VOL[d.sz]||.6});});return out;};
+let gLast=GL;NBG.gar=()=>{const now=NBG.clock||0,L=gList();if(L!==gLast){gLast=L;}const out=GLOG.slice();L.forEach((d,i)=>{if(nexts[i]===undefined)return;for(let k=0;k<4;k++)out.push({i,k:d.k,n:d.n,sz:d.sz,t:nexts[i]+k*(d.per||gPer(d)),lv:VOL[d.sz]||.6});});return out;};
 let paused=false;
 setInterval(()=>{const m=window.__mix||{tilt:0,cx:0,sp:0};const lis=document.body.classList.contains('listen');
   const tl=lis?m.tilt:0,cx=lis?m.cx:0;
   if(AC){if(PAN.pan)PAN.pan.setTargetAtTime(Math.max(-.9,Math.min(.9,cx*1.6+tl*.6)),AC.currentTime,.08);SHELF.gain.setTargetAtTime(tl*14,AC.currentTime,.1);
     }
-  {const now=NBG.clock||0,L=gList();L.forEach((d,i)=>{const per=PER[d.k]*(1-Math.min(.5,Math.abs(tl)*.6));d.per=per;if(nexts[i]===undefined)nexts[i]=now+.4*i+.5;if(now>=nexts[i]){nexts[i]=now+per;if(AC)ping(d);GLOG.push({i,k:d.k,n:d.n,sz:d.sz,t:now,lv:VOL[d.sz]||.6});}});while(GLOG.length&&now-GLOG[0].t>15)GLOG.shift();}
+  {const now=NBG.clock||0,L=gList();L.forEach((d,i)=>{const per=gPer(d)*(1-Math.min(.5,Math.abs(tl)*.6));d.per=per;if(nexts[i]===undefined)nexts[i]=now+.4*i+.5;if(now>=nexts[i]){nexts[i]=now+per;if(AC)ping(d);GLOG.push({i,k:d.k,n:d.n,sz:d.sz,t:now,lv:VOL[d.sz]||.6});}});while(GLOG.length&&now-GLOG[0].t>15)GLOG.shift();}
   tell({nb:'tilt',a:tl,cx,sp:lis?m.sp:0});},50);
 
 // ── 그래프의 대쉬 곡선(리큐르): 소리에 맞춰 요동침

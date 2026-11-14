@@ -1,5 +1,6 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script src="mode.js"></script>
+<script src="snd/rec.js"></script>
 <title>Garnish</title><link rel="stylesheet" href="common.css">
 <style>
 :root{--bg:#e9e9ec}
@@ -352,13 +353,14 @@ function spawn(i,drop){const slot=SLOTS[i],d=rnd(slot),s=SIZES[d.sz];
 // 계열 = 음색 · count = 음높이(클수록 높고 짧게) · 크기 S/M/L = 소리 크기 · 잔 안에 있으면 자기 박자로 반복
 let AC=null,MASTER=null;
 function ac(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();MASTER=AC.createGain();MASTER.gain.value=.55;
-  const comp=AC.createDynamicsCompressor();MASTER.connect(comp);comp.connect(AC.destination);}if(AC.state==='suspended')AC.resume();return AC;}
+  const comp=AC.createDynamicsCompressor();MASTER.connect(comp);comp.connect(AC.destination);if(window.NBREC)NBREC.preloadGarnish(AC);}if(AC.state==='suspended')AC.resume();return AC;}
 addEventListener('pointerdown',()=>ac(),{once:true,capture:true});
 const VOL={S:.5,M:.75,L:1};
 function noiseBuf(){if(noiseBuf.b)return noiseBuf.b;const a=ac(),b=a.createBuffer(1,a.sampleRate*.5,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return noiseBuf.b=b;}
 function env(g,t,a,peak,dec){g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec);}
 function playG(d,pan=0){const a=ac();if(!a)return;const t=a.currentTime+.01,f=FAM[d.k],step=f.counts.indexOf(d.n),v=VOL[d.sz]*.9*((d.vol==null?.6:d.vol)/.6);
   const out=a.createStereoPanner?a.createStereoPanner():a.createGain();if(out.pan)out.pan.value=Math.max(-.8,Math.min(.8,pan));out.connect(MASTER);
+  {const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r){NBREC.play(a,r.url,out,v*.9,t);return;}} // 녹음 가니쉬가 있는 넘버면 녹음으로
   if(d.k==='spark'){ // 반짝: 높은 사인 핑 + 배음, 아주 짧게
     const base=[1318,1568,1760,2093][step];[1,2.01,3.02].forEach((m,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=base*m;env(g,t+i*.004,.003,v*[.32,.12,.05][i],.35-step*.05);o.connect(g);g.connect(out);o.start(t);o.stop(t+.6);});
     const o2=a.createOscillator(),g2=a.createGain();o2.type='triangle';o2.frequency.value=base*1.5;env(g2,t+.07,.003,v*.08,.25);o2.connect(g2);g2.connect(out);o2.start(t);o2.stop(t+.5);}
@@ -372,7 +374,7 @@ function playG(d,pan=0){const a=ac();if(!a)return;const t=a.currentTime+.01,f=FA
     env(g,t,.006,v*.55,.32);o.connect(lp);lp.connect(g);g.connect(out);o.start(t);o.stop(t+.5);}}
 // 잔 안 가니쉬: 각자 박자로 울리고, 울릴 때 살짝 반짝
 const LOOP=new Set();
-function loopG(w,d){const per=({spark:1.6,fizz:2.2,blossom:2.8,melt:2.0})[d.k]*(1+.15*(Math.random()-.5));w._loop={d,per,next:performance.now()/1000+per*.5};LOOP.add(w);}
+function loopG(w,d){let per=({spark:1.6,fizz:2.2,blossom:2.8,melt:2.0})[d.k]*(1+.15*(Math.random()-.5));{const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r)per=Math.max(per,r.dur+.6);}w._loop={d,per,next:performance.now()/1000+per*.5};LOOP.add(w);}
 setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()/1000;LOOP.forEach(w=>{if(!w.isConnected){LOOP.delete(w);return;}const L=w._loop;if(now>=L.next){L.next=now+L.per*(3/(L.d.f||3));const r=w.getBoundingClientRect(),pr=ph.getBoundingClientRect();playG(L.d,((r.left+r.width/2-pr.left)/pr.width)*2-1);
   w.firstElementChild.animate([{filter:'brightness(1)'},{filter:'brightness(1.6) drop-shadow(0 0 6px rgba(255,255,255,.9))'},{filter:'brightness(1)'}],{duration:420,easing:'ease-out',composite:'add'});{const sv=w.querySelector('svg');if(sv)sv.animate([{scale:'1'},{scale:String(1.22+.06*(L.d.f||3))},{scale:'1'}],{duration:520,easing:'cubic-bezier(.3,1.6,.5,1)'});}}});},40);
 
