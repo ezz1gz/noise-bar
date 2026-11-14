@@ -524,12 +524,12 @@ $('glow').style.setProperty('--g1',COLS[0]);$('glow').style.setProperty('--g2',C
 // 액체 입자: Clavet et al.(2005) 이중 밀도 완화 SPH · 잔 안쪽(원뿔) 벽
 // 청감 모드 잔 = 글라스 단계에서 고른 잔(gl). 마티니는 원래 그림, 락·플루트는 글라스 SVG를 같은 배율로(마티니처럼 잔 속 바닥이 화면 아래쪽에 보이게)
 const GLK=new URLSearchParams(location.search).get('gl')||'martini';
-const GLDEF={rocks:{box:[434,20],L:[[527,107],[539.5,245]],R:[[667,107],[654.5,245]],floor:250,bottom:272,cx:597},
+const GLDEF={martini:{box:[20,20],L:[[61,44],[178,162]],R:[[316,44],[199,162]],floor:166,cx:188.5},rocks:{box:[434,20],L:[[527,107],[539.5,245]],R:[[667,107],[654.5,245]],floor:250,bottom:272,cx:597},
  flute:{box:[828,20],L:[[965,43],[975.5,214]],R:[[1030,43],[1019.5,214]],floor:225,bottom:341,cx:997.5}};
 const GS=1.215;
-const GEO=(()=>{const d=GLDEF[GLK];if(!d)return{A:[34.3047,326.82],B:[172.05,473.054],C:[351.36,326.82],D:[213.614,473.054],F:478,k:'martini'};
+const GEO=(()=>{const d=GLDEF[GLK]||GLDEF.martini;if(!d)return{A:[34.3047,326.82],B:[172.05,473.054],C:[351.36,326.82],D:[213.614,473.054],F:478,k:'martini'};
  const oy=492-(d.floor-d.box[1])*GS,ox=193-(d.cx-d.box[0])*GS,m=q=>[(q[0]-d.box[0])*GS+ox,(q[1]-d.box[1])*GS+oy];
- return{A:m(d.L[0]),B:m(d.L[1]),C:m(d.R[0]),D:m(d.R[1]),F:m([0,d.floor])[1],k:GLK,ox,oy,d};})();
+ return{A:m(d.L[0]),B:m(d.L[1]),C:m(d.R[0]),D:m(d.R[1]),F:m([0,d.floor])[1],k:GLDEF[GLK]?GLK:'martini',ox,oy,d};})();
 function makeSim(){
  const A=GEO.A,B=GEO.B,C=GEO.C,D=GEO.D;
  const nrm=(p,q,s)=>{const dx=q[0]-p[0],dy=q[1]-p[1],l=Math.hypot(dx,dy);return s>0?[dy/l,-dx/l]:[-dy/l,dx/l];};
@@ -723,7 +723,7 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
 <script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'play',title:null,pages:[["플레이 Play", "내가 만든 한 잔을 들어요", "가운데 버튼으로 재생하고 멈춰요", "오른쪽 위 잔 버튼은 청감 모드", "폰을 기울이거나 잔을 끌어 들어요"]]}),250));</script>
 <script>
 // 청감 모드 잔 그림: 고른 잔(락·플루트)이면 글라스 단계 SVG로 바꿈 (액체 경계는 GEO와 같은 좌표)
-(()=>{if(typeof GEO==='undefined'||GEO.k==='martini')return;const sv=document.querySelector('#gw>svg');if(!sv)return;
+(()=>{if(typeof GEO==='undefined'||!GEO.d)return;const sv=document.querySelector('#gw>svg');if(!sv)return;
  fetch('assets/glass/glass-all.svgfrag').then(r=>r.text()).then(fr=>{const d=GEO.d,[bx,by]=d.box,A=GEO.A,C=GEO.C,B=GEO.B;
   sv.innerHTML=`<defs><clipPath id="nbGlClip"><rect x="${bx}" y="${by}" width="336" height="336"/></clipPath></defs>`+
    `<g transform="translate(${(GEO.ox-bx*GS).toFixed(2)} ${(GEO.oy-by*GS).toFixed(2)}) scale(${GS})"><g clip-path="url(#nbGlClip)">${fr}</g></g>`+
@@ -753,5 +753,87 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
  d.innerHTML=`<div class="row">BASE&nbsp;${base}</div>`+(liq?`<div class="row">LIQUEUR&nbsp;${liq}</div>`:'')+(gar?`<div class="row">GARNISH&nbsp;${gar}</div>`:'');
  ply.appendChild(d);
  const p=document.createElement('div');p.id='nbPlayIco';p.innerHTML='<svg width="22" height="24" viewBox="0 0 22 24"><path d="M3 2.5v19a1 1 0 0 0 1.5.86l16-9.5a1 1 0 0 0 0-1.72l-16-9.5A1 1 0 0 0 3 2.5z" fill="#fff"/></svg>';ply.appendChild(p);
+})();
+</script>
+<style id="nb-play-v2">
+/* 피그마 play1·2·3 (75:17086 · 75:17144 · 75:17194) — 구운 UI는 숨기고 새 UI를 얹음. 기능은 기존 버튼(.hit)을 그대로 부름 */
+#ply>svg,#nbInfo,#nbTitle,#nbPlayIco,#timer,#recipe{display:none!important}
+#lis>svg:first-of-type{opacity:0}
+.hit#pause,.hit#prev,.hit#next,.hit#ocn{pointer-events:none!important;opacity:0}
+#nbui{position:absolute;inset:0;pointer-events:none;z-index:6;font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;color:#fff}
+#nbui *{box-sizing:border-box}
+#nbui .gnbx{position:absolute;left:0;top:54px;width:402px;height:48px;padding:4px 16px;display:flex;align-items:center;justify-content:space-between;opacity:.8}
+.muted #nbui .gnbx .w{opacity:0}
+#nbui .mdb{position:absolute;left:344px;top:132px;width:42px;height:42px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.15))}
+#mutex{display:none!important}
+#nbui .ttl{position:absolute;left:50%;top:65px;transform:translateX(-50%);width:71px;height:26px}
+#nbui .phr{position:absolute;left:0;right:0;top:114px;text-align:center;font-size:32px;font-weight:200;letter-spacing:-.64px;line-height:1.3;opacity:0;transition:opacity .6s;white-space:nowrap}
+.listen #nbui .phr{opacity:1}
+#nbui .info{position:absolute;left:0;bottom:0;width:402px;padding:20px 16px 34px;border-radius:5px 5px 0 0;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.8));pointer-events:auto;transition:opacity .5s}
+.listen #nbui .info{opacity:0;pointer-events:none}
+#nbui .r1{display:flex;align-items:center;justify-content:space-between}
+#nbui .nm{font-size:36px;font-weight:300;letter-spacing:-.72px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+#nbui .ic{display:flex;gap:10px}
+#nbui button{border:0;background:none;padding:0;color:inherit;font:inherit;cursor:pointer}
+#nbui .ic button{width:20px;height:20px;position:relative}
+#nbui .ic button::after{content:'';position:absolute;inset:-12px}
+#nbui .ic img{display:block;width:20px;height:20px}
+#nbui .bm.on img{filter:drop-shadow(0 0 0 #fff)}#nbui .bm.on svg path{fill:#fff}
+#nbui .mk{font-size:16px;color:rgba(255,255,255,.8);letter-spacing:-.32px;line-height:1.3}
+#nbui .rc{margin-top:10px;display:flex;align-items:center;padding:4px 0;font-size:14px;letter-spacing:-.28px;opacity:.8}
+#nbui .rc img{width:16px;height:16px;transform:rotate(90deg)}
+#nbui .rd{display:flex;flex-direction:column;gap:4px;margin-top:6px;max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .3s;opacity:0}
+#nbui .open .rd{max-height:90px;opacity:1}
+#nbui .rw{display:flex;gap:14px;align-items:center;font-size:12px;letter-spacing:.6px}
+#nbui .rw span{display:flex;gap:6px;align-items:center}#nbui .rw em{font-style:normal;opacity:.7}
+#nbui .sq{width:16px;height:16px;display:inline-block}
+#nbui .ld{width:18px;height:18px;border-radius:50%;display:inline-block;filter:blur(.6px)}
+#nbui .gi{display:flex;gap:6px;align-items:center}#nbui .gi svg{width:16px;height:16px}
+#nbui .pl{position:absolute;right:16px;bottom:44px;display:flex;gap:10px;align-items:center;opacity:.8}
+#nbui .pl button{width:40px;height:40px;display:grid;place-items:center}
+#nbui .pl .pp{width:58px;height:58px}
+#nbui .pl .pp img{width:58px;height:58px}
+#nbui .pp .play{display:none}.paused #nbui .pp .play{display:block}.paused #nbui .pp .pause{display:none}
+#nbui .toastx{display:none}
+</style>
+<div id="nbui">
+ <div class="gnbx"><svg class="b" width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M11.6665 7L4.6665 14L11.6665 21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="v" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path class="w" d="M15.54 8.45996C16.4774 9.3976 17.004 10.6691 17.004 11.995C17.004 13.3208 16.4774 14.5923 15.54 15.53" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mdb"><svg width="42" height="42" viewBox="0 0 42 42" fill="none"><rect width="42" height="42" rx="21" fill="white"/><g opacity="0.8"><path d="M22.3871 14.7616C22.3901 14.6679 22.5063 14.6262 22.5681 14.6967L23.1192 15.3251C23.1381 15.3466 23.1651 15.3593 23.1937 15.3602L24.0291 15.3864C24.1228 15.3894 24.1645 15.5056 24.094 15.5675L23.4656 16.1185C23.4441 16.1374 23.4313 16.1644 23.4304 16.193L23.4042 17.0284C23.4013 17.1221 23.2851 17.1638 23.2232 17.0933L22.6721 16.4649C22.6533 16.4434 22.6263 16.4307 22.5977 16.4298L21.7623 16.4036C21.6685 16.4006 21.6269 16.2844 21.6974 16.2225L22.3257 15.6715C22.3473 15.6526 22.36 15.6256 22.3609 15.597L22.3871 14.7616Z" fill="#F2AA3F"/><path d="M12.1911 6.78628C12.4922 6.70076 12.7987 6.73499 13.0607 6.85978C13.218 6.61643 13.4603 6.42633 13.7609 6.34084C14.4185 6.15387 15.1028 6.53589 15.2898 7.19343C15.3694 7.47377 15.3444 7.7581 15.2401 8.00761C15.4569 8.16478 15.6255 8.39197 15.7045 8.6695C15.8915 9.32706 15.5097 10.0123 14.8521 10.1993C14.553 10.2843 14.2489 10.25 13.9879 10.1273C13.8306 10.3696 13.5891 10.5595 13.2894 10.6447C12.6319 10.8314 11.9475 10.4495 11.7605 9.79212C11.6813 9.5135 11.7046 9.23026 11.8073 8.98183C11.5882 8.82463 11.4183 8.59554 11.3387 8.31605C11.1517 7.65849 11.5335 6.97328 12.1911 6.78628Z" fill="#FF21E9"/><path d="M28.9185 8.59923C29.0029 8.49655 29.1695 8.55669 29.1689 8.68962L29.1663 9.24516C29.1659 9.32888 29.2379 9.39457 29.3212 9.38644L29.8742 9.33247C30.0065 9.31956 30.0818 9.47989 29.9873 9.57344L29.5926 9.96439C29.5331 10.0233 29.5376 10.1207 29.6023 10.1739L30.0314 10.5267C30.1341 10.6111 30.074 10.7777 29.941 10.7771L29.3855 10.7744C29.3018 10.774 29.2361 10.8461 29.2442 10.9294L29.2982 11.4824C29.3111 11.6147 29.1508 11.6899 29.0572 11.5955L28.6663 11.2008C28.6074 11.1413 28.5099 11.1458 28.4568 11.2105L28.104 11.6396C28.0195 11.7423 27.8529 11.6822 27.8536 11.5492L27.8562 10.9937C27.8566 10.91 27.7846 10.8443 27.7012 10.8524L27.1483 10.9064C27.016 10.9193 26.9407 10.759 27.0352 10.6654L27.4299 10.2745C27.4894 10.2155 27.4848 10.1181 27.4202 10.065L26.9911 9.71215C26.8884 9.62773 26.9485 9.46113 27.0814 9.46176L27.637 9.46441C27.7207 9.46481 27.7864 9.39274 27.7783 9.30942L27.7243 8.7565C27.7114 8.6242 27.8717 8.54892 27.9653 8.64336L28.3562 9.03806C28.4151 9.09754 28.5125 9.09303 28.5657 9.02836L28.9185 8.59923Z" fill="#3B7CFF"/><path d="M29.4395 15C29.9306 15.0004 30.1804 15.5905 29.8389 15.9434L21.4531 24.5908C21.2357 24.815 20.8763 24.8163 20.6573 24.5938L12.1563 15.9463C11.8111 15.5944 12.0607 15.0002 12.5537 15H29.4395Z" fill="black"/><path d="M21 24V33" stroke="black" stroke-width="1.25"/><path d="M17 33H25" stroke="black" stroke-width="1.25"/></g></svg></div>
+ <div class="ttl" aria-label="Play"><svg width="71" height="26" viewBox="0 0 71 26" fill="#fff"><path d="M19.25 18.0078H17.5313V4.25781H20.9688V18.0078H22.6875V19.7266H19.25V18.0078Z"/><path d="M3.6575 0.945311C5.6925 1.05531 7.865 1.00031 9.9 1.00031C12.925 1.00031 15.3725 3.44781 15.3725 6.47281C15.3725 9.49781 12.925 11.9453 9.9 11.9453C8.8825 11.9453 7.865 11.9453 6.8475 11.9453C5.4725 11.9178 5.115 11.6703 5.1425 13.1828C5.1975 15.0528 5.115 16.9503 5.1975 18.7928C5.225 19.4253 5.335 20.0578 4.565 20.1678C4.125 20.2228 2.9425 20.3053 2.6125 19.9753C2.2825 19.6178 2.4475 18.2703 2.4475 17.7478C2.4475 14.7228 2.4475 11.6978 2.4475 8.67281C2.4475 6.69281 2.53 4.54781 2.3925 2.56781C2.3375 1.35781 2.3375 0.890312 3.6575 0.945311ZM9.9 3.72281C8.8 3.72281 7.6725 3.75031 6.5725 3.72281C6.1325 3.72281 5.3625 3.55781 5.1975 4.13531C5.115 4.41031 5.1975 6.88531 5.17 7.43531C5.1425 8.59031 4.895 9.25031 6.2975 9.22281C7.5075 9.19531 8.69 9.19531 9.9 9.19531C11.4125 9.19531 12.65 7.98531 12.65 6.47281C12.65 4.96031 11.4125 3.72281 9.9 3.72281Z"/><path d="M25.6163 15.9875V12.6875H26.0288V11.45H26.4413V10.625H26.8538V10.2125H27.2663V9.8H27.6788V9.3875H28.0913V8.975H28.9163V8.5625H31.7625V8.975H32.5875V9.3875H33V9.8H33.4125V10.2125H33.7838V9.18125H34.1963V8.76875H35.8463V9.18125H36.2588V19.7H35.8463V20.1125H34.1963V19.7H33.7838V18.4625H33.4125V19.0813H33V19.4938H32.3813V19.9063H31.5563V20.3188H29.3288V19.9063H28.5038V19.4938H27.6788V19.0813H27.2663V18.6687H26.8538V18.05H26.4413V17.225H26.0288V15.9875H25.6163ZM28.1944 12.6875V15.9875H28.6069V17.0187H29.0194V17.4312H29.4319V17.8437H29.8444V18.2562H31.9688V17.8437H32.5875V17.4312H33V16.8125H33.4125V15.9875H33.825V13.1H33.4125V12.275H33V11.6562H32.5875V11.0375H31.9688V10.625H29.8444V11.0375H29.4319V11.45H29.0194V11.8625H28.6069V12.6875H28.1944Z"/><path d="M43.1979 9.29167H42.0521V10.4375V11.5833H43.1979V12.7292V13.875V15.0208H44.3438V16.1667V17.3125H45.4896V16.1667H46.6354V15.0208V13.875V12.7292H47.7812V11.5833V10.4375V9.29167H46.6354V8.14583H51.2188V9.29167H50.0729V10.4375H48.9271V11.5833V12.7292V13.875H47.7812V15.0208V16.1667V17.3125H46.6354V18.4583V19.6042V20.75H45.4896V21.8958V23.0417H44.3438V24.1875H43.1979V25.3333H39.7604V24.1875H38.6146V23.0417V21.8958H40.9062V23.0417V24.1875H42.0521V23.0417H43.1979V21.8958H44.3438V20.75V19.6042H43.1979V18.4583V17.3125H42.0521V16.1667V15.0208H40.9062V13.875V12.7292V11.5833H39.7604V10.4375V9.29167H38.6146V8.14583H43.1979V9.29167Z"/></svg></div>
+ <div class="phr" id="nbPhr"></div>
+ <section class="info" id="nbInf" aria-label="재생 정보">
+  <div class="r1"><div class="nm" id="nbNm">이름 없는 잔</div><div class="ic"><button type="button" id="nbOcn" aria-label="소리의 바다에 띄우기"><img src="assets/play/wave-add.svg" alt=""></button><button type="button" class="bm" id="nbBm" aria-label="내 잔에 저장"><img src="assets/play/bookmark.svg" alt=""></button></div></div>
+  <div class="mk" id="nbMk">@guest</div>
+  <button type="button" class="rc" id="nbRc" aria-expanded="false">Recipe<img src="assets/play/chev.svg" alt=""></button>
+  <div class="rd" id="nbRd"></div>
+  <div class="pl"><button type="button" id="nbPv" aria-label="이전"><img src="assets/play/prev.svg" width="20" height="22.5" alt="" style="transform:scaleX(-1)"></button><button type="button" class="pp" id="nbPp" aria-label="일시정지/재생"><img class="pause" src="assets/play/pause.svg" alt=""><img class="play" src="assets/play/play.svg" alt=""></button><button type="button" id="nbNx" aria-label="다음"><img src="assets/play/next.svg" width="20" height="22.5" alt=""></button></div>
+ </section>
+</div>
+<script src="nbdata.js"></script>
+<script>
+(()=>{const Q=new URLSearchParams(location.search),$=id=>document.getElementById(id);const ph=$('ph');ph.appendChild($('nbui'));
+ // 기존 GNB(뒤로·볼륨)·모드 버튼은 그대로 위에
+ ['bk','vol','mode'].forEach(i=>{const e=$(i);if(e){e.style.zIndex=7;e.style.opacity=0;ph.appendChild(e);}});
+ $('nbNm').textContent=Q.get('nm')||Q.get('t')||'이름 없는 잔';$('nbMk').textContent=Q.get('mk')||'@guest';
+ // 레시피: 베이스 색 네모+비율 · 리큐르 점+이름 · 가니쉬 모양
+ const C={white:'#ffffff',pink:'#ff2294',blue:'#4583ff',brown:'#c95f19'};const pk=(Q.get('pk')||'white,pink,blue,brown').split(','),sh=(Q.get('s')||'.25,.25,.25,.25').split(',').map(Number),tot=sh.reduce((a,b)=>a+b,0)||1;
+ const lt=(Q.get('lt')||'').split(',').filter(Boolean),ln=(Q.get('ln')||'').split(/[,+]/).map(x=>x.trim()).filter(Boolean);
+ const FC={melt:'#EC5B2B',blossom:'#FF589E',spark:'#1AA6E1',fizz:'#EBEBEB'};
+ const GS={spark:'M8 1.5l1.8 4.7 4.7 1.8-4.7 1.8L8 14.5 6.2 9.8 1.5 8l4.7-1.8z',blossom:'M8 2.6a3 3 0 015 2.4 3 3 0 01-2.4 5 3 3 0 01-5 2.4A3 3 0 013 10a3 3 0 012.4-5A3 3 0 018 2.6z',melt:'M6.2 2.5a4.5 4.5 0 014 2.2 3 3 0 014 3.7 3 3 0 01-1.5 2.4 3.5 3.5 0 01-6 3.2 4.6 4.6 0 01-.5-11.5z',fizz:'M8 1l1.6 2.4 2.7-1-.2 2.9 2.8.8L13 8l1.9 1.9-2.8.8.2 2.9-2.7-1L8 15l-1.6-2.4-2.7 1 .2-2.9-2.8-.8L3 8 1.1 6.1l2.8-.8-.2-2.9 2.7 1z'};
+ const g=(Q.get('g')||'').split(',').filter(Boolean).map(x=>x.split('-')[0]).filter(k=>GS[k]);
+ const base=pk.map((k,i)=>({k,v:Math.round(sh[i]/tot*100)})).filter(x=>x.v>0);
+ let h=`<div class="rw">${base.map(x=>`<span><i class="sq" style="background:${C[x.k]||'#fff'}"></i><em>${x.v}</em></span>`).join('')}</div>`;
+ if(ln.length)h+=`<div class="rw">${ln.map((n,i)=>`<span><i class="ld" style="background:radial-gradient(circle,#${lt[i]||'7fd48a'} 0 35%,#${lt[i]||'7fd48a'}55 70%,transparent)"></i><em>${n.replace(/</g,'&lt;')}</em></span>`).join('')}</div>`;
+ if(g.length)h+=`<div class="rw gi">${g.map(k=>`<svg viewBox="0 0 16 16"><path d="${GS[k]}" fill="${FC[k]}" fill-opacity="${k==='fizz'?1:.85}"/></svg>`).join('')}</div>`;
+ $('nbRd').innerHTML=h;
+ $('nbRc').onclick=()=>{const o=$('nbInf').classList.toggle('open');$('nbRc').setAttribute('aria-expanded',String(o));};
+ $('nbPp').onclick=()=>$('pause').click();$('nbPv').onclick=()=>$('prev').click();$('nbNx').onclick=()=>$('next').click();$('nbOcn').onclick=()=>$('ocn').click();
+ // 저장(북마크): Taste의 MY에 넣음
+ const key='nb-bm:'+location.search;let on=false;try{on=!!localStorage.getItem(key);}catch(_){}
+ const paint=()=>{$('nbBm').classList.toggle('on',on);$('nbBm').querySelector('img').style.filter=on?'brightness(10) drop-shadow(0 0 4px rgba(255,255,255,.6))':'';$('nbBm').setAttribute('aria-pressed',String(on));};paint();
+ $('nbBm').onclick=()=>{if(on)return;try{const id=NB.saveMine({t:$('nbNm').textContent,m:Q.get('mk')||NB.me(),pk:Q.get('pk')||'',s:Q.get('s')||'',lk:Q.get('lk')||'',ln:Q.get('ln')||'',lv:(Q.get('lq')||'').split(':')[1]||50,lq:Q.get('lq')||'',lt:Q.get('lt')||'',g:Q.get('g')||'',gl:Q.get('gl')||'martini'});localStorage.setItem(key,id);}catch(_){}on=true;paint();try{toast('Taste의 MY에 저장했어요');}catch(_){}};
+ // 청감 모드 문장: 베이스 성격 + 가니쉬
+ const W={white:0,pink:-3,blue:3,brown:-6};const bt=pk.reduce((a,k,i)=>a+(sh[i]/tot)*(W[k]||0),0);
+ const GP={spark:'반짝이는',fizz:'보글거리는',blossom:'맑게 울리는',melt:'뚝뚝 떨어지는'};
+ $('nbPhr').textContent=(g.length?GP[g[0]]:(bt<-4?'아주 깊고 낮은':bt<-2.2?'깊고 따뜻한':bt<-.8?'부드러운':bt<.8?'밝고 고른':'밝고 날카로운'))+' 소리';
 })();
 </script>
