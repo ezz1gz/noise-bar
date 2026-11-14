@@ -70,13 +70,12 @@ window.nbIntro=function(o){
     cp=document.createElement('div');cp.className='cp';cp.innerHTML=pages[i].map((l,k)=>`<span${k===0&&pages.length>1&&i>0?' class="nbHd"':''}>${l}</span>`).join('');ov.appendChild(cp);
     sp=[...cp.querySelectorAll('span')];const d0=old?380:350;
     sp.forEach((s,k)=>T.push(setTimeout(()=>s.classList.add('on'),d0+k*380)));
-    const hold=d0+sp.length*380+Math.max(1700,pages[i].join('').length*60);
+    const hold=d0+sp.length*380+Math.max(2800,pages[i].join('').length*75);
     T.push(setTimeout(next,hold));};
   const next=()=>{if(pi+1<pages.length)show(pi+1);else end();};
   show(0);
-  ov.addEventListener('pointerdown',e=>{e.preventDefault();try{window.wake&&window.wake();}catch(_){}
-    // 탭: 남은 줄을 바로 보여주고 → 다 보이면 다음 장 / 끝
-    if(sp.some(s=>!s.classList.contains('on'))){sp.forEach(s=>s.classList.add('on'));clr();T.push(setTimeout(next,1600));}else next();});
+  // 탭해도 넘어가지 않음 (끝까지 다 보여준 뒤 몇 초 있다가 저절로 사라짐) · 탭은 소리 깨우기만
+  ov.addEventListener('pointerdown',e=>{e.preventDefault();try{window.wake&&window.wake();}catch(_){}});
   return{skip:end};
 };
 })();

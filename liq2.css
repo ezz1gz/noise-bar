@@ -17,8 +17,11 @@
 
 /* 아래 바 (base bar_S 260×60) + 다음 원 (60) */
 .l2bar{left:16px;bottom:max(46px,calc(var(--safeB) + 12px));width:260px;height:60px;box-sizing:border-box;border-radius:10px;--fr:2px;--sh:0 6px 15px rgba(0,0,0,.25);
-  display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0 18px;pointer-events:auto;cursor:pointer;touch-action:none;transition:opacity .25s,transform .35s cubic-bezier(.32,.72,0,1)}
+  display:block;padding:0;pointer-events:auto;cursor:pointer;touch-action:none;transition:opacity .25s,transform .35s cubic-bezier(.32,.72,0,1)}
 .l2grab{display:block;width:33.5px;height:1.5px;flex:none}
+/* 접힌 바: 다른 단계(베이스) 바와 같은 자리 — 손잡이 위 9.25px · 내용 가운데 32px */
+.l2bar>.l2grab{position:absolute;left:50%;top:9.25px;margin-left:-16.75px;z-index:1}
+.l2bar>.l2row{position:absolute;left:0;right:0;top:16px}
 .l2row{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;width:100%;height:32px;padding:0 16px;box-sizing:border-box}
 .l2slots{display:flex;gap:10px}
 .l2slot{width:32px;height:32px;border-radius:50%;flex:none;background:radial-gradient(closest-side,var(--c) 0%,var(--c51) 58.4%,var(--c0) 100%)}
@@ -89,3 +92,8 @@
 .l2tabs{gap:14px!important;padding:0 20px!important}
 .l2tab,.l2tab[aria-pressed="true"]{padding:7px 10px!important}
 .l2open .l2bl,.l2open .l2ring{visibility:hidden}
+
+/* 접힌 바 · 다음 원 = 베이스 단계와 같은 모양 */
+#lq2 .l2bar{-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:0 6px 30px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05),inset 0 0 0 .75px rgba(255,255,255,.7)}
+#lq2 .l2bar::before,#lq2 .l2bar::after,#lq2 .l2next::before,#lq2 .l2next::after{display:none}
+#lq2 .l2next{box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05)}

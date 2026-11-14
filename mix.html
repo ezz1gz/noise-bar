@@ -194,7 +194,9 @@ const P={stir:STIR,scale:.4,purity:.3};
 const ptr={down:false,x:0,y:0,vx:0,vy:0,t:0};const splat={on:false,x:0,y:0,vx:0,vy:0,r:.14};
 const shake={energy:0,ax:0,ay:0,last:null,on:false};
 function onMotion(e){const a=e.accelerationIncludingGravity||e.acceleration;if(!a||a.x==null)return;if(shake.last){const j=Math.hypot(a.x-shake.last.x,a.y-shake.last.y,(a.z||0)-shake.last.z),e2=Math.min(1,Math.max(0,(j-1.6)/11));if(e2>shake.energy){shake.energy=e2;shake.ax=a.x-shake.last.x;shake.ay=a.y-shake.last.y;}}shake.last={x:a.x,y:a.y,z:a.z||0};}
-function enableMotion(){if(shake.on||shake.asking)return;const go=()=>{if(shake.on)return;shake.on=true;addEventListener('devicemotion',onMotion);};try{if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){shake.asking=true;DeviceMotionEvent.requestPermission().then(r=>{shake.asking=false;if(r==='granted')go();}).catch(()=>{shake.asking=false;});}else go();}catch(_){shake.asking=false;}}['touchend','click'].forEach(ev=>addEventListener(ev,enableMotion,true));try{if(!(window.DeviceMotionEvent&&DeviceMotionEvent.requestPermission))enableMotion();}catch(_){}function simStep(dt,flow,relax){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,simW,simH);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
+function tipMsg(L){try{if(window.nbNotice)nbNotice(L);else toast(L.join(' '));}catch(_){}}
+function askTip(){tipMsg(['동작 접근 허용 창이 나오면','‘허용’을 눌러주세요','허용해야 폰을 흔들어 섞을 수 있어요']);}
+function enableMotion(){if(shake.on||shake.asking)return;const go=()=>{if(shake.on)return;shake.on=true;addEventListener('devicemotion',onMotion);};try{if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){shake.asking=true;askTip();DeviceMotionEvent.requestPermission().then(r=>{shake.asking=false;if(r==='granted'){go();tipMsg(['좋아요!','이제 폰을 흔들어 섞어요']);}else tipMsg(['흔들기를 허용하지 않았어요','화면을 손가락으로 휘저어도 섞여요']);}).catch(()=>{shake.asking=false;});}else go();}catch(_){shake.asking=false;}}['touchend','click'].forEach(ev=>addEventListener(ev,enableMotion,true));try{if(!(window.DeviceMotionEvent&&DeviceMotionEvent.requestPermission))enableMotion();}catch(_){}function simStep(dt,flow,relax){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,simW,simH);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
   gl.uniform1i(u.uPrev,0);gl.uniform2f(u.uSimRes,simW,simH);gl.uniform1f(u.uTime,simT);gl.uniform1f(u.uDt,dt);gl.uniform1f(u.uFlow,flow);gl.uniform1f(u.uScale,.8+P.scale*2.4);gl.uniform1f(u.uAsp,W/H);gl.uniform1f(u.uRelax,relax);
   gl.uniform1f(u.uPtrOn,splat.on?1:0);gl.uniform1f(u.uPtrR,splat.r);gl.uniform4f(u.uPtr,splat.x/W,1-splat.y/H,splat.vx/W*1.1,-splat.vy/H*1.1);gl.drawArrays(gl.TRIANGLES,0,3);[A,B]=[B,A];}
 let mixAmt=0,mixTarget=0,simT=0,dispT=0;const cuts=cutsT.slice();
@@ -242,5 +244,5 @@ fitM();addEventListener('resize',fitM);
 })();
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]]}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]].concat((window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')?[["흔들기 허용", "화면을 누르면 동작 접근 허용 창이 나와요", "‘허용’을 눌러주세요"]]:[])}),250));</script>
 </body></html>
