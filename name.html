@@ -52,4 +52,6 @@ document.getElementById('f').onsubmit=e=>{e.preventDefault();if(go.disabled){(cl
   Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));location.href='play.html?'+Q;};
 document.getElementById('bk').onclick=()=>{Q.delete('nm');Q.delete('mk');location.href='garnish.html?'+Q;};
 </script>
+<script src="intro.js"></script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'serve',host:document.querySelector('.wrap'),title:document.querySelector('.wrap h1'),pages:[["서브", "완성된 한 잔에 이름을 붙여요", "잔 이름과 닉네임을 적고", "바다로 보내면 플레이 화면으로 이어져요"]]}),250));</script>
 </body></html>

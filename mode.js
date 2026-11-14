@@ -115,12 +115,20 @@
     var ph = document.getElementById('ph'); if (!ph || document.getElementById('vol')) return;
     var mix = /mix\.html/.test(location.pathname);
     var b = document.createElement('button'); b.type = 'button'; b.className = 'hit nbspk'; b.setAttribute('aria-label', '소리 끄기');
-    b.style.cssText = 'left:338px;top:58px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:' + (mix ? '#fff' : '#000') + ';z-index:30';
+    b.style.cssText = 'left:343px;top:56px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:' + (mix ? '#fff' : '#000') + ';z-index:30' + (mix ? ';mix-blend-mode:difference' : '');
     b.innerHTML = '<span class="off">' + OFF + '</span>'; b.dataset.band = mix ? 'top' : 'art';
     ph.appendChild(b); try { window.nbFit && window.nbFit(); } catch (e) {}
     var st = document.createElement('style');
-    st.textContent = '.nbspk .off{display:none;' + (mix ? 'mix-blend-mode:difference;' : 'background:#fff;border-radius:50%;padding:4px;') + '}html.nb-muted .nbspk .off{display:block}' + (mix ? 'html.nb-muted .gnb svg:last-child{visibility:hidden}' : '');
+    st.textContent = '.nbspk .off{display:none;width:24px;height:24px}.nbspk .off svg{display:block}html.nb-muted .nbspk .off{display:block}html.nb-muted .nbSpkOn{visibility:hidden}' + (mix ? 'html.nb-muted .gnb svg:last-child{visibility:hidden}' : '');
+    // 그림 속 원래 스피커(오른쪽 위 352~376 × 66~90)를 찾아, 꺼짐일 때 숨기고 같은 자리에 꺼짐 아이콘 → 스피커 몸통 위치가 그대로
+    var mark = function () { [].forEach.call(ph.querySelectorAll('svg path'), function (p) { try { var bb = p.getBBox(); if (bb.x >= 350 && bb.x + bb.width <= 378 && bb.y >= 64 && bb.y + bb.height <= 92) p.classList.add('nbSpkOn'); } catch (e) {} }); };
+    if (document.readyState === 'complete') mark(); else addEventListener('load', mark);
     document.head.appendChild(st); lastM = null; apply();
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    var g = document.getElementById('gVol'); if (!g || g.querySelector('.voff')) return; var on = g.querySelector('img'); if (!on) return;
+    on.classList.add('von'); var off = on.cloneNode(); off.src = 'assets/gnb-volume-off.svg'; off.className = 'voff'; g.appendChild(off);
+    var st = document.createElement('style'); st.textContent = '#gVol .voff{display:none}#gVol.off .von{display:none}#gVol.off .voff{display:block}'; document.head.appendChild(st); lastM = null; apply();
   });
   window.__nbUnlock = unlock;
 })();

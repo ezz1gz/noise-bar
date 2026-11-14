@@ -38,11 +38,15 @@ function shrink(el,host,instant,done){
   // HTML/SVG 루트: 화면 좌표 → host 좌표(축척 k 보정)
   const hr=host.getBoundingClientRect(),k=hr.width/(host.offsetWidth||hr.width)||1;
   el.style.translate='';el.style.scale='';
-  const r=el.getBoundingClientRect(),cx=(r.left+r.width/2-hr.left)/k,cy=(r.top+r.height/2-hr.top)/k,h=r.height/k;
-  const g=host.querySelector('.gnb'),gr=g&&g.getBoundingClientRect();
+  const er=el.getBoundingClientRect();let r=er;
+  // 넓은 블록(h1 등)은 글자 자체의 상자로 재서 글자 가운데를 기준으로
+  if(!(el instanceof SVGElement)){try{const rg=document.createRange();rg.selectNodeContents(el);const tr=rg.getBoundingClientRect();if(tr.width&&tr.height)r=tr;}catch(e){}}
+  const cx=(r.left+r.width/2-hr.left)/k,cy=(r.top+r.height/2-hr.top)/k,h=r.height/k;
+  const ox=(r.left+r.width/2-er.left)/k,oy=(r.top+r.height/2-er.top)/k;
+  const g=host.querySelector('.gnb #gVol')||host.querySelector('.gnb button')||host.querySelector('.gnb svg')||host.querySelector('.gnb'),gr=g&&g.getBoundingClientRect();
   const tx=host.offsetWidth/2||196.5,ty=gr&&gr.height?(gr.top+gr.height/2-hr.top)/k:78;
   const th=el.dataset.nbH?+el.dataset.nbH:20,s=Math.min(th/h,.6);
-  el.style.transformOrigin='50% 50%';
+  el.style.transformOrigin=(el instanceof SVGElement)?'50% 50%':`${ox}px ${oy}px`;
   const set=q=>{el.style.translate=`${(tx-cx)*q}px ${(ty-cy)*q}px`;el.style.scale=String(1+(s-1)*q);};
   if(!D){set(1);done&&done();return;}
   const f=now=>{const t=Math.min(1,(now-t0)/D);set(t<1?spring(t):1);if(t<1)requestAnimationFrame(f);else done&&done();};requestAnimationFrame(f);}
