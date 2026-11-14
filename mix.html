@@ -221,7 +221,7 @@ st.addEventListener('input',()=>{P.stir=st.value/100;$('so').textContent=st.valu
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1500);}
 // 처음: 솔리드로 잠깐 → 흔들기 시작(자동) — 휘젓기 정도가 클수록 빨리·크게 섞임
 setTimeout(()=>{const touch=('ontouchstart' in window)||navigator.maxTouchPoints>0;if(!touch)mixTarget=1;},650);
-$('nx').onclick=()=>{if(mixAmt<.9){toast('조금만 더 섞어요');mixTarget=1;return;}try{draw();const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}
+$('nx').onclick=()=>{if(mixAmt<.9){toast('조금만 더 섞어요');mixTarget=1;return;}try{draw();const o=document.createElement('canvas');o.width=786;o.height=1704;o.getContext('2d').drawImage(cv,0,0,786,1704);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}
   const q=new URLSearchParams(location.search);q.set('st',(P.stir).toFixed(2));location.href='glass.html?'+q;};
 $('bk').onclick=()=>back();
 let last=performance.now()/1000,lastL='';
@@ -236,7 +236,9 @@ function frame(){const now=performance.now()/1000,dt=Math.min(now-last,1/30);las
   simT+=dt*((.25+P.stir*2.2)*Math.max(mixAmt,mixTarget>.5?.4:0)+se*1.5);dispT+=dt*((.3+P.stir*2.4)*mixAmt+se*1.5);
   const mk=snapOK?Math.max(mixAmt,mixTarget>.5?.45:0)*2.6:mixAmt;simStep(dt,(.05+P.stir*.5)*mk+se*.5,.04*mixAmt);draw();
   const v=Math.round(mixAmt*100),L=mixAmt<.01?'SOLID':mixAmt>.97?'MIXED':'MIXING '+v;if(L!==lastL){lastL=L;$('state').textContent=L;}{const pe=$('mpct'),t=v+'%';if(pe.textContent!==t)pe.textContent=t;}
-  if(mixAmt>.55)$('hint').style.opacity=0;const ok=mixAmt>=.9;if(ok&&now-(window.__shotT||0)>1.5){window.__shotT=now;try{const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}}$('nx').setAttribute('aria-disabled',String(!ok));$('nx').classList.toggle('ready',mixAmt>.97);
+  if(mixAmt>.55)$('hint').style.opacity=0;const ok=mixAmt>=.9;if(ok&&now-(window.__shotT||0)>1.5){window.__shotT=now;try{const o=document.createElement('canvas');o.width=786;o.height=1704;o.getContext('2d').drawImage(cv,0,0,786,1704);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}}$('nx').setAttribute('aria-disabled',String(!ok));$('nx').classList.toggle('ready',mixAmt>.97);
+  // 100% 다 섞이면 잠깐 보여준 뒤 저절로 글라스로
+  if(mixAmt>=.995&&!window.__autoNx){window.__autoNx=1;setTimeout(()=>$('nx').click(),900);}
   requestAnimationFrame(frame);}
 frame();
 function fitM(){nbFit();}

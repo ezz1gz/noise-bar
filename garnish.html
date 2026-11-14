@@ -23,7 +23,7 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 .g .bob{position:absolute;inset:0;animation:idle 5s ease-in-out infinite}
 @keyframes idle{50%{transform:translate(2px,-4px) rotate(2deg)}}
 .g.drag{cursor:grabbing;z-index:5}.g.drag .bob{animation:none;transform:scale(1.08)}
-.ing{position:absolute;left:0;top:0;opacity:.6}
+.ing{position:absolute;left:0;top:0;opacity:.9;pointer-events:auto;touch-action:none;cursor:grab}
 .ing .fl{position:absolute;inset:0;animation:inbob 2s linear infinite}
 @keyframes inbob{0%,0.35%{transform:translate(0,0)}43.5%{transform:translate(17.19px,1.79px)}48.6%{transform:translate(19.23px,2px)}93.5%{transform:translate(9.38px,-13.93px)}100%{transform:translate(0,0)}}
 .ing svg{position:absolute;inset:0;overflow:visible}
@@ -382,7 +382,7 @@ function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=
   const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-37.5,gy=GC[1]+dy*k-263;
   const w=document.createElement('div');w.className='ing';w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
   const id='q'+(UID++),f=FAM[d.k],P=shapePath(d.k,d.n,36-f.off[0]/2,36-f.off[1]/2,d.seed);
-  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg);filter:drop-shadow(0 0 1px rgba(255,255,255,.8))"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter></defs><path d="${P}" fill="#D9D9D9" fill-opacity=".2"/><path d="${P}" fill="#fff" fill-opacity=".55" filter="url(#${id})"/></svg></div>`;
+  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg);filter:drop-shadow(0 0 1px rgba(255,255,255,.8))"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".6"/></filter><linearGradient id="${id}g" x1="36" y1="6" x2="36" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="${f.c[0]}"/><stop offset="1" stop-color="${f.c[1]}"/></linearGradient></defs><path d="${P}" fill="url(#${id}g)" fill-opacity=".62" stroke="${f.c[1]}" stroke-opacity=".55" stroke-width="1"/><path d="${P}" fill="#fff" fill-opacity=".38" filter="url(#${id})"/></svg></div>`;
   glass.appendChild(w);if(!el._fake)playG(d,(gx/318)*2-1);loopG(w,d);w.animate([{opacity:0,scale:'1.5'},{opacity:.6,scale:'1'}],{duration:500,easing:'cubic-bezier(.45,1.45,.8,1)'});
   while(glass.children.length>3){const o=glass.firstElementChild;o.animate([{opacity:.6},{opacity:0}],{duration:300}).onfinish=()=>o.remove();glass.appendChild(glass.firstElementChild);o.remove();break;}
   tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;if(window.__g2)__g2.added(w,d);tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
@@ -405,8 +405,11 @@ const VS='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 const FS=`precision highp float;uniform vec2 uR;uniform float uT;
 ${FLUID_GLSL}
 ${MIXTEX_GLSL}
+uniform vec3 uNA,uNB,uNC;
 void main(){vec2 p=(gl_FragCoord.xy/uR)*2.-1.;float r=length(p);if(r>1.){gl_FragColor=vec4(0.);return;}
-  vec3 col=drink(p*.75+.5,vec2(.5+p.x*.42,.5-p.y*.42*393./852.),uT*.55);float edge=smoothstep(1.,.985,r);gl_FragColor=vec4(col*edge,edge);}`;
+  vec3 col=drink(p*.75+.5,vec2(.5+p.x*.42,.5-p.y*.42*393./852.),uT*.55);
+  {float mn=min(col.r,min(col.g,col.b)),mx=max(col.r,max(col.g,col.b));float w=smoothstep(.62,.9,mn)*(1.-smoothstep(.08,.25,mx-mn));vec2 s=p*.5+.5;
+   float n1=ff_(s*vec2(2.2,2.6)+vec2(uT*.03,-uT*.025)),n2=ff_(s*vec2(3.1,2.4)+7.3-uT*.02);vec3 alt=mix(mix(uNA,uNB,smoothstep(.3,.7,n1)),uNC,smoothstep(.55,.85,n2)*.6);col=mix(col,alt*mix(.92,1.05,n2),w*.9);}float edge=smoothstep(1.,.985,r);gl_FragColor=vec4(col*edge,edge);}`;
 const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.log(gl.getShaderInfoLog(o));return o;};
 const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
 const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
@@ -414,6 +417,8 @@ const la=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(la);gl.vertexAt
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);
 // 피그마 음료 색을 더 쨍하게: 보라 · 마젠타 · 코랄 · 오렌지 · 핑크 · 딥퍼플
 setFluid(gl,pr);bindMixTex(gl,pr,3);
+{const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);const tot=SH.reduce((a,b)=>a+b,0)||1;const base=PK.map((k,i)=>({c:(COCK[k]||PC[i]),w:SH[i]/tot,k})).filter(x=>x.k!=='white'&&x.w>.02).sort((a,b)=>b.w-a.w).map(x=>hx(x.c));
+ const pool=base.concat(LT.map(hx));while(pool.length<3)pool.push(pool[pool.length-1]||[.6,.4,.9]);['uNA','uNB','uNC'].forEach((n,i)=>gl.uniform3fv(gl.getUniformLocation(pr,n),pool[i]));}
 const uR=gl.getUniformLocation(pr,'uR'),uT=gl.getUniformLocation(pr,'uT');const red=matchMedia('(prefers-reduced-motion: reduce)').matches;const t0=performance.now();
 function fr(){gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uR,cv.width,cv.height);gl.uniform1f(uT,red?3:(performance.now()-t0)/1000);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(fr);}fr();})();
 

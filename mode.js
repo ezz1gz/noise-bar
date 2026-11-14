@@ -68,7 +68,8 @@
   ['touchend', 'click', 'keydown', 'pointerup'].forEach(function (ev) { addEventListener(ev, unlock, true); });
   // 화면 잠금·홈으로 나가기 = 소리 멈춤, 돌아오면 다시 (사용자가 직접 멈춘 건 그대로)
   function sleepAll() {
-    allCtx().forEach(function (c) { if (c.state === 'closed' || c.__nbUser) return; c.__nbSys = true; try { sus.call(c); } catch (e) {} if (c.__nbEl) try { c.__nbEl.pause(); } catch (e) {} });
+    // 자기 화면의 소리만 (안쪽 화면이 넘어갈 때 pagehide가 바깥 앱 소리까지 끄지 않게)
+    list.forEach(function (c) { if (c.state === 'closed' || c.__nbUser) return; c.__nbSys = true; try { sus.call(c); } catch (e) {} if (c.__nbEl) try { c.__nbEl.pause(); } catch (e) {} });
     if (tag && !tag.paused) { tag.__self = true; try { tag.pause(); } catch (e) {} setTimeout(function () { tag.__self = false; }, 0); }
     try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {}
   }

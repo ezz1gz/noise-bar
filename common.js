@@ -69,8 +69,10 @@ function setFluid(gl,pr){const U=n=>gl.getUniformLocation(pr,n);const[g,tn]=liqG
 
 // ── MIX 화면에서 섞인 모습을 그대로 이어 쓰기: 다 섞인 순간을 찍어 두고(세션 저장), 다음 화면들은 그 그림을 같은 자리에서 아주 천천히 일렁이며 씀
 const MIXKEY='nb-mixshot';
-function saveMixShot(url){try{sessionStorage.setItem(MIXKEY,url);}catch(_){}try{localStorage.setItem(MIXKEY,url);}catch(_){}if(inFrame)parent.postMessage({nb:'mixshot',url},'*');}
-function getMixShot(){let u=null;try{u=sessionStorage.getItem(MIXKEY);}catch(_){}if(!u)try{u=localStorage.getItem(MIXKEY);}catch(_){}if(!u&&inFrame)try{u=parent.__mixShot||null;}catch(_){}return u;}
+// 찍은 그림은 '지금 고른 베이스·리큐르'와 짝을 지어 저장 → 예전에 만든 잔 그림이 섞여 나오지 않게
+const MIXSIG=()=>[Q.get('pk')||'',Q.get('s')||'',Q.get('lt')||'',Q.get('lk')||''].join('|');
+function saveMixShot(url){const v=JSON.stringify({u:url,sig:MIXSIG()});try{sessionStorage.setItem(MIXKEY,v);}catch(_){}try{localStorage.removeItem(MIXKEY);}catch(_){}if(inFrame)parent.postMessage({nb:'mixshot',url},'*');}
+function getMixShot(){let v=null;try{v=sessionStorage.getItem(MIXKEY);}catch(_){}if(!v){if(inFrame)try{return parent.__mixShot||null;}catch(_){}return null;}try{const o=JSON.parse(v);return o&&o.sig===MIXSIG()?o.u:null;}catch(_){return null;}}
 const MIXTEX_GLSL=`uniform sampler2D uMT;uniform float uHasMT;
 vec3 drink(vec2 fuv,vec2 suv,float t){if(uHasMT<.5)return fluid(fuv,t);
   vec2 w=vec2(fn_(suv*3.2+t*.06),fn_(suv*3.2+7.3-t*.05))-.5;return texture2D(uMT,clamp(suv+w*.022,.002,.998)).rgb;}`;

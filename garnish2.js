@@ -58,7 +58,16 @@ function render(){const L=ITEMS();
 {const p=$('g2pill');let on=false;const set=e=>{if(!act)return;const r=p.getBoundingClientRect();act.vol=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));render();};
   p.addEventListener('pointerdown',e=>{on=true;p.setPointerCapture(e.pointerId);set(e);});p.addEventListener('pointermove',e=>{if(on)set(e);});p.addEventListener('pointerup',()=>{on=false;if(act)try{playG(act,0);}catch(_){}});
   p.addEventListener('keydown',e=>{if(!act)return;const d=(e.key==='ArrowRight'||e.key==='ArrowUp')?.05:(e.key==='ArrowLeft'||e.key==='ArrowDown')?-.05:0;if(d){act.vol=Math.max(0,Math.min(1,(act.vol==null?.6:act.vol)+d));render();}});}
-window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;act=d;setTimeout(render,30);},serve};
+// 잔 속 가니쉬를 잡아 잔 밖으로 끌어내면 빠짐
+function pullOut(w){let st=null;const k=()=>ph.getBoundingClientRect().width/393;
+  w.addEventListener('pointerdown',e=>{e.stopPropagation();w.setPointerCapture(e.pointerId);const m=(w.style.transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/)||[0,0,0]);st={x0:e.clientX,y0:e.clientY,tx:+m[1],ty:+m[2],s:w.offsetWidth};w.style.zIndex=5;});
+  w.addEventListener('pointermove',e=>{if(!st)return;const dx=(e.clientX-st.x0)/k(),dy=(e.clientY-st.y0)/k();w.style.transform=`translate(${st.tx+dx}px,${st.ty+dy}px)`;
+    const cx=st.tx+dx+st.s/2,cy=st.ty+dy+st.s/2,out=Math.hypot(cx-159,cy-159)>159;w.style.opacity=out?'.35':'';});
+  const end=e=>{if(!st)return;const dx=(e.clientX-st.x0)/k(),dy=(e.clientY-st.y0)/k(),cx=st.tx+dx+st.s/2,cy=st.ty+dy+st.s/2;const o=st;st=null;w.style.zIndex='';
+    if(Math.hypot(cx-159,cy-159)>159-o.s*.15){LOOP.delete(w);w.animate([{opacity:.35},{opacity:0,transform:w.style.transform+' scale(.6)'}],{duration:260}).onfinish=()=>{w.remove();render();};try{note([FAM[w._loop.d.k].n+' 가니쉬를 뺐어요']);}catch(_){} }
+    else{w.style.opacity='';if(Math.hypot(dx,dy)<6){act=w._loop.d;render();}}};
+  w.addEventListener('pointerup',end);w.addEventListener('pointercancel',end);}
+window.__g2={added(w,d){if(d.f==null)d.f=3;if(d.vol==null)d.vol=.6;act=d;pullOut(w);setTimeout(render,30);},serve};
 // 잔에서 빠질 때(3개 넘게 넣으면 오래된 것 빠짐)도 갱신
 setInterval(()=>{const k=ITEMS().length;if(k!==render._k){render._k=k;render();}},400);
 head();render();
