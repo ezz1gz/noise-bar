@@ -92,12 +92,14 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
   else for(let m=0;m<M;m++){const x=X0+m*STEP,y=R.cy-(v[m]-mean)/PEAK.liq*rng*1.8*taper(x);m?ctx.lineTo(x,y):ctx.moveTo(x,y);}
   ctx.setLineDash(P.dash>0?[P.dash,P.gap||P.dash*.7]:[]);ctx.lineDashOffset=0;ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;});
  // ── 가니쉬: 실제로 울리는(울릴) 시점에 그 세기로 — 위 = 높은 소리
- const tP=clock;NBG.gar().forEach(ev=>{const x=phx+(ev.t-tP)*pps;if(x<R.x0-30||x>R.x1+30)return;
-  const rank=Math.max(0,(FAMC[ev.k]||[]).indexOf(ev.n))/3,side=ev.i%2?1:-1,y=R.cy-R.lr*c.gar.spread*(.25+.75*rank)*(rank>=.5?1:side)*.85;
-  const age=tP-ev.t,pop=age>=0?Math.exp(-age*6):0,s=(.16+.26*ev.lv)*c.gar.size*(1+.35*pop);
-  if(c.gar.dots){const r=(2.4+3.6*ev.lv)*c.gar.size*(1+.5*pop);ctx.globalAlpha=c.gar.alpha*(age>=0?.95:.55);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}
-  else{ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.globalAlpha=c.gar.alpha*(age>=0?1:.6);ctx.fillStyle='#fff';ctx.fill(shape(ev.k,ev.n));ctx.restore();}
-  if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,(c.gar.dots?10:30*s)*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
+ // ── 가니쉬: 울리는 순간 그래프 안 랜덤한 자리에 가니쉬 모양(단면) 그대로 톡 나타났다 사라짐
+ const tP=clock;NBG.gar().forEach(ev=>{const age=tP-ev.t;if(age<0||age>1.8)return;
+  let h=Math.floor((ev.t*1000)+ev.i*7919)>>>0;const rnd=()=>{h=(h*1103515245+12345)>>>0;return (h>>>8)/16777216;};
+  const x=R.x0+20+rnd()*(R.x1-R.x0-40),y=R.cy+(rnd()*2-1)*R.lr*.75,rot=(rnd()-.5)*1.2;
+  const pop=Math.exp(-age*6),inn=Math.min(1,age/.12),fade=1-Math.max(0,(age-1)/.8);
+  const s=(.18+.24*ev.lv)*c.gar.size*(.7+.3*inn)*(1+.3*pop);
+  ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s,s);ctx.globalAlpha=c.gar.alpha*inn*fade;ctx.fillStyle='#fff';ctx.fill(shape(ev.k,ev.n));ctx.restore();
+  if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,30*s*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
 }
 NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now();
  (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();if(!on.paused)clock+=dt;NBG.clock=clock;
