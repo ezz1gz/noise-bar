@@ -59,3 +59,7 @@
 .g2serving>*:not(.lay):not(.gnb):not(#gnb){transition:opacity .3s;opacity:0!important;pointer-events:none}
 .g2serving .lay>*:not(.gl):not(.g2front){transition:opacity .3s;opacity:0!important}
 .g2serving .ing{transition:opacity .25s;opacity:0!important}
+/* 가니쉬 볼륨 = 베이스·리큐르와 같은 줄 (전체 폭 · % 안쪽 오른쪽) · 흰 바탕이라 움직일 때 채움은 검정 20% */
+.g2pill{width:329px!important}
+.g2pill.on .g2fill{background:rgba(0,0,0,.2)!important}
+.g2vol b{left:auto!important;right:14px;z-index:4;pointer-events:none}

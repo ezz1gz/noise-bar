@@ -78,7 +78,7 @@ addEventListener('keydown',e=>{if(e.key==='ArrowLeft')step(-1);if(e.key==='Arrow
 
 // ── 배경: 섞은 음료(메타볼)가 흐르고, 잔 뒤는 굴절 · 선택하면 원 안으로 줄어듦
 const MASK={c:document.createElement('canvas'),g:null,off:0,offV:0,set(g){this.g=g;draw();},slide(d){this.off=d*70;}};
-MASK.c.width=393;MASK.c.height=852;
+const MK=3;MASK.c.width=393*MK;MASK.c.height=852*MK;   // 3배 해상도 (잔 테두리 굴절·빛이 계단지지 않게)
 const cv=$('bg');{const d=Math.min(3,Math.max(2,devicePixelRatio||2));cv.width=Math.round(393*d);cv.height=Math.round(852*d);}const gl=cv.getContext('webgl',{premultipliedAlpha:false,alpha:false,antialias:false});
 let draw=()=>{};
 if(gl){
@@ -112,8 +112,11 @@ setFluid(gl,pr);bindMixTex(gl,pr,3);
 const mt=gl.createTexture();gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,mt);[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.uniform1i(gl.getUniformLocation(pr,'uM'),1);gl.activeTexture(gl.TEXTURE0);
 const U=n=>gl.getUniformLocation(pr,n),uT=U('uT'),uC=U('uC'),uMO=U('uMO'),uMA=U('uMA');
-draw=()=>{const g=MASK.g;if(!g)return;const x=MASK.c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,393,852);x.fillStyle='#000';x.fillRect(0,0,393,852);
-  x.filter='blur(7px)';x.fillStyle='#fff';x.setTransform(1,0,0,1,GXL-g.box[0],GXT-g.box[1]);x.fill(new Path2D(g.sil));x.filter='none';
+draw=()=>{const g=MASK.g;if(!g)return;const x=MASK.c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,MASK.c.width,MASK.c.height);x.fillStyle='#000';x.fillRect(0,0,MASK.c.width,MASK.c.height);
+  // 아이폰에서 보이던 또렷한 잔 테두리는 그대로, 1배 해상도라 계단지던 것만 → 3배로 그리고 아주 살짝(1px)만 부드럽게
+  const FAR=4000;x.fillStyle='#fff';x.shadowColor='#fff';x.shadowBlur=1.2*MK;x.shadowOffsetX=FAR*MK;x.shadowOffsetY=0;
+  x.setTransform(MK,0,0,MK,(GXL-g.box[0]-FAR)*MK,(GXT-g.box[1])*MK);x.fill(new Path2D(g.sil));
+  x.shadowBlur=0;x.shadowOffsetX=0;x.shadowColor='transparent';x.setTransform(1,0,0,1,0,0);
   gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,mt);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,MASK.c);gl.activeTexture(gl.TEXTURE0);};
 const t0=performance.now();
 (function fr(){const t=(performance.now()-t0)/1000;MASK.off*=.84;if(Math.abs(MASK.off)<.05)MASK.off=0;if(gEl&&!busy){gEl.style.transform=MASK.off?`translateX(${MASK.off}px)`:'';gEl.style.opacity=String(Math.min(ST.ma,1-Math.abs(MASK.off)/70));}gl.viewport(0,0,cv.width,cv.height);gl.uniform1f(uT,t);gl.uniform1f(uMO,MASK.off);gl.uniform1f(uMA,ST.ma);gl.uniform4f(uC,CC[0],CC[1],ST.r,ST.k);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(fr);})();}
