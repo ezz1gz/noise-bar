@@ -66,7 +66,14 @@
     wakeAll();
   }
   ['touchend', 'click', 'keydown', 'pointerup'].forEach(function (ev) { addEventListener(ev, unlock, true); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) wakeAll(); });
+  // 화면을 잠그거나(앱이 가려지면) 노이즈를 끔 → 다시 화면으로 돌아오면 이어서 재생
+  function sleepAll() {
+    allCtx().forEach(function (c) { if (c.state === 'closed') return; if (!c.__nbUser) c.__nbSys = true; try { sus.call(c); } catch (e) {} if (c.__nbEl) try { c.__nbEl.pause(); } catch (e) {} });
+    if (tag && !tag.paused) { tag.__self = true; try { tag.pause(); } catch (e) {} tag.__self = false; }
+    try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () { if (document.hidden) sleepAll(); else { if (tag && tag.paused) { var pr = tag.play(); if (pr && pr.catch) pr.catch(function () {}); } wakeAll(); } });
+  addEventListener('pagehide', sleepAll);
   // 이어폰 연결/해제 같은 출력 장치 변화
   try { navigator.mediaDevices && navigator.mediaDevices.addEventListener && navigator.mediaDevices.addEventListener('devicechange', function () { setTimeout(wakeAll, 400); }); } catch (e) {}
   function media() {

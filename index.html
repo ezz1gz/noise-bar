@@ -1841,6 +1841,7 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
 #stage.s1 .row .trk{width:100%!important;height:34px;border-radius:5px!important;background:transparent!important;box-shadow:none!important}
 #stage.s1 .row.sel .trk{box-shadow:inset 0 0 0 1px #000!important}
 #stage.s1 .row.sel.locked .trk{box-shadow:none!important}
+#stage.s1 .row.sel:not(.locked) .trk::after{content:'';position:absolute;inset:0;border-radius:5px;box-shadow:inset 0 0 0 1px #000;pointer-events:none;z-index:3}
 #stage.s1 .row .trk .f{width:calc(72px + var(--s,0) * (100% - 72px))!important;border-radius:5px!important;background:transparent!important;box-shadow:none!important;padding:0 0 0 12px!important;transition:background .2s}
 #stage.s1 .row.sel .trk .f,#stage.s1 .row.locked .trk .f{background:var(--c)!important}
 #stage.s1 .row .fn{font-size:12px!important;font-weight:400!important;color:#fff!important}
