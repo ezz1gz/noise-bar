@@ -1584,3 +1584,36 @@ OV.textContent=css();
 </div></div>
 <script>function openMenu(){const m=document.getElementById('nbMenu');m.hidden=false;m.style.display='flex';}
 document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id==='nbMenu'||e.target.closest('#nbMenuX')){const m=document.getElementById('nbMenu');m.hidden=true;m.style.display='none';}});</script>
+<style id="nb-morph">
+#tray.nb-anim{transition:background-color .3s!important}
+#tray .view{transition:opacity .2s ease,transform .45s cubic-bezier(.32,.72,0,1),filter .35s ease!important}
+#tray.nb-grow .view{filter:blur(6px)}
+</style>
+<script>
+// 하단 바 리퀴드 글라스 모프(WWDC25 느낌): 캡슐 ↔ 시트가 스프링으로 늘어나며 살짝 출렁이고, 내용은 흐림에서 또렷하게
+(()=>{const t=document.getElementById('tray');if(!t)return;
+ const props=['left','right','height','borderRadius','transform','transformOrigin'];
+ const clear=()=>props.forEach(p=>t.style[p]='');
+ const meas=()=>{const P=t.offsetParent;const pw=P?P.clientWidth:innerWidth;const cs=getComputedStyle(t);return{x:t.offsetLeft,w:t.offsetWidth,h:t.offsetHeight,r:parseFloat(cs.borderTopLeftRadius)||0,pw};};
+ let prev=meas(),cur=null,raf=0,last=t.dataset.state;
+ function run(from,to,open){cancelAnimationFrame(raf);
+  const K=open?260:300,C=open?19:27;const keys=['x','w','h','r'];const s={},v={};keys.forEach(k=>{s[k]=from[k];v[k]=cur&&cur.v?cur.v[k]:0;});
+  t.classList.add('nb-anim');t.style.transformOrigin='50% 100%';let lt=performance.now();
+  if(open){t.classList.add('nb-grow');setTimeout(()=>t.classList.remove('nb-grow'),140);}
+  const step=now=>{const dt=Math.min(.032,(now-lt)/1000);lt=now;let moving=false;
+   keys.forEach(k=>{const a=-K*(s[k]-to[k])-C*v[k];v[k]+=a*dt;s[k]+=v[k]*dt;if(Math.abs(v[k])>2||Math.abs(s[k]-to[k])>.4)moving=true;});
+   const pw=to.pw;t.style.left=s.x+'px';t.style.right=(pw-s.x-s.w)+'px';t.style.height=Math.max(20,s.h)+'px';t.style.borderRadius=Math.max(0,s.r)+'px';
+   // 젤리: 세로로 빠르게 늘어날 때 가로가 살짝 좁아지고, 멈출 때 되돌아옴
+   const j=Math.max(-.05,Math.min(.05,v.h*.00006));t.style.transform=`scale(${1-j},${1+j*.6})`;
+   cur={s:{...s},v:{...v}};
+   if(moving)raf=requestAnimationFrame(step);else{cur=null;clear();t.classList.remove('nb-anim');prev=meas();}};
+  raf=requestAnimationFrame(step);}
+ new MutationObserver(()=>{const st=t.dataset.state;if(st===last)return;const was=last;last=st;
+   if(t.classList.contains('nodrag')||st==='drag'||was==='drag'||st==='liqcap'||was==='liqcap'){cancelAnimationFrame(raf);cur=null;clear();t.classList.remove('nb-anim');prev=meas();return;}
+   const from=cur?{...cur.s,pw:prev.pw}:prev;
+   t.classList.add('nb-anim');clear();const to=meas();
+   t.style.left=from.x+'px';t.style.right=(to.pw-from.x-from.w)+'px';t.style.height=from.h+'px';t.style.borderRadius=from.r+'px';t.style.transformOrigin='50% 100%';
+   const open=to.h>from.h+4;run(from,to,open);}).observe(t,{attributes:true,attributeFilter:['data-state']});
+ addEventListener('resize',()=>{if(!cur)prev=meas();});
+})();
+</script>
