@@ -1,4 +1,5 @@
-<!DOCTYPE html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+<!DOCTYPE html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><script>(function(){var q=new URLSearchParams(location.search);if(q.has('admin'))document.documentElement.classList.add('admin');})();</script>
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 /* ═══ 소리의 바다 · PC 전시 화면 ═══ */
 body.hidecur,body.hidecur *{cursor:none!important}
 .devT{position:fixed;z-index:400;right:16px;top:16px;height:34px;padding:0 14px;border-radius:17px;border:0;background:#141117;color:#fff;font:600 12px 'Pretendard','Noto Sans KR',sans-serif;letter-spacing:-.01em;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .4s}
@@ -92,6 +93,28 @@ html.phone .seaUI{left:12px;right:12px;width:auto;top:calc(env(safe-area-inset-t
 html.phone .feed{position:fixed;left:12px;right:12px;bottom:calc(66px + env(safe-area-inset-bottom))}
 html.phone .feed h3{display:none}html.phone .feed .fl button:not(:first-child){display:none}html.phone .feed:not(.has){display:none}
 html.phone .idle .vol,html.phone .vol{opacity:1}
+/* ═══ 전시용(기본) / 관리자용(?admin) */
+html:not(.admin) .dev,html:not(.admin) .devT,html:not(.admin) .adm{display:none!important}
+html.admin .devT{right:auto;left:44px;top:auto;bottom:24px}
+.adm{position:fixed;z-index:400;left:138px;bottom:24px;height:34px;padding:0 14px;border-radius:17px;border:0;background:#141117;color:#fff;font:600 12px 'Pretendard','Noto Sans KR',sans-serif;cursor:pointer}
+.adm[aria-pressed="true"]{background:#FF2D8A}
+.admBadge{position:fixed;z-index:400;left:44px;top:112px;padding:4px 10px;border-radius:8px;background:#FF2D8A;color:#fff;font:700 11px 'Space Mono',monospace;letter-spacing:.1em}
+html:not(.admin) .admBadge{display:none}
+.alist{position:fixed;z-index:410;left:44px;bottom:72px;width:min(760px,calc(100vw - 420px));max-height:62vh;display:flex;flex-direction:column;border-radius:18px;background:#fff;color:#141117;box-shadow:0 20px 60px rgba(20,10,30,.3);font:13px 'Pretendard','Noto Sans KR',sans-serif;overflow:hidden}
+.alist[hidden]{display:none}
+.alist header{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid #eee}
+.alist header b{font-size:15px;margin-right:auto}
+.alist header button,.alist td button{height:28px;padding:0 10px;border-radius:14px;border:1px solid #ddd;background:#fff;font:inherit;font-size:12px;cursor:pointer}
+.alist header button[aria-pressed="true"]{background:#141117;color:#fff;border-color:#141117}
+.alist .tw{overflow:auto}
+.alist table{width:100%;border-collapse:collapse}
+.alist th{position:sticky;top:0;background:#f7f6f8;text-align:left;font-weight:600;font-size:11.5px;color:#666;padding:8px 10px}
+.alist td{padding:8px 10px;border-top:1px solid #f0eef2;vertical-align:middle;white-space:nowrap}
+.alist td.rc{white-space:normal;color:#555;font-size:12px;min-width:220px}
+.alist tr.off td{opacity:.4}
+.alist .lv{font:700 9px 'Space Mono',monospace;padding:2px 5px;border-radius:4px;background:#141117;color:#fff}
+.alist .sp{font:700 9px 'Space Mono',monospace;padding:2px 5px;border-radius:4px;background:#e9e7ec;color:#666}
+.alist i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:0}
 </style></head><body>
 <a class="mkBack" href="../index.html">＋ 만들기</a>
 <title>NØISE BAR · 소리의 바다</title>
@@ -276,7 +299,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   <div class="grp"><b>저장</b><div class="act"><button type="button" class="pri" id="cfgSave">이 값으로 저장</button><button type="button" id="cfgRev">저장값으로</button><button type="button" id="cfgDef">기본값</button><button type="button" id="png2">PNG 저장</button></div><div class="st" id="cfgSt"></div></div>
   <div class="grp"><b>현재 값</b><pre id="cfgOut"></pre><div class="act"><button type="button" class="pri" id="cfgCopy">값 복사</button></div></div>
 </aside>
-<button type="button" class="devT" id="devT" aria-pressed="false">수치 · 수정</button>
+<button type="button" class="devT" id="devT" aria-pressed="false">수치 · 수정</button><button type="button" class="adm" id="admL" aria-pressed="false">리스트 확인</button><div class="admBadge">ADMIN</div>
+<section class="alist" id="alist" hidden aria-label="잔 리스트"><header><b>잔 리스트 <span id="alN" style="color:#888;font-weight:500"></span></b><button type="button" id="alLive" aria-pressed="true">폰에서 만든 잔만</button><button type="button" id="alCsv">CSV 저장</button><button type="button" id="alX">닫기</button></header><div class="tw"><table><thead><tr><th>#</th><th>구분</th><th>이름</th><th>만든 사람</th><th>시간</th><th>레시피</th><th></th></tr></thead><tbody id="alB"></tbody></table></div></section>
 <div class="seaUI"><label class="sbox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="sq" type="search" placeholder="잔 이름 · 닉네임 · 리큐르 찾기" aria-label="소리의 바다 검색" autocomplete="off"></label><div class="sres" id="sres"></div>
 <div class="feed" id="feed"><h3>실시간 <span id="fN">LIVE 0</span></h3><div class="fl" id="fl"></div></div>
 <label class="vol" aria-label="전체 음량"><svg width="16" height="16" viewBox="0 0 18 18" fill="#fff"><path d="M2 6.5h3l4-3.5v12l-4-3.5H2z"/><path d="M12 6c1 .9 1 5.1 0 6M14.2 4c2.1 2 2.1 8 0 10" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg><input id="volR" type="range" min="0" max="100" value="40"><output id="volO">40</output></label>
@@ -731,7 +755,7 @@ function place(m){
   m.el.innerHTML=`<div class="row"><span class="dot" style="background:${m.hexCol[0]}"></span><span class="tag">${m.tag}</span></div><div class="name"></div><div class="who"><b>LIVE</b><span></span></div>${REC(m)}`;m.el.querySelector('.name').textContent=m.n;m.el.querySelector('.who span').textContent=m.by;m.el.classList.add('lv');
   m.el.onclick=e=>{e.stopPropagation();initAudio();focus(m);};
   MIXES[i]=m;m.el.classList.remove('r');m.lw=m.el.offsetWidth;m.lh=m.el.offsetHeight;return m;}
-function arrive(d,fly){if(!d||!d.id||seen.has(d.id))return;seen.add(d.id);const m=place(toMix(d));realN++;
+function arrive(d,fly){if(!d||!d.id||seen.has(d.id))return;try{if(JSON.parse(localStorage.getItem('nb-sea-hidden')||'[]').includes(d.id)){seen.add(d.id);return;}}catch(_){}seen.add(d.id);const m=place(toMix(d));m.id=d.id;m.raw=d;realN++;if(window.alDraw)alDraw();
   try{const keep=JSON.parse(localStorage.getItem('nb-sea-live')||'[]').filter(x=>x.id!==d.id);keep.push(d);localStorage.setItem('nb-sea-live',JSON.stringify(keep.slice(-16)));}catch(_){}
   if(window.feedAdd)feedAdd(m,fly);if(d.id===ME){setTimeout(()=>{focus(m);toast('내 잔이 바다에 있어요 · '+m.n);},900);}else if(fly){toast(`${m.by}님이 방금 '${m.n}'을 띄웠어요`);if(!PHONE)focus(m);}}
 // 저장해 둔 것 + 최근 12시간치 먼저 불러오고, 그다음 실시간으로
@@ -854,6 +878,35 @@ q.addEventListener('input',()=>{const t=q.value,h=hits(t);MIXES.forEach(m=>m.el&
  if(t.trim()&&!h.length){res.innerHTML='<div style="padding:12px 14px;font-size:13px;opacity:.8">찾는 잔이 없어요</div>';}});
 q.addEventListener('keydown',e=>{if(e.key==='Enter'){const h=hits(q.value);if(h[0]){try{initAudio();}catch(_){}focus(h[0]);}q.blur();}if(e.key==='Escape'){q.value='';q.dispatchEvent(new Event('input'));q.blur();}});
 ['pointerdown','keydown'].forEach(ev=>document.querySelector('.seaUI').addEventListener(ev,e=>e.stopPropagation()));
+
+(()=>{const L=document.getElementById('alist'),B=document.getElementById('alB'),btn=document.getElementById('admL');let liveOnly=true;
+const HKEY='nb-sea-hidden',getH=()=>{try{return JSON.parse(localStorage.getItem(HKEY)||'[]');}catch(_){return[];}},setH=a=>{try{localStorage.setItem(HKEY,JSON.stringify(a));}catch(_){}};
+const KR=['핑크','화이트','블루','브라운'],HX=['#EC4290','#F4F1EC','#5584F6','#C95F19'];
+const fmt=t=>{const d=new Date(+t||Date.now());return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');};
+const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+let hiddenRows=[];
+function rows(){const H=getH();const live=MIXES.filter(m=>m.live);const all=liveOnly?live:MIXES;
+  return all.slice().sort((a,b)=>(+b.t||0)-(+a.t||0));}
+window.alDraw=function(){if(L.hidden)return;const R=rows(),H=getH();document.getElementById('alN').textContent='· 폰 '+MIXES.filter(m=>m.live).length+' / 전체 '+MIXES.length+(H.length?' · 숨김 '+H.length:'');
+  B.innerHTML=R.map((m,i)=>{const rec=(m.b||[]).map((v,j)=>v?`<i style="background:${HX[j]}"></i>${KR[j]} ${v}`:'').filter(Boolean).join(' ')+' · '+esc(m.lq)+' · '+esc(m.gn);
+   return `<tr data-i="${MIXES.indexOf(m)}"><td>${R.length-i}</td><td>${m.live?'<span class="lv">LIVE</span>':'<span class="sp">샘플</span>'}</td><td><b>${esc(m.n)}</b></td><td>${esc(m.by)}</td><td>${m.live?fmt(m.t):'—'}</td><td class="rc">${rec}</td><td><button type="button" data-a="go">보기</button> ${m.live?'<button type="button" data-a="hide">숨기기</button>':''}</td></tr>`;}).join('')||'<tr><td colspan="7" style="padding:20px;color:#888">아직 폰에서 들어온 잔이 없어요</td></tr>';
+  if(H.length)B.insertAdjacentHTML('beforeend',`<tr><td colspan="7" style="padding:10px;color:#888">숨긴 잔 ${H.length}개 <button type="button" data-a="unhide">모두 다시 보이기</button></td></tr>`);};
+B.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const tr=b.closest('tr'),m=tr&&MIXES[+tr.dataset.i];
+  if(b.dataset.a==='go'&&m){try{initAudio();}catch(_){}focus(m);}
+  if(b.dataset.a==='hide'&&m&&m.id){if(!confirm(`'${m.n}' (${m.by})을 전시 화면에서 숨길까요?`))return;const H=getH();H.push(m.id);setH(H);location.reload();}
+  if(b.dataset.a==='unhide'){setH([]);location.reload();}});
+btn.onclick=()=>{L.hidden=!L.hidden;btn.setAttribute('aria-pressed',String(!L.hidden));alDraw();};
+document.getElementById('alX').onclick=()=>{L.hidden=true;btn.setAttribute('aria-pressed','false');};
+const lb=document.getElementById('alLive');lb.onclick=()=>{liveOnly=!liveOnly;lb.setAttribute('aria-pressed',String(liveOnly));alDraw();};
+document.getElementById('alCsv').onclick=()=>{const R=MIXES.filter(m=>m.live);const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const csv=['시간,이름,만든 사람,핑크,화이트,블루,브라운,리큐르,가니시'].concat(R.map(m=>[fmt(m.t),m.n,m.by,...(m.b||[0,0,0,0]),m.lq,m.gn].map(q).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='noisebar-sea-'+Date.now()+'.csv';a.click();};
+['pointerdown','keydown','wheel'].forEach(ev=>L.addEventListener(ev,e=>e.stopPropagation()));
+setInterval(alDraw,15000);
+// 전시용 화면: 관리자 창에서 숨기면 바로 반영
+addEventListener('storage',e=>{if(e.key===HKEY)location.reload();});
+})();
+
 })();
 
 })();
