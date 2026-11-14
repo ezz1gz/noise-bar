@@ -57,6 +57,21 @@ window.nbNotice=function(lines,host){addCss();host=host||document.getElementById
   n=document.createElement('div');n.className='nbNote';n.setAttribute('role','status');n.innerHTML=lines.map(l=>`<span>${l}</span>`).join('');host.appendChild(n);
   n.animate([{opacity:0,transform:'translateY(calc(-50% + 6px))'},{opacity:1,transform:'translateY(-50%)'}],{duration:350,easing:'cubic-bezier(.32,.72,0,1)'});
   n._t=setTimeout(()=>{n.classList.add('out');setTimeout(()=>n.remove(),380);},2200+lines.join('').length*40);};
+
+// ── '~소리' 제목 줄: 베이스 1줄 → 리큐르 1+1줄 → 가니쉬 (베이스+리큐르 합친 1줄)+1줄
+//  o={shares:{white,pink,blue,brown}, liq:'breath'|'flow'|'beat'|'scatter'|null, garn:'fizz'|'spark'|'blossom'|'melt'|null}
+window.nbTitleLines=function(o){
+  const W={white:0,pink:-3,blue:3,brown:-6};let t=0;for(const k in W)t+=(o.shares[k]||0)*W[k];
+  const i=t<-4?0:t<-2.2?1:t<-.8?2:t<.8?3:4;
+  const ADJ=['아주 깊고 낮은','깊고 따뜻한','부드러운 중간','밝고 고른','밝고 날카로운'][i],ADV=['낮게','따뜻하게','부드럽게','고르게','날카롭게'][i];
+  const LQ={breath:'일렁이는',flow:'흐르는',beat:'또각이는',scatter:'흩뿌려진'}[o.liq]||null;
+  const GN={fizz:'보글보글 터지는',spark:'반짝 튀는',blossom:'꽃처럼 피어나는',melt:'사르르 녹는'}[o.garn]||null;
+  if(GN)return[LQ?`${ADV} ${LQ} 소리`:`${ADJ} 소리`,`${GN} 소리`];
+  if(LQ)return[`${ADJ} 소리`,`${LQ} 소리`];
+  return[`${ADJ} 소리`];};
+// 주소의 재료(pk·s·lq)로 베이스 비율·대표 리큐르 테마 읽기
+window.nbRecipe=function(){const q=new URLSearchParams(location.search),pk=(q.get('pk')||'white,pink,blue,brown').split(','),sv=(q.get('s')||'').split(',').map(Number),sh={};
+  pk.forEach((k,j)=>sh[k]=isFinite(sv[j])?sv[j]:.25);let liq=null,best=-1;(q.get('lq')||'').split(',').filter(Boolean).forEach(x=>{const[th,v]=x.split(':');if(+v>best){best=+v;liq=th;}});return{shares:sh,liq};};
 window.nbIntro=function(o){
   addCss();const host=o.host||document.getElementById('ph')||document.body;
   let title=o.title==='auto'?autoTitle(host):o.title||null;

@@ -33,7 +33,9 @@ const isSel=d=>d&&!d.dying&&L2.sel===d;
 function select(d){L2.sel=d||null;if(d){focus=d;noSel=false;}else{noSel=true;}render();}
 
 // ── 머리
-function head(){$$('l2ph').textContent=character()[0]+' 소리';}
+function head(){const el=$$('l2ph');const L=ld();let th=null,b=-1;L.forEach(d=>{if((d.v||0)>b){b=d.v||0;th=LBY[d.k].th;}});
+  const sh={};NOISE.forEach((n,i)=>sh[n.k]=share[i]);const ls=window.nbTitleLines?nbTitleLines({shares:sh,liq:th}):[character()[0]+' 소리'];
+  const h=ls.map(x=>`<span>${x}</span>`).join('<br>');if(el.dataset.h!==h){el.innerHTML=h;el.dataset.h=h;}}
 // 안내 문구·타이틀 이동은 intro.js(nbIntro)가 함 → 끝나면 문장을 띄움
 function enter(){head();L2.open=false;S.classList.remove('l2open');S.classList.add('l2intro');clearTimeout(L2.introT);
   L2.introT=setTimeout(()=>{if(!S.querySelector('.nbIntro'))S.classList.remove('l2intro');},120);render();}
@@ -142,7 +144,7 @@ function render(){if(L2.sel&&L2.sel.dying)L2.sel=null;const L=ld(),sel=L2.sel;
   // 크기
   const sz=$$('l2size');sz.hidden=!sel;if(sel){const v=sel.v,l=LBY[sel.k];$$('l2sn').textContent=`${l.n} 볼륨`;paint($$('l2pill'),l.c);$$('l2pill').style.setProperty('--s',v.toFixed(3));$$('l2sp').textContent=Math.round(v*100)+'%';
     $$('l2fl').style.width=(v*100)+'%';$$('l2tk').style.left=`calc(12px + ${v} * (100% - 24px))`;$$('l2pill').setAttribute('aria-valuenow',Math.round(v*100));$$('l2pill').setAttribute('aria-label',`${l.n} 볼륨`);}
-  $$('l2mix').classList.toggle('on',L.length>0);
+  $$('l2mix').classList.toggle('on',L.length>0);head();
   // 방울
   const seen=new Set();L.forEach(d=>{seen.add(d);if(!L2.blobs.has(d)){const b=document.createElement('div');b.className='l2blob';paint(b,LBY[d.k].c);const n=document.createElement('div');n.className='l2bl';n.textContent=LBY[d.k].n;const r=document.createElement('div');r.className='l2ring';
       const f=$$('l2f');f.appendChild(b);f.appendChild(r);f.appendChild(n);L2.blobs.set(d,{b,n,r});}});

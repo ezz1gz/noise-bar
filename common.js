@@ -75,7 +75,10 @@ function saveMixShot(url){const v=JSON.stringify({u:url,sig:MIXSIG()});try{sessi
 function getMixShot(){let v=null;try{v=sessionStorage.getItem(MIXKEY);}catch(_){}if(!v){if(inFrame)try{return parent.__mixShot||null;}catch(_){}return null;}try{const o=JSON.parse(v);return o&&o.sig===MIXSIG()?o.u:null;}catch(_){return null;}}
 const MIXTEX_GLSL=`uniform sampler2D uMT;uniform float uHasMT;
 vec3 drink(vec2 fuv,vec2 suv,float t){if(uHasMT<.5)return fluid(fuv,t);
-  vec2 w=vec2(fn_(suv*3.2+t*.06),fn_(suv*3.2+7.3-t*.05))-.5;return texture2D(uMT,clamp(suv+w*.022,.002,.998)).rgb;}`;
+  // 찍어 둔 섞인 그림을 계속 흐르게: 큰 소용돌이(느림) + 잔물결(빠름)으로 좌표를 밀어 읽음
+  vec2 w=vec2(fn_(suv*2.2+vec2(t*.16,-t*.11)),fn_(suv*2.4+7.3+vec2(-t*.13,t*.17)))-.5;
+  vec2 w2=vec2(fn_(suv*4.6+w*2.2+t*.28),fn_(suv*4.6+3.1+w*2.2-t*.24))-.5;
+  return texture2D(uMT,clamp(suv+w*.075+w2*.03,.002,.998)).rgb;}`;
 function bindMixTex(gl,pr,unit){const u=gl.getUniformLocation(pr,'uMT'),h=gl.getUniformLocation(pr,'uHasMT');gl.uniform1f(h,0);const url=getMixShot();if(!url)return;
   const tx=gl.createTexture();gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,tx);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([200,120,220,255]));
   [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
