@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>NØISE BAR · Taste</title>
+<link rel="stylesheet" href="nbnav.css">
+<style>
+html,body{margin:0;background:#F7F7F7;font-family:-apple-system,"Pretendard","Apple SD Gothic Neo",sans-serif;color:#000;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+#app{width:393px;margin:0 auto;position:relative;min-height:100vh;padding-bottom:140px;box-sizing:border-box}
+.v{display:none}.v.on{display:block}
+/* 목록 */
+.ttl{display:block;width:393px;height:140px;margin-top:env(safe-area-inset-top)}
+.seg{position:relative;margin:34px 16px 0;height:40px;border-radius:10px;background:rgba(237,237,237,.2);box-shadow:0 0 10px rgba(0,0,0,.08),inset 0 0 0 1px rgba(255,255,255,.6);display:flex;padding:4px;box-sizing:border-box;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.seg i{position:absolute;left:4px;top:4px;width:171.5px;height:32px;border-radius:10px;background:rgba(0,0,0,.7);transition:transform .32s cubic-bezier(.34,1.3,.62,1)}
+.seg[data-k="pl"] i{transform:translateX(181.5px)}
+.seg button{position:relative;flex:1;height:32px;font-size:14px;letter-spacing:-.28px;color:#656565;transition:color .2s}
+.seg button[aria-pressed="true"]{color:#fff;font-weight:600}
+.flt{display:flex;gap:4px;margin:30px 16px 0;height:32px}
+.flt button{position:relative;padding:0 6px;font-size:16px;font-weight:500;letter-spacing:-.32px;color:#656565}
+.flt button[aria-pressed="true"]{color:#000}
+.flt button[aria-pressed="true"]::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1.5px;background:#000}
+.grid{display:grid;grid-template-columns:repeat(3,109px);column-gap:16.5px;row-gap:22px;margin:20px 16px 0 17px}
+.card{text-align:left;display:block;width:109px}
+.th{display:block;width:109px;height:109px;border-radius:6.44px;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.12);filter:saturate(1.15)}
+.card b{display:block;margin-top:9px;font-size:16px;font-weight:600;letter-spacing:-.32px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card small{display:block;margin-top:3px;font-size:12px;color:#656565;letter-spacing:-.24px}
+.empty{margin:60px 16px;text-align:center;color:#656565;font-size:14px;line-height:1.6}
+/* 줄 목록 (플리·상세) */
+.rows{margin:0 16px}
+.row{display:flex;align-items:center;gap:9px;height:84px;border-bottom:.75px solid #D7D7D7;width:100%;text-align:left}
+.row .th{width:46.6px;height:46.6px;border-radius:2.75px;flex:none}
+.row .tx{flex:1;min-width:0}
+.row b{display:block;font-size:16px;font-weight:600;letter-spacing:-.32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row small{display:block;margin-top:6px;font-size:12px;color:#656565}
+.kb{width:40px;height:44px;margin-right:-12px;display:grid;place-items:center;flex:none}
+.pl-new .th{background:#EDEDED;display:grid;place-items:center;box-shadow:none}
+/* 상세 */
+.gnb{position:sticky;top:0;z-index:4;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top) + 54px) 16px 0;height:48px;background:linear-gradient(#F7F7F7 70%,rgba(247,247,247,0))}
+.gnb button{width:44px;height:44px;margin:-8px;display:grid;place-items:center}
+.cover{display:block;width:160px;height:160px;border-radius:12px;margin:30px auto 0}
+.dh{text-align:center;margin-top:20px}
+.dh b{display:block;font-size:20px;font-weight:600;letter-spacing:-.4px}
+.dh small{display:block;margin-top:6px;font-size:14px;color:#656565}
+.dt .rows{margin-top:30px}
+/* 시트 */
+.dim{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+.sheet{position:fixed;left:50%;bottom:0;width:393px;margin-left:-196.5px;background:#fff;border-radius:10px 10px 0 0;z-index:21;transform:translateY(105%);transition:transform .42s cubic-bezier(.34,1.25,.62,1);padding:19px 0 calc(28px + env(safe-area-inset-bottom));box-sizing:border-box;touch-action:none}
+.open .dim{opacity:1;pointer-events:auto}.open .sheet{transform:none}
+.sheet .grab{display:block;width:32px;height:1.5px;border-radius:1px;background:#D9D9D9;margin:0 auto}
+.sh-it{display:flex;align-items:center;gap:9px;margin:26px 16px 0}
+.sh-it .th{width:35.6px;height:35.6px;border-radius:2.75px}
+.sh-it b{display:block;font-size:14px;font-weight:600;letter-spacing:-.28px}
+.sh-it small{display:block;margin-top:4px;font-size:12px;color:#656565}
+.act{display:flex;align-items:center;gap:14px;width:100%;height:50px;padding:0 16px;box-sizing:border-box;font-size:14px;letter-spacing:-.28px;text-align:left}
+.acts{margin-top:22px}
+.act svg{width:20px;height:20px;flex:none;overflow:visible}
+.act.done{color:#9a9a9a}
+.pick{display:none;margin-top:10px;max-height:240px;overflow:auto}
+.picking .pick{display:block}.picking .acts{display:none}
+.pick .act{gap:10px}.pick .th{width:28px;height:28px;border-radius:2.5px}
+.toast{position:fixed;left:50%;bottom:130px;transform:translate(-50%,10px);background:rgba(0,0,0,.78);color:#fff;font-size:14px;padding:10px 16px;border-radius:20px;opacity:0;transition:.25s;pointer-events:none;z-index:30;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style></head><body>
+<div id="app">
+ <section class="v on" id="vList">
+  <svg class="ttl" viewBox="0 0 393 140" aria-label="Taste" role="img"><g fill="#000"><path d="M84.5547 127.445H82.276V129.724H79.9974V127.445V125.167V122.888V120.609H82.276V122.888H84.5547V125.167H86.8333V127.445H95.9479V125.167H98.2266V122.888V120.609H95.9479V118.331H89.112V116.052H84.5547V113.773H82.276V111.495H79.9974V109.216V106.938H82.276V104.659H84.5547V102.38H95.9479V104.659H98.2266V102.38H100.505V104.659V106.938H102.784V109.216V111.495H100.505V109.216H98.2266V106.938H93.6693V104.659H86.8333V106.938H84.5547V109.216V111.495H89.112V113.773H95.9479V116.052H100.505V118.331V120.609H102.784V122.888V125.167V127.445H100.505V129.724H84.5547V127.445Z"/><path d="M53.5 125.383H49.5938V117.57H53.5V113.664H65.2188V109.758H53.5V105.852H69.125V109.758H73.0312V129.289H53.5V125.383ZM65.2188 125.383V117.57H57.4062V125.383H65.2188Z"/><path d="M29.1875 114.898C29.1875 108.336 29.1875 101.711 29.1875 95.0859C29.1875 94.4609 29.375 92.3359 28.9375 91.8984C28.4375 91.3984 25.125 91.6484 24.25 91.6484C23.125 91.6484 19.375 91.8359 18.5625 91.5859C17.1875 91.0859 17.375 88.8984 17.4375 87.6484C17.625 85.0859 18.375 85.3359 20.75 85.3984C25.5625 85.5234 30.5625 85.4609 35.4375 85.4609C38.4375 85.4609 41.4375 85.4609 44.4375 85.3984C47.3125 85.3359 47.1875 86.2734 47.125 88.8984C47.0625 92.3359 46.5625 91.7109 43.25 91.6484C41.375 91.6484 39.5 91.5859 37.6875 91.5859C34.875 91.5859 35.375 92.7109 35.4375 95.0859C35.5 99.9609 35.4375 104.898 35.4375 109.773C35.4375 115.336 35.375 120.898 35.5 126.461C35.5625 129.273 34.5625 129.211 32 129.086C28.75 129.023 29.0625 128.398 29.1875 125.273C29.25 121.898 29.1875 118.336 29.1875 114.898Z"/><path d="M106.641 106.312V103.594H107.578V102.656H111.797V96.6094H112.734V95.6719H116.484V96.6094H117.422V102.656H123.75V103.594H124.688V106.312H123.75V107.25H117.422V122.812H118.359V124.219H122.109V123.281H124.922V124.688H125.859V127.031H124.922V127.969H123.516V128.906H116.016V127.969H114.141V126.562H112.734V124.688H111.797V107.25H107.578V106.312H106.641Z"/><path d="M157.146 123.74H154.542V126.344H151.938V128.948H138.917V126.344H151.938V123.74H154.542V121.135H157.146V123.74ZM138.917 126.344H133.708V123.74V121.135H131.104V118.531V115.927V113.323V110.719V108.115H133.708V105.51V102.906H138.917V105.51V108.115H136.312V110.719V113.323H151.938V110.719V108.115H149.333V105.51V102.906H154.542V105.51V108.115H157.146V110.719V113.323V115.927H136.312V118.531V121.135H138.917V123.74V126.344ZM138.917 102.906V100.302H149.333V102.906H138.917Z"/></g></svg>
+  <div class="seg" id="seg" data-k="gl" role="tablist"><i></i><button type="button" data-k="gl" aria-pressed="true">잔</button><button type="button" data-k="pl" aria-pressed="false">플리</button></div>
+  <div id="pGl">
+   <div class="flt" id="flt"><button type="button" data-f="all" aria-pressed="true">ALL</button><button type="button" data-f="my" aria-pressed="false">MY</button><button type="button" data-f="shared" aria-pressed="false">SHARED</button></div>
+   <div class="grid" id="grid"></div>
+  </div>
+  <div id="pPl" hidden><div class="rows" id="plRows" style="margin-top:20px"></div></div>
+ </section>
+ <section class="v dt" id="vDetail">
+  <div class="gnb"><button type="button" id="bk" aria-label="뒤로"><img src="assets/gnb-back.svg" width="28" height="28" alt=""></button><button type="button" id="vol" aria-label="소리 끄기"><img src="assets/gnb-volume.svg" width="24" height="24" alt=""></button></div>
+  <i class="cover th" id="dCover"></i>
+  <div class="dh"><b id="dName"></b><small id="dOwn"></small></div>
+  <div class="rows" id="dRows"></div>
+ </section>
+</div>
+
+<div id="shw"><div class="dim" id="dim"></div>
+ <section class="sheet" id="sheet" aria-label="더보기"><i class="grab"></i>
+  <div class="sh-it" id="shIt"></div>
+  <div class="acts">
+   <button type="button" class="act" id="aAdd"><svg viewBox="17 724 22 22" fill="none" stroke="#656565" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M28 728.5V742.5"/><path d="M21 735.5H35"/></svg><span>내 플레이리스트에 추가</span></button>
+   <button type="button" class="act" id="aShare"><svg viewBox="16 776 22 22" fill="none" stroke="#656565" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 781.916L18.2314 780.813C20.3581 778.907 23.5575 778.84 25.7625 780.655C27.9675 782.469 31.1669 782.402 33.2936 780.496L34.525 779.393"/><path d="M17 787.035L18.2136 786.068C20.4074 784.321 23.4989 784.258 25.7625 785.913C28.0261 787.569 31.1176 787.506 33.3114 785.758L34.525 784.792"/><path d="M17 792.432L18.2569 791.306C20.3733 789.409 23.553 789.329 25.7625 791.116C26.814 791.817 27.515 792.316 28.5665 792.316"/><path d="M30.8594 795.227L35.3825 791.26"/><path d="M31.9844 790.133H36.5075V794.656"/></svg><span>OCEAN에 공유</span></button>
+  </div>
+  <div class="pick" id="pick"></div>
+ </section></div>
+<div class="toast" id="toast"></div>
+<script src="nbdata.js"></script>
+<script src="nbnav.js"></script>
+<script>
+(()=>{const $=id=>document.getElementById(id);
+const fit=()=>{const k=Math.min(innerWidth,520)/393;document.getElementById('app').style.zoom=k;['sheet','toast'].forEach(i=>$(i).style.zoom=k);};fit();addEventListener('resize',fit);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KB='<svg width="4" height="18" viewBox="363 424 4 18" fill="none" stroke="#656565" stroke-width="2" stroke-linecap="round"><path d="M364.75 425.75h0M364.75 432.75h0M364.75 439.75h0"/></svg>';
+let F='all',PG='gl',cur=null,openPl=null;
+const toast=t=>{const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1600);};
+function grid(){const L=NB.list(F),g=$('grid');
+  if(!L.length){g.innerHTML=`<p class="empty" style="grid-column:1/-1">${F==='my'?'아직 만든 잔이 없어요<br>아래 가운데 잔을 눌러 만들어요':'아직 공유된 잔이 없어요'}</p>`;return;}
+  g.innerHTML=L.map(c=>`<button type="button" class="card" data-id="${c.id}"><i class="th" style="background:${NB.thumb(c)}"></i><b>${esc(c.t)}</b><small>${esc(c.m)}</small></button>`).join('');}
+function pls(){const P=NB.plists();
+  $('plRows').innerHTML=P.map(p=>{const f=NB.byId(p.items[0]);return `<button type="button" class="row" data-pl="${p.id}"><i class="th" style="background:${f?NB.thumb(f):'#EDEDED'}"></i><span class="tx"><b>${esc(p.name)}</b><small>${esc(p.owner)} · ${p.items.length}잔</small></span></button>`;}).join('')+
+  `<button type="button" class="row pl-new" id="plNew"><i class="th"><svg width="16" height="16" viewBox="20 727 16 16" fill="none" stroke="#656565" stroke-width="1.5" stroke-linecap="round"><path d="M28 728.5V742.5"/><path d="M21 735.5H35"/></svg></i><span class="tx"><b style="font-weight:500;color:#656565">새 플레이리스트</b></span></button>`;}
+function detail(id){const p=NB.plist(id);if(!p)return;openPl=id;const L=p.items.map(NB.byId).filter(Boolean);
+  $('dCover').style.background=L[0]?NB.thumb(L[0]):'#EDEDED';$('dName').textContent=p.name;$('dOwn').textContent=p.owner+(p.mine||p.owner===NB.me()||p.id==='p1'?'  MY':'');
+  $('dRows').innerHTML=L.length?L.map(c=>`<div class="row" data-id="${c.id}"><i class="th" style="background:${NB.thumb(c)}"></i><span class="tx"><b>${esc(c.t)}</b><small>${esc(c.m)}</small></span><button type="button" class="kb" data-more="${c.id}" aria-label="더보기">${KB}</button></div>`).join(''):'<p class="empty">아직 담긴 잔이 없어요<br>잔 목록에서 ⋮ 또는 길게 눌러 추가해요</p>';
+  $('vList').classList.remove('on');$('vDetail').classList.add('on');scrollTo(0,0);}
+function back(){$('vDetail').classList.remove('on');$('vList').classList.add('on');openPl=null;pls();}
+function sheet(id){const c=NB.byId(id);if(!c)return;cur=c;$('shIt').innerHTML=`<i class="th" style="background:${NB.thumb(c)}"></i><span><b>${esc(c.t)}</b><small>${esc(c.m)}</small></span>`;
+  
+  $('shw').classList.remove('picking');document.body.classList.add('open');}
+function closeSheet(){document.body.classList.remove('open');}
+// 이벤트
+$('seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;PG=b.dataset.k;$('seg').dataset.k=PG;[...$('seg').querySelectorAll('button')].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('pGl').hidden=PG!=='gl';$('pPl').hidden=PG!=='pl';if(PG==='pl')pls();};
+$('flt').onclick=e=>{const b=e.target.closest('button');if(!b)return;F=b.dataset.f;[...$('flt').children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));grid();};
+// 잔: 탭 = 듣기, 길게 누르기 = 더보기
+{let lp=null,fired=false;$('grid').addEventListener('pointerdown',e=>{const c=e.target.closest('.card');if(!c)return;fired=false;lp=setTimeout(()=>{fired=true;sheet(c.dataset.id);},480);});
+ ['pointerup','pointercancel','pointerleave'].forEach(t=>$('grid').addEventListener(t,()=>clearTimeout(lp)));addEventListener('scroll',()=>clearTimeout(lp),{passive:true});
+ $('grid').addEventListener('contextmenu',e=>e.preventDefault());
+ $('grid').onclick=e=>{const c=e.target.closest('.card');if(!c||fired)return;const x=NB.byId(c.dataset.id);if(x)location.href=NB.playURL(x);};}
+$('plRows').onclick=e=>{if(e.target.closest('#plNew')){const n=prompt('플레이리스트 이름','새 플레이리스트');if(n===null)return;NB.newPlist(n.trim().slice(0,24)||'새 플레이리스트');pls();return;}const r=e.target.closest('[data-pl]');if(r)detail(r.dataset.pl);};
+$('dRows').onclick=e=>{const k=e.target.closest('[data-more]');if(k){sheet(k.dataset.more);return;}const r=e.target.closest('[data-id]');if(r){const x=NB.byId(r.dataset.id);if(x)location.href=NB.playURL(x);}};
+$('bk').onclick=back;
+$('vol').onclick=()=>{const off=$('vol').classList.toggle('off');$('vol').querySelector('img').src=off?'assets/gnb-volume-off.svg':'assets/gnb-volume.svg';};
+$('dim').onclick=closeSheet;
+{let y0=null;$('sheet').addEventListener('pointerdown',e=>{if(e.target.closest('button,.pick'))return;y0=e.clientY;});addEventListener('pointerup',e=>{if(y0!==null&&e.clientY-y0>40)closeSheet();y0=null;});}
+$('shIt').onclick=()=>{if(cur)location.href=NB.playURL(cur);};
+$('aAdd').onclick=()=>{const P=NB.plists();$('pick').innerHTML=P.map(p=>{const f=NB.byId(p.items[0]),has=p.items.includes(cur.id);return `<button type="button" class="act${has?' done':''}" data-p="${p.id}"><i class="th" style="background:${f?NB.thumb(f):'#EDEDED'}"></i><span>${esc(p.name)}${has?' · 담김':''}</span></button>`;}).join('')+`<button type="button" class="act" data-p="new"><i class="th" style="background:#EDEDED"></i><span>새 플레이리스트</span></button>`;$('shw').classList.add('picking');};
+$('pick').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;let id=b.dataset.p;if(id==='new'){const n=prompt('플레이리스트 이름','새 플레이리스트');if(n===null)return;id=NB.newPlist(n.trim().slice(0,24)||'새 플레이리스트');}
+  NB.addTo(id,cur.id);closeSheet();toast(`'${NB.plist(id).name}'에 담았어요`);if(openPl)detail(openPl);};
+$('aShare').onclick=()=>{const c=cur;closeSheet();toast('OCEAN에 띄우는 중…');NB.share(c.id).then(ok=>{toast(ok?'OCEAN에 띄웠어요 · 바다에서 볼 수 있어요':'OCEAN에 연결이 안 돼요 · 잠시 뒤 다시');if(ok)setTimeout(()=>location.href='ocean.html',1100);});};
+NBNav('taste');grid();
+if(location.hash.startsWith('#pl=')){PG='pl';$('seg').querySelector('[data-k=pl]').click();detail(location.hash.slice(4));}
+})();
+</script></body></html>

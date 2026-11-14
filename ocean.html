@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>NØISE BAR · Ocean</title>
+<link rel="stylesheet" href="nbnav.css">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+/* 소리의 바다(ocean/ — PC 전시와 같은 화면·같은 실시간 채널)를 그대로 띄우고, 폰 앱 아래 메뉴만 얹음 */
+#sea{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+</style></head><body>
+<iframe id="sea" title="소리의 바다" allow="autoplay; fullscreen"></iframe>
+<script src="nbdata.js"></script>
+<script src="nbnav.js"></script>
+<script>
+(()=>{const f=document.getElementById('sea');const id=location.hash.slice(1);let me='';try{me=sessionStorage.getItem('nb-sea-me')||'';}catch(_){}
+ f.src='ocean/'+(me?'?me='+encodeURIComponent(me):'');
+ // 폰 앱 안에서 볼 때: '+ 만들기'는 아래 메뉴로 대신하고, 아래쪽 카드·볼륨은 메뉴 위로 올림
+ f.addEventListener('load',()=>{try{const d=f.contentDocument,s=d.createElement('style');
+  s.textContent='html.phone .mkBack{display:none!important}'+
+   'html.phone .feed{bottom:calc(122px + env(safe-area-inset-bottom))!important}'+
+   'html.phone body .dock{bottom:calc(178px + env(safe-area-inset-bottom))!important}'+
+   'html.phone .vol{bottom:auto!important;top:calc(env(safe-area-inset-top) + 14px)!important;right:12px!important}';
+  d.head.appendChild(s);}catch(_){}});
+})();
+NBNav('ocean',{dark:true});
+</script></body></html>
