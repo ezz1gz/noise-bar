@@ -45,7 +45,7 @@
   function allCtx() { var out = list.slice(); try { var w = window.top; var fr = [w].concat([].slice.call(w.frames)); fr.forEach(function (f) { try { if (f !== window && f.__nbCtxList) out = out.concat(f.__nbCtxList); } catch (e) {} }); } catch (e) {} return out; }
   var tag = null;
   function wakeAll() {
-    list.forEach(function (c) {
+    allCtx().forEach(function (c) {
       if (c.state === 'closed' || c.__nbUser) return; c.__nbSys = false;
       if (c.state !== 'running') { try { c.resume(); } catch (e) {} }
       var el = c.__nbEl; if (el && el.paused) { var pr = el.play(); if (pr && pr.catch) pr.catch(function () {}); }

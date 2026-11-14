@@ -79,7 +79,7 @@ window.nbIntro=function(o){
   const next=()=>{if(pi+1<pages.length)show(pi+1);else end();};
   show(0);
   // 탭해도 넘어가지 않음 (끝까지 다 보여준 뒤 몇 초 있다가 저절로 사라짐) · 탭은 소리 깨우기만
-  ov.addEventListener('pointerdown',e=>{e.preventDefault();try{window.wake&&window.wake();}catch(_){}});
+  ov.addEventListener('pointerdown',e=>{e.preventDefault();[()=>window.__nbWake&&window.__nbWake(),()=>window.wake&&window.wake(),()=>window.ensureA&&window.ensureA(),()=>window.ac&&window.ac(),()=>parent!==window&&parent.__nbWake&&parent.__nbWake()].forEach(f=>{try{f();}catch(_){}});});
   return{skip:end};
 };
 })();
