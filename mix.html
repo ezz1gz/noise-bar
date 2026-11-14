@@ -7,6 +7,9 @@
 #c{position:absolute;inset:0;width:393px;height:852px;display:block;touch-action:none;cursor:grab}
 .top{position:absolute;left:0;right:0;top:0;height:120px;pointer-events:none;mix-blend-mode:difference;color:#fff}
 .logo{position:absolute;left:20px;top:104px;font-family:'Silkscreen',monospace;font-weight:700;font-size:52px;line-height:.9;letter-spacing:1px;mix-blend-mode:difference;color:#fff;pointer-events:none}
+.mpct{position:absolute;left:0;right:0;top:114px;text-align:center;font-family:Pretendard,'Apple SD Gothic Neo',sans-serif;font-weight:200;font-size:32px;line-height:42px;letter-spacing:-.02em;color:#fff;mix-blend-mode:difference;pointer-events:none;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .7s cubic-bezier(.32,.72,0,1);font-variant-numeric:tabular-nums}
+.nbIntroDone .mpct{opacity:1;transform:none}
+.state[hidden]{display:none!important}
 .state{position:absolute;right:20px;top:120px;font:10px/1 'Space Mono',ui-monospace,monospace;letter-spacing:.22em;border:1px solid rgba(255,255,255,.75);padding:6px 10px;border-radius:99px;color:#fff;mix-blend-mode:difference;font-variant-numeric:tabular-nums;pointer-events:none}
 .gnb{position:absolute;left:0;top:54px;width:393px;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;box-sizing:border-box;mix-blend-mode:difference;pointer-events:none;opacity:.8}
 .gnb svg{display:block}
@@ -26,7 +29,7 @@ input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba
 </style></head><body><div class="ph" id="ph">
 <canvas id="c" aria-label="섞이는 음료. 끌어서 휘저을 수 있어요."></canvas>
 <div class="gnb"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M17.6667 7L10.6667 14L17.6667 21" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.54 8.46C16.477 9.398 17.004 10.67 17.004 11.995C17.004 13.321 16.477 14.593 15.54 15.53" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="logo">MiX</div><div class="state" id="state">SOLID</div>
+<div class="logo">MiX</div><div class="state" id="state" hidden></div><div class="mpct" id="mpct" aria-live="polite">0%</div>
 <div class="hint" id="hint">끌어서 휘젓거나 폰을 흔들어 보세요</div>
 <div class="toast" id="toast"></div>
 <div class="cap"><b>휘젓기</b><input id="stir" type="range" min="0" max="100" value="45" aria-label="휘젓기 정도"><output id="so">45</output></div>
@@ -230,7 +233,7 @@ function frame(){const now=performance.now()/1000,dt=Math.min(now-last,1/30);las
   shake.energy*=Math.exp(-dt*2.2);
   simT+=dt*((.25+P.stir*2.2)*Math.max(mixAmt,mixTarget>.5?.4:0)+se*1.5);dispT+=dt*((.3+P.stir*2.4)*mixAmt+se*1.5);
   const mk=snapOK?Math.max(mixAmt,mixTarget>.5?.45:0)*2.6:mixAmt;simStep(dt,(.05+P.stir*.5)*mk+se*.5,.04*mixAmt);draw();
-  const v=Math.round(mixAmt*100),L=mixAmt<.01?'SOLID':mixAmt>.97?'MIXED':'MIXING '+v;if(L!==lastL){lastL=L;$('state').textContent=L;}
+  const v=Math.round(mixAmt*100),L=mixAmt<.01?'SOLID':mixAmt>.97?'MIXED':'MIXING '+v;if(L!==lastL){lastL=L;$('state').textContent=L;}{const pe=$('mpct'),t=v+'%';if(pe.textContent!==t)pe.textContent=t;}
   if(mixAmt>.55)$('hint').style.opacity=0;const ok=mixAmt>=.9;if(ok&&now-(window.__shotT||0)>1.5){window.__shotT=now;try{const o=document.createElement('canvas');o.width=393;o.height=852;o.getContext('2d').drawImage(cv,0,0,393,852);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}}$('nx').setAttribute('aria-disabled',String(!ok));$('nx').classList.toggle('ready',mixAmt>.97);
   requestAnimationFrame(frame);}
 frame();
