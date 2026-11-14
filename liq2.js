@@ -114,8 +114,8 @@ function render(){if(L2.sel&&L2.sel.dying)L2.sel=null;const L=ld(),sel=L2.sel;
   const g=$$('l2grid');if(g.dataset.cat!==L2.cat){g.dataset.cat=L2.cat;g.innerHTML='';LIQ.filter(l=>l.th===L2.cat).forEach(l=>{const b=document.createElement('button');b.type='button';b.className='l2it';b.dataset.k=l.k;b.innerHTML=`<span class="l2n">${l.n}</span>`;paint(b,l.c);bind(b,l);g.appendChild(b);});}
   g.querySelectorAll('.l2it').forEach(b=>{const x=L.find(q=>q.k===b.dataset.k);b.classList.toggle('in',!!x);b.classList.toggle('fo',!!x&&x===sel);b.setAttribute('aria-label',`${LBY[b.dataset.k].n}: `+(x?(x===sel?'한 번 더 누르면 빼기':'누르면 고르기'):'누르면 잔에 담기')+' · 길게 누르면 미리 듣기');b.setAttribute('aria-pressed',String(!!x));});
   // 크기
-  const sz=$$('l2size');sz.hidden=!sel;if(sel){const v=sel.v,l=LBY[sel.k];$$('l2sn').textContent=`${l.n} 크기`;$$('l2sp').textContent=Math.round(v*100)+'%';
-    $$('l2fl').style.width=(v*100)+'%';$$('l2tk').style.left=`calc(12px + ${v} * (100% - 24px))`;$$('l2pill').setAttribute('aria-valuenow',Math.round(v*100));$$('l2pill').setAttribute('aria-label',`${l.n} 크기`);}
+  const sz=$$('l2size');sz.hidden=!sel;if(sel){const v=sel.v,l=LBY[sel.k];$$('l2sn').textContent=`${l.n} 볼륨`;paint($$('l2pill'),l.c);$$('l2pill').style.setProperty('--s',v.toFixed(3));$$('l2sp').textContent=Math.round(v*100)+'%';
+    $$('l2fl').style.width=(v*100)+'%';$$('l2tk').style.left=`calc(12px + ${v} * (100% - 24px))`;$$('l2pill').setAttribute('aria-valuenow',Math.round(v*100));$$('l2pill').setAttribute('aria-label',`${l.n} 볼륨`);}
   $$('l2mix').classList.toggle('on',L.length>0);
   // 방울
   const seen=new Set();L.forEach(d=>{seen.add(d);if(!L2.blobs.has(d)){const b=document.createElement('div');b.className='l2blob';paint(b,LBY[d.k].c);const n=document.createElement('div');n.className='l2bl';n.textContent=LBY[d.k].n;const r=document.createElement('div');r.className='l2ring';
