@@ -63,3 +63,4 @@
 .g2pill{width:329px!important}
 .g2pill.on .g2fill{background:rgba(0,0,0,.2)!important}
 .g2vol b{left:auto!important;right:14px;z-index:4;pointer-events:none}
+.g2fl{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:0 16px;box-sizing:border-box;margin-bottom:-12px;font-size:12px;letter-spacing:-.24px;color:#656565}.g2fl b{font-weight:500;color:#000;font-variant-numeric:tabular-nums}
