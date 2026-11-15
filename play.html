@@ -716,16 +716,7 @@ try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key
 const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
 fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok){window.__seaSent=true;try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}}).catch(()=>{});}catch(_){}})();
 
-// ── 플레이를 들은 뒤: 오른쪽 아이맥 '소리의 바다'에 추가됐다는 안내 + 청감 체험 권유 (세션당 한 번)
-(()=>{try{if(sessionStorage.getItem('nb-seatip'))return;}catch(_){}
-  const tip=document.createElement('div');tip.className='seaTip';tip.setAttribute('role','status');
-  tip.innerHTML='<b>방금 만든 잔이 오른쪽 아이맥 〈소리의 바다〉에 떠올랐어요</b><span>가서 내 잔을 찾아보세요 · 오른쪽 위 잔 버튼으로 <b>청감 모드</b>도 들어보세요</span><i class="x" aria-hidden="true">탭하면 닫기</i>';
-  const show=()=>{document.body.appendChild(tip);requestAnimationFrame(()=>tip.classList.add('on'));try{sessionStorage.setItem('nb-seatip','1');}catch(_){}};
-  const hide=()=>{tip.classList.remove('on');setTimeout(()=>tip.remove(),400);};
-  tip.addEventListener('click',hide);
-  // 들은 뒤(약 11초) 한 번. 더 일찍 청감 버튼을 눌렀으면 띄우지 않음
-  setTimeout(()=>{if(document.body.classList.contains('listen'))return;show();},11000);
-})();
+
 </script>
 
 <script>
@@ -739,7 +730,7 @@ function put(){if(!document.querySelector('#ph svg'))return setTimeout(put,100);
 if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTimeout(put,50));else setTimeout(put,50);})();
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'play',title:null,pages:[["플레이 Play", "내가 만든 한 잔을 들어요", "가운데 버튼으로 재생하고 멈춰요", "오른쪽 위 잔 버튼은 청감 모드", "폰을 기울이거나 잔을 끌어 들어요"]]}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'play',title:null,pages:[["플레이 Play", "먼저 내가 만든 소리를 들어보세요", "가운데 버튼으로 재생하고 멈춰요"]]}),250));</script>
 <script>
 // 청감 모드 잔 그림: 고른 잔(락·플루트)이면 글라스 단계 SVG로 바꿈 (액체 경계는 GEO와 같은 좌표)
 (()=>{if(typeof GEO==='undefined'||!GEO.d)return;const sv=document.querySelector('#gw>svg');if(!sv)return;
@@ -747,7 +738,25 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
   // 청감 모드 잔: 유리 효과 없이 회색 1.7 외곽선만 (화면 배율 1.2·잔 배율 GS 보정)
   sv.innerHTML=`<g transform="translate(${(GEO.ox-bx*GEO.GS).toFixed(2)} ${(GEO.oy-by*GEO.GS).toFixed(2)}) scale(${GEO.GS})"><path d="${g.sil}" fill="none" stroke="#9a9a9a" stroke-width="${(1.7/(GEO.GS*1.2)).toFixed(3)}" stroke-linejoin="round"/></g>`;}).catch(()=>{});})();
 </script>
-</body></html><style id="nb-play-info">
+
+<script>
+// ── 안내: ① 먼저 들어보기(인트로) → ② 오른쪽 위 잔 버튼으로 청감 모드 · 바다에 떠오름 → ③ 청감 모드 들어가면 헤드셋 안내 · 다 들은 뒤 '처음으로'
+addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNotice(L);}catch(_){}};
+ const once=k=>{try{if(sessionStorage.getItem(k))return false;sessionStorage.setItem(k,'1');}catch(_){}return true;};
+ const B=document.body,again=document.getElementById('nbAgain');
+ setTimeout(()=>{if(!B.classList.contains('listen')&&once('nb-tip-listen'))say(['청감 모드','오른쪽 위 잔 버튼을 눌러 청감 모드로 들어가 보세요'].concat(window.__seaSent===true?['방금 만든 잔은 오른쪽 아이맥 소리의 바다에도 떠올랐어요']:[]));},12000);
+ let wasL=false;new MutationObserver(()=>{const l=B.classList.contains('listen');if(l&&!wasL&&once('nb-tip-head'))say(['청감 모드 Listening','헤드셋을 쓰면 폰을 기울일 때마다 달라지는 소리를','더 또렷하게 들을 수 있어요']);wasL=l;}).observe(B,{attributes:true,attributeFilter:['class']});
+ setTimeout(()=>again.classList.add('on'),24000);
+ // 처음으로: 이번 잔 기록은 지우고 스플래시부터 새로
+ again.addEventListener('click',()=>{try{['nbSplash','nb-mixstate','nb-mixshot','nb-liqshot','nb-tip-listen','nb-tip-head','nb-seatip','nb-sea-me'].forEach(k=>sessionStorage.removeItem(k));Object.keys(sessionStorage).filter(k=>k.startsWith('nb-sent')).forEach(k=>sessionStorage.removeItem(k));}catch(_){}
+   let T=window;try{if(window.top&&window.top.location.href)T=window.top;}catch(_){}T.location.href=new URL('splash.html',location.href).href;});
+});
+// ── 밝은 배경 감지: 그래프 뒤 메타볼이 밝으면 그래프를 회색으로
+(()=>{const c=document.createElement('canvas');c.width=8;c.height=8;const x=c.getContext('2d',{willReadFrequently:true});let img=null;
+ function src(){const L=window.NBMixLive&&NBMixLive.start&&NBMixLive.start();if(L)return L.canvas;if(!img){const u=typeof getMixShot==='function'&&getMixShot();if(u){img=new Image();img.src=u;}}return img&&img.complete?img:null;}
+ setInterval(()=>{const s=src();if(!s)return;try{const w=s.width||s.naturalWidth,h=s.height||s.naturalHeight;x.drawImage(s,0,h*.3,w,h*.4,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;L/=64;
+   const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.74:L>.8);}catch(_){}},700);})();
+</script></body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
 #nbInfo b{font-weight:600;color:#fff}
@@ -809,6 +818,12 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
 #nbui .ld{width:18px;height:18px;border-radius:50%;display:inline-block}
 #nbui .gi svg{width:18px;height:18px}
 #nbui .pl button{width:40px;height:40px;display:grid;place-items:center}
+/* 처음으로(스플래시) — 소리를 충분히 들은 뒤 왼쪽 아래에 나타남 */
+#nbui .again{position:absolute;left:16px;top:165px;height:40px;padding:0 16px 0 13px;border-radius:20px;border:0;display:flex;align-items:center;gap:6px;font:500 14px Pretendard,'Apple SD Gothic Neo',sans-serif;color:#fff;letter-spacing:-.02em;
+  background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 18px rgba(0,0,0,.18);pointer-events:auto;cursor:pointer;opacity:0;transform:translateY(6px);transition:opacity .6s,transform .6s;visibility:hidden}
+#nbui .again.on{opacity:1;transform:none;visibility:visible}
+/* 밝은 배경에서는 그래프를 회색으로 (흰 그래프가 묻히지 않게) */
+html.nbBright .gcv{filter:brightness(.42) drop-shadow(0 0 3px rgba(255,255,255,.55))!important}
 #nbui .pl .pp{width:58px;height:58px}#nbui .pl .pp img{width:58px;height:58px}
 #nbui .pp .play{display:none}.paused #nbui .pp .play{display:block}.paused #nbui .pp .pause{display:none}
 /* 배경: 재생 = 믹스 그림 블러 10 · 청감 = #262626 위 위쪽에 믹스 색 번짐 40% */
@@ -835,6 +850,7 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
   <div class="mk" id="nbMk">@guest</div>
   <button type="button" class="rc" id="nbRc" aria-expanded="false">Recipe<img src="assets/play/chev.svg" alt=""></button>
   <div class="rd" id="nbRd"></div>
+  <button type="button" class="again" id="nbAgain" aria-label="처음으로 돌아가 새 잔 만들기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>처음으로</button>
   <div class="pl"><button type="button" id="nbPv" aria-label="이전"><img src="assets/play/prev.svg" width="20" height="22.5" alt="" style="transform:scaleX(-1)"></button><button type="button" class="pp" id="nbPp" aria-label="일시정지/재생"><img class="pause" src="assets/play/pause.svg" alt=""><img class="play" src="assets/play/play.svg" alt=""></button><button type="button" id="nbNx" aria-label="다음"><img src="assets/play/next.svg" width="20" height="22.5" alt=""></button></div>
  </section>
 </div>

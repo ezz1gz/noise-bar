@@ -48,7 +48,7 @@ const SC={};const shape=(k,n)=>SC[k+n]||(SC[k+n]=k==='spark'?star(n,28,.4):k==='
 const FAMC={fizz:[8,10,12,14],spark:[4,5,6,8],blossom:[4,5,6,8],melt:[3,4,5,6]};
 
 const PEAK={base:.05,liq:.05};
-function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;const live=!!(AC&&A.NG&&A.NG.length&&A.NG[0].buf);
+function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;const live=!!(AC&&A.NG&&A.NG.length&&A.NG[0].buf&&(A.NG.some(n=>n.gain&&n.gain.value>1e-3)||(A.lives||[]).some(d=>A.LG[d.k]&&A.LG[d.k].gain.value>1e-3))); // 바깥 엔진 소리가 다 꺼져 있으면 대체 움직임으로 (그래프가 사라지지 않게)
  const W=R.x1-R.x0,phx=R.x0+W*B.head,pps=W/B.window,N=Math.round(B.count),dt=B.window/N,tA=live?AC.currentTime:clock;
  const tOf=x=>tA+(x-phx)/pps;
  // ── 베이스: 섞인 노이즈들의 실제 크기 합 (독립 소리 → 제곱합의 제곱근)
