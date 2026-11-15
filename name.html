@@ -55,18 +55,22 @@ if(shot)$('wash').style.backgroundImage=`url("${shot}")`;
 else{$('wash').classList.add('fb');$('wash').style.background=`radial-gradient(60% 60% at 30% 40%,${cols[0]},transparent 70%),radial-gradient(60% 60% at 75% 50%,${cols[1]},transparent 70%),radial-gradient(50% 50% at 50% 20%,${cols[2]},transparent 70%)`;}
 // 서브에서는 칵테일 잔을 빼고 이름·닉네임 입력만 둠
 const clean=s=>s.replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
-const nm=$('nm'),mk=$('mk');nm.value=Q.get('nm')||'';try{mk.value=Q.get('mk')||localStorage.getItem('nb-nick')||'';}catch(_){}
+// 전시: 매번 새 사람이 쓰므로 이전 입력(닉네임)은 불러오지 않고 빈칸에서 시작
+const nm=$('nm'),mk=$('mk');nm.value=Q.get('nm')||'';mk.value=Q.get('mk')||'';
+let autoT=null;const clearAuto=()=>{if(autoT){clearTimeout(autoT);autoT=null;}};
+const armAuto=()=>{clearAuto();autoT=setTimeout(()=>{autoT=null;next();},3000);}; // 다 쓰고 3초 멈추면 자동으로 다음
 let st=0;
 function show(n){st=n;['s1','s2','s3'].forEach((id,i)=>$(id).classList.toggle('cur',i+1===n));{const f=n===1?nm:n===2?mk:null;if(f)setTimeout(()=>{try{f.focus({preventScroll:true});}catch(_){}},420);}
   $('s2n').textContent=clean(nm.value);$('s3n').textContent=clean(nm.value);$('s3m').textContent=clean(mk.value);
   $('nx').classList.toggle('on',n===3||(n===1&&clean(nm.value))||(n===2&&clean(mk.value)));
-  if(n===1)setTimeout(()=>{nm.focus({preventScroll:true});scrollTo(0,0);},350);if(n===2)setTimeout(()=>{mk.focus({preventScroll:true});scrollTo(0,0);},350);if(n===3)document.activeElement&&document.activeElement.blur();}
-nm.oninput=()=>$('nx').classList.toggle('on',!!clean(nm.value));mk.oninput=()=>$('nx').classList.toggle('on',!!clean(mk.value));
-const next=()=>{if(st===1){if(!clean(nm.value)){nm.focus();return;}show(2);}else if(st===2){if(!clean(mk.value)){mk.focus();return;}try{localStorage.setItem('nb-nick',clean(mk.value));}catch(_){}show(3);}
-  else if(st===3){Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));ph.classList.add('out');setTimeout(()=>location.href='play.html?'+Q,450);}};
+  if(n===1)setTimeout(()=>{nm.focus({preventScroll:true});scrollTo(0,0);},350);if(n===2)setTimeout(()=>{mk.focus({preventScroll:true});scrollTo(0,0);},350);if(n===3){document.activeElement&&document.activeElement.blur();armAuto();}}
+nm.oninput=()=>{$('nx').classList.toggle('on',!!clean(nm.value));if(st===1){clean(nm.value)?armAuto():clearAuto();}};
+mk.oninput=()=>{$('nx').classList.toggle('on',!!clean(mk.value));if(st===2){clean(mk.value)?armAuto():clearAuto();}};
+const next=()=>{clearAuto();if(st===1){if(!clean(nm.value)){nm.focus();return;}show(2);}else if(st===2){if(!clean(mk.value)){mk.focus();return;}show(3);}
+  else if(st===3){Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));location.href='play.html?'+Q;}}; // 흰 페이드 없이 바로(플레이가 자체 페이드인)
 nm.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();next();}});mk.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();next();}});
 $('nx').onclick=next;
-$('bk').onclick=()=>{if(st>1){show(st-1);return;}Q.delete('nm');Q.delete('mk');ph.classList.add('out');setTimeout(()=>location.href='garnish.html?'+Q,450);};
+$('bk').onclick=()=>{clearAuto();if(st>1){show(st-1);return;}Q.delete('nm');Q.delete('mk');location.href='garnish.html?'+Q;};
 $('gVol').onclick=()=>{const L=window.__nbCtxList||[];const off=$('gVol').classList.toggle('off');$('gVol').querySelector('.w').style.opacity=off?0:1;L.forEach(c=>{try{off?c.suspend():c.resume();}catch(_){}});};
 // 첫 화면(큰 Serve) → 제목이 위로 작아지며 질문 시작 (다른 단계 설명과 같은 방식)
 window.__serveStart=()=>{ph.classList.add('on');show(1);};
