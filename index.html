@@ -1273,7 +1273,7 @@ addEventListener('message',e=>{const m=e.data||{};
 addEventListener('message',e=>{if(e.data&&e.data.nb==='back'){const f=$('flow');f.classList.remove('on');setTimeout(()=>{f.hidden=true;f.querySelector('iframe').src='about:blank';},350);}});
 $('back').addEventListener('click',()=>{wake();setStep(1);});
 $('nextC').addEventListener('click',()=>$('next2').click());
-$('gBack').addEventListener('click',()=>{wake();if(step===2)setStep(1);else openMenu();});
+$('gBack').addEventListener('click',()=>{wake();if(step===2)setStep(1);else{try{sessionStorage.removeItem('nbSplash');}catch(_){}location.href='splash.html'+location.search;}});
 $('gVol').addEventListener('click',()=>{$('snd').click();const g=$('gVol');g.classList.toggle('off',muted);g.setAttribute('aria-label',muted?'소리 켜기':'소리 끄기');if(muted)toast('소리를 껐어요');});
 
 // ───────────── 소리
