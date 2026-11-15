@@ -6,6 +6,9 @@
 .ph{background:#9fb8f0}
 #bg{position:absolute;left:0;top:0;width:393px;height:852px;display:block}
 .ttl{position:absolute;left:0;top:0;width:393px;height:852px;pointer-events:none;overflow:visible}
+/* 흰 제목·아이콘이 밝은 메타볼에 묻히지 않게 어두운 그림자 */
+#ttl{filter:drop-shadow(0 1px 5px rgba(0,0,0,.4))}
+.gnb img{filter:brightness(0) invert(1) drop-shadow(0 1px 4px rgba(0,0,0,.4))}
 .gnb{position:absolute;left:0;top:54px;width:393px;height:48px;padding:4px 16px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;opacity:.8;z-index:5}
 .gnb button{width:44px;height:44px;margin:-8px;border:0;background:none;padding:0;display:grid;place-items:center;cursor:pointer}
 .gnb img{filter:brightness(0) invert(1)}
