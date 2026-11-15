@@ -48,7 +48,7 @@ const SC={};const shape=(k,n)=>SC[k+n]||(SC[k+n]=k==='spark'?star(n,28,.4):k==='
 const FAMC={fizz:[8,10,12,14],spark:[4,5,6,8],blossom:[4,5,6,8],melt:[3,4,5,6]};
 
 const PEAK={base:.05,liq:.05};
-function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;const live=!!(AC&&A.NG&&A.NG.length&&A.NG[0].buf&&(A.NG.some(n=>n.gain&&n.gain.value>1e-3)||(A.lives||[]).some(d=>A.LG[d.k]&&A.LG[d.k].gain.value>1e-3))); // 바깥 엔진 소리가 다 꺼져 있으면 대체 움직임으로 (그래프가 사라지지 않게)
+function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;const live=!!(AC&&A.NG&&A.NG.length&&(A.NG.some(n=>n.buf&&n.gain&&n.gain.value>1e-3)||(A.lives||[]).some(d=>A.LG[d.k]&&A.LG[d.k].buf&&A.LG[d.k].gain&&A.LG[d.k].gain.value>1e-3))); // 실제로 울리는(버퍼 있고 소리 나는) 소스가 하나라도 있으면 그 구성 그대로 그림 — 화이트를 안 넣었으면 베이스에 화이트가 없고, 넣은 리큐르·가니쉬만 나타남. 다 꺼져 있을 때만 대체 움직임
  const W=R.x1-R.x0,phx=R.x0+W*B.head,pps=W/B.window,N=Math.round(B.count),dt=B.window/N,tA=live?AC.currentTime:clock;
  const tOf=x=>tA+(x-phx)/pps;
  // ── 베이스: 섞인 노이즈들의 실제 크기 합 (독립 소리 → 제곱합의 제곱근)
@@ -101,7 +101,12 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
   ctx.save();ctx.translate(x,y);ctx.rotate(rot);ctx.scale(s,s);ctx.globalAlpha=c.gar.alpha*inn*fade;ctx.fillStyle='#fff';ctx.fill(shape(ev.k,ev.n));ctx.restore();
   if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,30*s*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
 }
-NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now();
+NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now(),q=1;
  (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();if(!on.paused)clock+=dt;NBG.clock=clock;
-   if(on.show){ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,402,874);try{draw(ctx,R,now,clock);}catch(e){console.error(e);}}requestAnimationFrame(fr);})(last);};
+   // 멈추면 그래프가 서서히 가운데(cy)로 세로 수축하며 사라지고, 다시 재생하면 자라남
+   const tgt=on.paused?0:1;q+=(tgt-q)*Math.min(1,dt*3.2);if(q<.0015)q=0;else if(q>.999)q=1;
+   if(on.show){ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,402,874);
+     if(q>0){ctx.setTransform(d,0,0,d*q,0,d*R.cy*(1-q));try{draw(ctx,R,now,clock);}catch(e){console.error(e);}}}
+   cv.style.opacity=q>=1?'':String(q<=0?0:Math.min(1,q*1.25));
+   requestAnimationFrame(fr);})(last);};
 })();
