@@ -50,7 +50,7 @@ const fit=()=>{ph.style.transform=`translateX(-50%) scale(${innerWidth/393})`;};
 // 위쪽 색 번짐 + 잔 속 액체: 믹스 그림(없으면 고른 색)
 let shot=null;try{shot=getMixShot();}catch(_){}
 const H={brown:'#C95F19',pink:'#EC4290',white:'#E9E4F4',blue:'#5584F6'},pk=(Q.get('pk')||'pink,blue').split(','),lt=(Q.get('lt')||'').split(',').filter(Boolean).map(h=>'#'+h);
-const cols=pk.map(k=>H[k]).filter(Boolean).concat(lt);while(cols.length<3)cols.push(cols[cols.length-1]||'#9b5cff');
+const cols=pk.map(k=>H[k]).filter(Boolean);while(cols.length<3)cols.push(cols[cols.length-1]||'#9b5cff');
 if(shot)$('wash').style.backgroundImage=`url("${shot}")`;
 else{$('wash').classList.add('fb');$('wash').style.background=`radial-gradient(60% 60% at 30% 40%,${cols[0]},transparent 70%),radial-gradient(60% 60% at 75% 50%,${cols[1]},transparent 70%),radial-gradient(50% 50% at 50% 20%,${cols[2]},transparent 70%)`;}
 // 서브에서는 칵테일 잔을 빼고 이름·닉네임 입력만 둠
@@ -58,7 +58,7 @@ const clean=s=>s.replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
 // 전시: 매번 새 사람이 쓰므로 이전 입력(닉네임)은 불러오지 않고 빈칸에서 시작
 const nm=$('nm'),mk=$('mk');nm.value=Q.get('nm')||'';mk.value=Q.get('mk')||'';
 let autoT=null;const clearAuto=()=>{if(autoT){clearTimeout(autoT);autoT=null;}};
-const armAuto=()=>{clearAuto();autoT=setTimeout(()=>{autoT=null;next();},3000);}; // 다 쓰고 3초 멈추면 자동으로 다음
+const armAuto=()=>{clearAuto();autoT=setTimeout(()=>{autoT=null;next();},2000);}; // 다 쓰고 2초 멈추면 자동으로 다음
 let st=0;
 function show(n){st=n;['s1','s2','s3'].forEach((id,i)=>$(id).classList.toggle('cur',i+1===n));{const f=n===1?nm:n===2?mk:null;if(f)setTimeout(()=>{try{f.focus({preventScroll:true});}catch(_){}},420);}
   $('s2n').textContent=clean(nm.value);$('s3n').textContent=clean(nm.value);$('s3m').textContent=clean(mk.value);
@@ -77,7 +77,7 @@ window.__serveStart=()=>{ph.classList.add('on');show(1);};
 })();
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'serve',host:document.getElementById('ph'),title:document.getElementById('ttl'),pages:[["서브 Serve","완성된 한 잔에 이름을 붙여요","칵테일 이름과 만든 사람을 적으면 플레이로 이어져요"]],onDone:()=>window.__serveStart()}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'serve',host:document.getElementById('ph'),title:document.getElementById('ttl'),pages:[["서브 Serve","완성된 한 잔에 이름을 붙여요","칵테일 이름과 만든 사람을 지어보세요"]],onDone:()=>window.__serveStart()}),250));</script>
 <script>
 // 커서 깜빡임 표시: 입력칸이 비었고 포커스가 없을 때만 가짜 커서
 document.querySelectorAll('.fld').forEach(f=>{const i=f.querySelector('input');if(!i)return;const u=()=>{f.classList.toggle('empty',!i.value);f.classList.toggle('foc',document.activeElement===i);};['input','focus','blur'].forEach(t=>i.addEventListener(t,u));f.addEventListener('pointerdown',()=>setTimeout(()=>i.focus(),0));u();});

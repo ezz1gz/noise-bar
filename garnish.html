@@ -49,7 +49,7 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 
 /* 가니쉬_01~07 (Figma 65:12450 …) — 예전 그림 속 바·다음 원은 숨기고 새 바·시트로 */
 svg g[filter="url(#filter0_di_22_8716)"],svg g[filter="url(#filter1_di_22_8716)"],#bar,#nx{display:none!important}
-</style><link rel="stylesheet" href="garnish2.css"><link rel="stylesheet" href="nbglass.css"></head><body><div class="ph" id="ph">
+</style><link rel="stylesheet" href="garnish2.css"><link rel="stylesheet" href="nbglass.css"><style>/* 글라스→가니쉬: 화면 맞춤이 끝나기 전 회색 틀·옛 그림이 비치지 않게 흰 바탕에서 서서히 */html{background:#fff}body{opacity:0}body.nbReady{opacity:1;transition:opacity .35s ease}</style></head><body><div class="ph" id="ph">
 <div class="drink" data-band="art" style="position:absolute;left:37.5px;top:263px"><div class="gm"></div><canvas id="mb" width="636" height="636"></canvas><div class="hl"></div></div>
 <svg width="393" height="852" viewBox="0 0 393 852" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g clip-path="url(#clip0_22_8716)">
@@ -434,7 +434,7 @@ uniform vec3 uNA,uNB,uNC;
 void main(){vec2 p=(gl_FragCoord.xy/uR)*2.-1.;float r=length(p);if(r>1.){gl_FragColor=vec4(0.);return;}
   vec3 col=drink(p*.75+.5,vec2(.5+p.x*.42,.5-p.y*.42*393./852.),uT*.55);
   {float mn=min(col.r,min(col.g,col.b)),mx=max(col.r,max(col.g,col.b));float w=smoothstep(.62,.9,mn)*(1.-smoothstep(.08,.25,mx-mn));vec2 s=p*.5+.5;
-   float n1=ff_(s*vec2(2.2,2.6)+vec2(uT*.03,-uT*.025)),n2=ff_(s*vec2(3.1,2.4)+7.3-uT*.02);vec3 alt=mix(mix(uNA,uNB,smoothstep(.3,.7,n1)),uNC,smoothstep(.55,.85,n2)*.6);col=mix(col,alt*mix(.92,1.05,n2),w*.9);}float edge=smoothstep(1.,.985,r);gl_FragColor=vec4(col*edge,edge);}`;
+   float n1=ff_(s*vec2(2.2,2.6)+vec2(uT*.03,-uT*.025)),n2=ff_(s*vec2(3.1,2.4)+7.3-uT*.02);vec3 alt=mix(mix(uNA,uNB,smoothstep(.3,.7,n1)),uNC,smoothstep(.55,.85,n2)*.6);col+=alt*0.*w;} /* 고른 비율 색 그대로 */float edge=smoothstep(1.,.985,r);gl_FragColor=vec4(col*edge,edge);}`;
 const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))console.log(gl.getShaderInfoLog(o));return o;};
 const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);
 const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
@@ -454,4 +454,5 @@ document.getElementById('nx').onclick=()=>{if(window.__g2)return __g2.serve();co
 <script src="garnish2.js"></script>
 <script src="intro.js"></script>
 <script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'garnish',title:'auto',pages:[["가니쉬 Garnish", "가니쉬는 소리에 작은 반짝임을 더해요", "가니쉬를 탭하거나 끌어서 잔에 올려요", "세 개까지 올리고, 빼려면 잔 밖으로 끌어내요"]]}),250));</script>
+<script>addEventListener('load',()=>requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add('nbReady'))));setTimeout(()=>document.body.classList.add('nbReady'),2500);</script>
 </body></html>

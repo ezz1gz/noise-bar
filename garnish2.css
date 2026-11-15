@@ -52,7 +52,7 @@
 /* 아직 안 정한 칸 살짝 깜빡임 */
 .g2freq.need,.g2pill.need{animation:g2need 1.4s ease-in-out infinite}
 @keyframes g2need{50%{opacity:.55}}
-.g2tab.need span::after{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:#ff3b30;margin-left:4px;vertical-align:middle}
+
 .g2pill i.g2fill{top:0!important;bottom:0!important;height:auto!important;margin:0!important;border-radius:5px!important}
 
 /* 서빙: 잔 모션 없이 바로 서브로 (전체 페이드) */

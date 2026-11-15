@@ -92,7 +92,7 @@ ${MIXTEX_GLSL}
 uniform vec3 uNA,uNB,uNC;
 vec3 bgAt(vec2 s){vec3 c=drink(vec2(s.x,1.-s.y),s,uT*.55);float mn=min(c.r,min(c.g,c.b)),mx=max(c.r,max(c.g,c.b));float w=smoothstep(.62,.9,mn)*(1.-smoothstep(.08,.25,mx-mn));
   float n1=ff_(s*vec2(2.2,4.6)+vec2(uT*.03,-uT*.025)),n2=ff_(s*vec2(3.1,2.4)+7.3-uT*.02);vec3 alt=mix(mix(uNA,uNB,smoothstep(.3,.7,n1)),uNC,smoothstep(.55,.85,n2)*.6);
-  return mix(c,alt*mix(.92,1.05,n2),w*.9);}
+  return c+alt*0.*w;} // 고른 비율 색 그대로(흰 곳을 다른 색으로 바꾸지 않음)
 void main(){vec2 s=vec2(u.x,1.-u.y);vec2 p=s*vec2(393.,852.);
   // 잔 마스크(흐림) → 두께 경사에서 굴절(refraction 1 · depth 22) + 분산(dispersion 1)
   vec2 mu=vec2((p.x-uMO)/393.,p.y/852.);float m=texture2D(uM,mu).r*uMA;
