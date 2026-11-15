@@ -78,7 +78,8 @@ function draw(){gl.useProgram(disp.p);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl
   gl.uniform4fv(u.uShare,new Float32Array(share));gl.uniform4fv(u.uMood,new Float32Array(moodVec()));gl.uniform1f(u.uWhite,0);
   // 리큐르 한 방울: 섞이는 만큼 그 자리부터 번지며 톤이 바뀜
   gl.uniform4f(u.uGa,0,0,1,0);gl.uniform2f(u.uTa,0,0);gl.uniform4fv(u.uGb,new Float32Array(GR));gl.uniform2fv(u.uTb,new Float32Array(TN));gl.uniform4f(u.uDrop,drop.x,1-drop.y,LT.length?Math.min(3,mixAmt*3.2):0,drop.seed);
-  const kk=mixAmt*mixAmt*(3-2*mixAmt)*.3;   // 비율 그대로에 가깝게 (작은 비율도 보이게 살짝만 넓힘)gl.uniform3f(u.uCuts,cuts[0]+(cutsS[0]-cuts[0])*kk,cuts[1]+(cutsS[1]-cuts[1])*kk,cuts[2]+(cutsS[2]-cuts[2])*kk);gl.drawArrays(gl.TRIANGLES,0,3);}
+  const kk=mixAmt*mixAmt*(3-2*mixAmt)*.3;   // 비율 그대로에 가깝게 (작은 비율도 보이게 살짝만 넓힘)
+  gl.uniform3f(u.uCuts,cuts[0]+(cutsS[0]-cuts[0])*kk,cuts[1]+(cutsS[1]-cuts[1])*kk,cuts[2]+(cutsS[2]-cuts[2])*kk);gl.drawArrays(gl.TRIANGLES,0,3);}
 simStep(1,0,1e6);
 // 리큐르 화면 사진 (없으면 솔리드 띠부터)
 let snapOK=false;const snapTex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,snapTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.MIRRORED_REPEAT));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
