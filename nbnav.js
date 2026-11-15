@@ -3,4 +3,6 @@ function NBNav(active,o){o=o||{};const w=document.createElement('div');w.innerHT
   n.querySelectorAll('a').forEach(a=>{if(a.dataset.k===active){a.classList.add('on');a.setAttribute('aria-current','page');}});
   if(o.dark)n.classList.add('dark');document.body.appendChild(n);
   const fit=()=>{n.style.zoom=Math.min(innerWidth,520)/393;};fit();addEventListener('resize',fit);
-  n.addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;if(a.classList.contains('on')){e.preventDefault();return;}if(o.onGo){e.preventDefault();o.onGo(a.href);}});return n;}
+  n.addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;if(a.classList.contains('on')){e.preventDefault();return;}
+    if(a.dataset.k==='ocean'){e.preventDefault();try{nbNotice&&nbNotice(['소리의 바다는 잠시 막아뒀어요']);}catch(_){}return;} /* 임시 차단 */
+    if(o.onGo){e.preventDefault();o.onGo(a.href);}});return n;}

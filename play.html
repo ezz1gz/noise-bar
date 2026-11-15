@@ -702,9 +702,11 @@ addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gt
 })();
 </script>
 <script>
-document.getElementById('ocn').onclick=()=>{let me='';try{me=sessionStorage.getItem('nb-sea-me')||'';}catch(_){}location.href='ocean/'+(me?'?me='+me:'');};
+// 임시: 소리의 바다 연결 막음 (버튼 눌러도 이동/연결 안 함)
+document.getElementById('ocn').onclick=()=>{toast('소리의 바다는 잠시 막아뒀어요');};
 // ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
-(()=>{try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
+(()=>{return; /* 임시: 소리의 바다 연결 막음 — 폰에서 자동 전송 안 함 */
+try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
 const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
 fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok)try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}).catch(()=>{});}catch(_){}})();
 </script>

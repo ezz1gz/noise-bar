@@ -132,7 +132,7 @@ $('shIt').onclick=()=>{if(cur)location.href=NB.playURL(cur);};
 $('aAdd').onclick=()=>{const P=NB.plists();$('pick').innerHTML=P.map(p=>{const f=NB.byId(p.items[0]),has=p.items.includes(cur.id);return `<button type="button" class="act${has?' done':''}" data-p="${p.id}"><i class="th" style="background:${f?NB.thumb(f):'#EDEDED'}"></i><span>${esc(p.name)}${has?' · 담김':''}</span></button>`;}).join('')+`<button type="button" class="act" data-p="new"><i class="th" style="background:#EDEDED"></i><span>새 플레이리스트</span></button>`;$('shw').classList.add('picking');};
 $('pick').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;let id=b.dataset.p;if(id==='new'){const n=prompt('플레이리스트 이름','새 플레이리스트');if(n===null)return;id=NB.newPlist(n.trim().slice(0,24)||'새 플레이리스트');}
   NB.addTo(id,cur.id);closeSheet();toast(`'${NB.plist(id).name}'에 담았어요`);if(openPl)detail(openPl);};
-$('aShare').onclick=()=>{const c=cur;closeSheet();toast('OCEAN에 띄우는 중…');NB.share(c.id).then(ok=>{toast(ok?'OCEAN에 띄웠어요 · 바다에서 볼 수 있어요':'OCEAN에 연결이 안 돼요 · 잠시 뒤 다시');if(ok)setTimeout(()=>location.href='ocean.html',1100);});};
+$('aShare').onclick=()=>{closeSheet();toast('소리의 바다는 잠시 막아뒀어요');}; /* 임시 차단 */
 NBNav('taste');grid();
 if(location.hash.startsWith('#pl=')){PG='pl';$('seg').querySelector('[data-k=pl]').click();detail(location.hash.slice(4));}
 })();
