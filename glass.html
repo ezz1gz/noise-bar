@@ -137,4 +137,6 @@ fit();addEventListener('resize',fit);
 </script>
 <script src="intro.js"></script>
 <script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'glass',host:document.getElementById('ph'),title:document.getElementById('ttl'),pages:[["글라스 Glass", "섞은 소리를 담을 잔을 골라요", "옆으로 밀거나 화살표로 잔을 바꾸고", "오른쪽 아래 버튼을 눌러요"]],onDone:()=>document.getElementById('ph').classList.add('ready')}),250));</script>
+<script src="nbcontrast.js"></script>
+<script>NBContrast({src:'#bg',items:'#ttl,#phr,.arw,.gnb button,#gbar .row,#gbar .grab'});</script>
 </body></html>

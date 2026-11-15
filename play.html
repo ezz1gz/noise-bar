@@ -756,7 +756,15 @@ addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNo
  function src(){const L=window.NBMixLive&&NBMixLive.start&&NBMixLive.start();if(L)return L.canvas;if(!img){const u=typeof getMixShot==='function'&&getMixShot();if(u){img=new Image();img.src=u;}}return img&&img.complete?img:null;}
  setInterval(()=>{const s=src();if(!s)return;try{const w=s.width||s.naturalWidth,h=s.height||s.naturalHeight;x.drawImage(s,0,h*.3,w,h*.4,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;L/=64;
    const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.74:L>.8);}catch(_){}},700);})();
-</script></body></html><style id="nb-play-info">
+</script><script src="nbcontrast.js"></script>
+<script>(()=>{let im=null;try{const u=getMixShot();if(u){im=new Image();im.src=u;}}catch(_){}
+ const ph=document.getElementById('ph');
+ NBContrast({src:()=>document.body.classList.contains('listen')?null:(im&&im.complete&&im.naturalWidth?im:document.getElementById('bgc')),rect:()=>ph.getBoundingClientRect(),
+  items:'#nbui .ttl,#nbui .gnbx'});
+ // 아래 패널은 위쪽이 살짝 어두운 그라데이션이라 그만큼 덜 밝게 봄
+ NBContrast({src:()=>document.body.classList.contains('listen')?null:(im&&im.complete&&im.naturalWidth?im:document.getElementById('bgc')),rect:()=>ph.getBoundingClientRect(),k:.82,
+  items:'#nbNm,#nbMk,#nbRc,#nbui .ic'});})();</script>
+</body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
 #nbInfo b{font-weight:600;color:#fff}
