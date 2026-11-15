@@ -837,8 +837,12 @@ html.nbBright .gcv{filter:brightness(.42) drop-shadow(0 0 3px rgba(255,255,255,.
 /* 배경: 재생 = 믹스 그림 블러 10 · 청감 = #262626 위 위쪽에 믹스 색 번짐 40% */
 #nbBgP{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(10px);transform:rotate(0);pointer-events:none}
 #nbBgL{position:absolute;left:-48px;top:0;width:480px;height:502px;background-size:cover;background-position:center;filter:blur(60px) saturate(1.2);opacity:.4;pointer-events:none}
-.listen .ph,.listen #ph{background:#262626!important}
-#lis #gcL{opacity:.3}
+.listen .ph,.listen #ph{background:#1d1b1f!important}
+/* 청감 모드: 배경이 어두우니 그래프는 흰색 그대로(밝은 배경용 어둡게 처리 끔) */
+#lis #gcL{opacity:.9}
+html.nbBright body.listen .gcv,body.listen .gcv{filter:none!important}
+/* 청감 배경: 단색 #262626 대신 뒤에 깔린 믹스 색을 아주 어둡게 번져서 */
+#nbBgD{position:absolute;inset:-90px;background-size:cover;background-position:center;filter:blur(70px) brightness(.3) saturate(1.5);pointer-events:none}
 .listen #mode,.listen #nbui .mdb{top:166px!important}
 #nbui .mdb{transition:top .4s}
 #nbui .toastx{display:none}
@@ -878,8 +882,11 @@ html.nbBright .gcv{filter:brightness(.42) drop-shadow(0 0 3px rgba(255,255,255,.
  if(ln.length)h+=`<div class="rw l">${ln.map((n,i)=>`<span><i class="ld" style="background:radial-gradient(circle,#${lt[i]||'7fd48a'} 0 35%,#${lt[i]||'7fd48a'}55 70%,transparent)"></i><em>${n.replace(/</g,'&lt;')}</em></span>`).join('')}</div>`;
  if(g.length)h+=`<div class="rw g gi">${g.map(k=>`<svg viewBox="0 0 16 16"><path d="${GS[k]}" fill="${FC[k]}" fill-opacity="${k==='fizz'?1:.85}"/></svg>`).join('')}</div>`;
  $('nbRd').innerHTML=h;
- try{const u=getMixShot();if(u){const a=document.createElement('div');a.id='nbBgP';a.style.backgroundImage=`url("${u}")`;const P=$('ply');P.insertBefore(a,$('bgc').nextSibling);$('bgc').style.opacity=0;
-   const b=document.createElement('div');b.id='nbBgL';b.style.backgroundImage=`url("${u}")`;const L=$('lis');L.insertBefore(b,L.firstChild);}}catch(_){}
+ // 재생 화면 배경은 원래 캔버스(믹스 메타볼이 이어서 움직임)를 그대로 — 찍은 그림으로 덮지 않음
+ try{const u=getMixShot(),L=$('lis');const d=document.createElement('div');d.id='nbBgD';
+   if(u)d.style.backgroundImage=`url("${u}")`;else{const cs=base.map(x=>C[x.k]||'#888');d.style.background=`radial-gradient(60% 50% at 30% 30%,${cs[0]},transparent 70%),radial-gradient(60% 50% at 75% 70%,${cs[1]||cs[0]},transparent 70%),${cs[0]}`;}
+   L.insertBefore(d,L.firstChild);
+   if(u){const b=document.createElement('div');b.id='nbBgL';b.style.backgroundImage=`url("${u}")`;L.insertBefore(b,d.nextSibling);}}catch(_){}
  $('nbRc').onclick=()=>{const o=$('nbInf').classList.toggle('open');$('nbRc').setAttribute('aria-expanded',String(o));};
  $('nbPp').onclick=()=>$('pause').click();$('nbPv').onclick=()=>$('prev').click();$('nbNx').onclick=()=>$('next').click();$('nbOcn').onclick=()=>{const m=['이 잔은 이미 소리의 바다(Ocean)로 넘어갔어요','오른쪽 화면에서 확인해보세요'];try{nbNotice(m,ph);}catch(_){try{toast(m.join(' · '));}catch(__){}}};
  // 저장(북마크): Taste의 MY에 넣음
