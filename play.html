@@ -885,3 +885,10 @@ html.nbBright .gcv{filter:brightness(.42) drop-shadow(0 0 3px rgba(255,255,255,.
  $('nbPhr').textContent=(g.length?GP[g[0]]:(bt<-4?'아주 깊고 낮은':bt<-2.2?'깊고 따뜻한':bt<-.8?'부드러운':bt<.8?'밝고 고른':'밝고 날카로운'))+' 소리';
 })();
 </script>
+<script id="nbAutoBack">
+// 플레이 화면에 들어오고 1분 뒤 자동으로 처음(스플래시)으로 — 다음 사람이 새로 시작하도록 이번 세션 기록(본 설명·믹스 그림 등)을 지우고 이동
+// 바다·전시 화면 안에 띄운 플레이(iframe)에서는 동작하지 않음
+(()=>{if(window.top!==window||new URLSearchParams(location.search).has('ocean'))return;
+ setTimeout(()=>{const ph=document.getElementById('ph');if(ph){ph.style.transition='opacity .6s';ph.style.opacity=0;}
+  setTimeout(()=>{try{sessionStorage.clear();}catch(_){}location.replace('splash.html');},600);},60000);})();
+</script>
