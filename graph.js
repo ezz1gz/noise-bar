@@ -102,11 +102,12 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
   if(pop>.03&&c.gar.ring>0){ctx.globalAlpha=c.gar.ring*pop;ctx.strokeStyle='#fff';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,y,30*s*(1+1.2*(1-pop)),0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;});
 }
 NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now(),q=1;
- (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();if(!on.paused)clock+=dt;NBG.clock=clock;
-   // 멈추면 그래프가 서서히 가운데(cy)로 세로 수축하며 사라지고, 다시 재생하면 자라남
-   const tgt=on.paused?0:1;q+=(tgt-q)*Math.min(1,dt*3.2);if(q<.0015)q=0;else if(q>.999)q=1;
+ (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();
+   // 멈추면 소리가 잦아들듯: 수축하는 동안엔 파형이 계속 움직이다가 가운데(cy)로 가라앉아 납작해지고 끝에서 사라짐. 다 사라지면 완전히 멈춤
+   const tgt=on.paused?0:1;q+=(tgt-q)*Math.min(1,dt*2.4);if(q<.0015)q=0;else if(q>.999)q=1;
+   if(!on.paused||q>.03)clock+=dt;NBG.clock=clock;
    if(on.show){ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,402,874);
      if(q>0){ctx.setTransform(d,0,0,d*q,0,d*R.cy*(1-q));try{draw(ctx,R,now,clock);}catch(e){console.error(e);}}}
-   cv.style.opacity=q>=1?'':String(q<=0?0:Math.min(1,q*1.25));
+   cv.style.opacity=q>=1?'':String(q<=0?0:Math.min(1,q*2));
    requestAnimationFrame(fr);})(last);};
 })();
