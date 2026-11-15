@@ -59,7 +59,10 @@ function avoidBars(box,host){try{const hr=host.getBoundingClientRect(),k=hr.widt
   document.querySelectorAll('#tray,#l2sheet,#l2bar,.g2sheet,.g2bar,.gbar').forEach(e=>{const r=e.getBoundingClientRect(),cs=getComputedStyle(e);if(!r.height||cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.15)return;if(r.top>hr.top+hr.height*.25)top=Math.min(top,r.top);});
   const h=box.offsetHeight,base=hr.height*.464/k;let c=base;if(top<Infinity){const lim=(top-hr.top)/k-18-h/2;c=Math.min(base,lim);}c=Math.max(c,h/2+130);box.style.top=c+'px';}catch(e){}}
 window.nbNotice=function(lines,host){addCss();host=host||document.getElementById('ph')||document.getElementById('stage')||document.body;
-  if(typeof lines==='string')lines=[lines];let n=host.querySelector('.nbNote');if(n){clearTimeout(n._t);n.remove();}
+  if(typeof lines==='string')lines=[lines];
+  // 설명끼리 겹치지 않게: 단계 설명이 떠 있으면 끝나고(타이틀이 올라간 뒤) 띄움 · 앞 안내가 있으면 먼저 사라진 뒤 띄움
+  if(document.querySelector('.nbIntro')){const f=()=>{removeEventListener('nbintro:done',f);setTimeout(()=>window.nbNotice(lines,host),900);};addEventListener('nbintro:done',f);return;}
+  let n=host.querySelector('.nbNote');if(n&&!n._dying){clearTimeout(n._t);n._dying=1;n.classList.add('out');setTimeout(()=>{n.remove();window.nbNotice(lines,host);},400);return;}else if(n){setTimeout(()=>window.nbNotice(lines,host),420);return;}
   n=document.createElement('div');n.className='nbNote';n.setAttribute('role','status');n.innerHTML=lines.map(l=>`<span>${l}</span>`).join('');host.appendChild(n);avoidBars(n,host);n._iv=setInterval(()=>{if(!n.isConnected)return clearInterval(n._iv);avoidBars(n,host);},150);
   n.animate([{opacity:0,transform:'translateY(calc(-50% + 6px))'},{opacity:1,transform:'translateY(-50%)'}],{duration:350,easing:'cubic-bezier(.32,.72,0,1)'});
   n._t=setTimeout(()=>{n.classList.add('out');setTimeout(()=>n.remove(),380);},2200+lines.join('').length*40);};
@@ -92,9 +95,9 @@ window.nbIntro=function(o){
   const clr=()=>{T.forEach(clearTimeout);T=[];};
   const end=()=>{if(gone)return;gone=true;clr();ov.classList.add('out');
     setTimeout(()=>{ov.remove();shrink(title,host,false,finish);},380);};
-  const show=i=>{clr();pi=i;const old=cp;if(old){old.classList.add('gone');setTimeout(()=>old.remove(),360);}
+  const show=i=>{clr();pi=i;const old=cp;if(old){old.classList.add('gone');setTimeout(()=>old.remove(),420);}
     cp=document.createElement('div');cp.className='cp';cp.innerHTML=pages[i].map((l,k)=>`<span${k===0?' class="nbT"':''}>${l}</span>`).join('');ov.appendChild(cp);avoidBars(cp,host);{const c0=cp,iv=setInterval(()=>{if(!c0.isConnected)return clearInterval(iv);avoidBars(c0,host);},150);}
-    sp=[...cp.querySelectorAll('span')];const d0=old?380:350;
+    sp=[...cp.querySelectorAll('span')];const d0=old?560:350;
     sp.forEach((s,k)=>T.push(setTimeout(()=>s.classList.add('on'),d0+k*380)));
     const hold=d0+sp.length*380+Math.max(2800,pages[i].join('').length*75);
     T.push(setTimeout(next,hold));};

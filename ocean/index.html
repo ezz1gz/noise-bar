@@ -196,6 +196,16 @@ html:not(.phone) .labels .m.drop .v2{animation:nbDrop 1.3s cubic-bezier(.45,1.45
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 #ui .card .add{position:absolute;overflow:hidden}
 #ui .card .add::before{z-index:0}#ui .card .add>*{position:relative;z-index:1}
+
+/* 가독성: 밝은 메타볼 배경에서 흰 그래프·Ocean 글자가 묻히지 않게 회색으로 */
+#ui .card .bottom i{background:#8c8c8c!important}
+#ui .card .bottom b{background:#8c8c8c!important}
+#ui .card .bottom img.wv{filter:brightness(0) invert(.55)}
+@keyframes nbBlink{0%,40.45%{background:rgba(140,140,140,0)}53.1%,100%{background:#6f6f6f}}
+#ui .oc{filter:brightness(0) invert(.38) drop-shadow(0 0 10px rgba(255,255,255,.35))}
+.seaTitle{color:#5a5a5a!important;text-shadow:0 0 12px rgba(255,255,255,.45)!important}
+.ear{border-color:#8c8c8c!important}
+.rings i{border-color:rgba(120,120,120,.85)!important}
 </style></head><body>
 <a class="mkBack" href="../index.html">＋ 만들기</a>
 
