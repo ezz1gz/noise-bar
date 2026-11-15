@@ -14,7 +14,7 @@
 .sw,.sw2{display:none}#ply g[clip-path="url(#clip1_26_9523)"],#lis g[clip-path="url(#clip3_26_9588)"],#lis g[clip-path="url(#clip4_26_9588)"],.dash{display:none!important}.gcv{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:none}.dash{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:none;overflow:visible}.dash path{fill:none;stroke:#fff;stroke-opacity:.78;stroke-width:1.9;stroke-linecap:round;stroke-dasharray:.1 4.6}
 #mutex{position:absolute;left:352px;top:66px;width:28px;height:24px;pointer-events:none;display:none}.muted #mutex{display:block}
 .gs{transform-box:fill-box;transform-origin:center;animation:gs 7s ease-in-out infinite alternate}@keyframes gs{to{transform:translate(4px,-8px) rotate(6deg)}}
-#gw{position:absolute;left:0;top:0;width:393px;height:852px;transform-origin:193px 700px;filter:drop-shadow(0 0 1px rgba(255,255,255,.35));will-change:transform;touch-action:none}
+#gw{position:absolute;left:0;top:0;width:393px;height:852px;transform-origin:193px 700px;will-change:transform;touch-action:none}
 #liq{position:absolute;left:0;top:0;width:393px;height:720px}
 #gw>svg{position:absolute;left:0;top:0}
 
@@ -724,10 +724,9 @@ if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>setTi
 <script>
 // 청감 모드 잔 그림: 고른 잔(락·플루트)이면 글라스 단계 SVG로 바꿈 (액체 경계는 GEO와 같은 좌표)
 (()=>{if(typeof GEO==='undefined'||!GEO.d)return;const sv=document.querySelector('#gw>svg');if(!sv)return;
- fetch('assets/glass/glass-all.svgfrag').then(r=>r.text()).then(fr=>{const d=GEO.d,[bx,by]=d.box,A=GEO.A,C=GEO.C,B=GEO.B;
-  sv.innerHTML=`<defs><clipPath id="nbGlClip"><rect x="${bx}" y="${by}" width="336" height="336"/></clipPath></defs>`+
-   `<g transform="translate(${(GEO.ox-bx*GEO.GS).toFixed(2)} ${(GEO.oy-by*GEO.GS).toFixed(2)}) scale(${GEO.GS})"><g clip-path="url(#nbGlClip)">${fr}</g></g>`+
-   `<g id="ghi"><path d="M${A[0]} ${A[1]}H${C[0]}" stroke="rgba(255,255,255,.7)" stroke-width="1.1"/><path d="M${A[0]+8} ${A[1]+10}L${B[0]+6} ${B[1]-14}" stroke="rgba(255,255,255,.42)" stroke-width="3.5" stroke-linecap="round"/></g>`;}).catch(()=>{});})();
+ fetch('assets/glass/glasses.json').then(r=>r.json()).then(G=>{const d=GEO.d,[bx,by]=d.box,g=G.find(x=>x.k===GEO.k)||G[0];
+  // 청감 모드 잔: 유리 효과 없이 회색 1.7 외곽선만 (화면 배율 1.2·잔 배율 GS 보정)
+  sv.innerHTML=`<g transform="translate(${(GEO.ox-bx*GEO.GS).toFixed(2)} ${(GEO.oy-by*GEO.GS).toFixed(2)}) scale(${GEO.GS})"><path d="${g.sil}" fill="none" stroke="#9a9a9a" stroke-width="${(1.7/(GEO.GS*1.2)).toFixed(3)}" stroke-linejoin="round"/></g>`;}).catch(()=>{});})();
 </script>
 </body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
