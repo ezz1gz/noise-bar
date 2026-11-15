@@ -860,7 +860,7 @@ const LIQ=[
   {k:'fire',   n:'모닥불',   th:'scatter',grp:'자연',src:'fire',  c:'#e8743a'},
   {k:'stove',  n:'장작 난로',th:'scatter',grp:'실내',src:'fire',  c:'#c0502e',rate:.85,lp:3000},
   {k:'cafe',   n:'카페',     th:'scatter',grp:'도시',src:'cafe',  c:'#a77b52'},
-  {k:'library',n:'도서관',   th:'scatter',grp:'실내',src:'cafe',  c:'#b8a58a',rate:.8,lp:2000},
+  {k:'library',n:'도서관',   th:'scatter',grp:'실내',src:'rec',url:'snd/lq/rec_library.wav',c:'#b8a58a'},
   {k:'street', n:'밤거리',   th:'scatter',grp:'도시',src:'street',c:'#4b4f9c'}];
 (window.NBREC?NBREC.liqueurs:[]).forEach(r=>{if(!LIQ.some(l=>l.k===r.k))LIQ.push({k:r.k,n:r.n,th:r.th,grp:r.grp,src:'rec',url:r.url,c:r.c,per:r.per||undefined});});
 const LBY=Object.fromEntries(LIQ.map(l=>[l.k,l]));

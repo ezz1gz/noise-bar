@@ -2009,30 +2009,6 @@
    }
   },
   {
-   "id": "LQ-SC-27",
-   "k": "rec_bunny",
-   "n": "토끼장",
-   "th": "scatter",
-   "theme": "흩뿌림",
-   "grp": "실내",
-   "c": "#f5e6e8",
-   "url": "snd/lq/rec_bunny.wav",
-   "dur": 16.0,
-   "per": null,
-   "color": "pink",
-   "slope": -4.32,
-   "src": "bigsoundbank #1376",
-   "license": "BigSoundBank (CC0)",
-   "note": "바스락 사각 토끼",
-   "measure": {
-    "이어짐": 0.37,
-    "초당어택": 1.31,
-    "간격불규칙도": 1.63,
-    "출렁임": 2.31,
-    "출렁주기Hz": 0.16
-   }
-  },
-  {
    "id": "LQ-SC-28",
    "k": "rec_restaurant",
    "n": "식당",
@@ -2151,6 +2127,23 @@
     "출렁임": 0.45,
     "출렁주기Hz": 0.11
    }
+  },
+  {
+   "id": "LQ-SC-33",
+   "k": "library",
+   "n": "도서관",
+   "th": "scatter",
+   "theme": "흩뿌림",
+   "grp": "실내",
+   "c": "#b8a58a",
+   "url": "snd/lq/rec_library.wav",
+   "dur": 20.0,
+   "per": null,
+   "color": "pink",
+   "slope": null,
+   "src": "bigsoundbank #0917 룸톤 + #0164·0362·0493·1413 책장 넘김 · #0221 연필 · #1410 책 덮기 · #0376 먼 발소리 · #1404 숨 — 섞어 만든 열람실",
+   "license": "BigSoundBank (CC0)",
+   "note": "조용한 열람실 공기 위로 책장 넘김·연필·책 덮는 소리가 띄엄띄엄"
   }
  ],
  "garnish": [
