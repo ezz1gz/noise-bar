@@ -55,7 +55,8 @@ ph.addEventListener('pointerdown',e=>{if(ph.classList.contains('g2open')&&!sh.co
 let serving=false;
 function serve(){if(cancelPending()){setTimeout(serve,260);return;}const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
   q.set('g',L.map(d=>`${d.k}-${d.n}-${d.sz}-f${d.f||3}-v${Math.round((d.vol==null?.6:d.vol)*100)}`).join(','));const go=()=>{location.href='name.html?'+q;};
-  toFront().then(go,go);}
+  // 잔 모션 없이 바로 서브로 (살짝 페이드만)
+  ph.classList.add('g2out');setTimeout(go,240);}
 // 서빙: 위에서 본 원 → 앞에서 본 잔 (글라스 고를 때의 역순) — 원이 림 타원으로 눕고, 납작했던 잔 몸통이 펴지며 나타남
 // 믹스 그림이 없을 때: 고른 베이스·리큐르 색으로 번진 덩어리
 function blobs(bx,by,cid){let cols=[];try{const tot=SH.reduce((a,b)=>a+b,0)||1;cols=PK.map((k,i)=>({c:(window.COCK&&COCK[k])||PC[i],w:SH[i]/tot,k})).filter(x=>x.k!=='white'&&x.w>.02).sort((a,b)=>b.w-a.w).map(x=>x.c);}catch(_){}

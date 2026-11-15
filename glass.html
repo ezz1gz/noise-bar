@@ -124,19 +124,9 @@ const t0=performance.now();
 show(cur,0);
 {const a0=performance.now();(function f(){const u=Math.min(1,(performance.now()-a0)/900);ST.ma=u*u*(3-2*u);if(u<1)requestAnimationFrame(f);})();
 }
-// ── 고르기: 잔이 위에서 본 각도로 돌아가며 동그란 원이 되고, 뒤 메타볼이 원 안으로 줄어 들어감 → 가니쉬
+// ── 고르기: 잔 돌아가는 모션 없이 바로 가니쉬로 (살짝 페이드만)
 function choose(){if(busy)return;busy=true;ph.classList.add('out');const g=GLASSES[cur];
-  const sx=GXL-g.box[0],sy=GXT-g.box[1],L=g.rim[0],R=g.rim[1],rx=(L[0]+sx+R[0]+sx)/2,ry=L[1]+sy,rw=R[0]-L[0];
-  const rim=$('rim');const D1=1150,D2=1200;
-  // 1) 잔이 위로 돌아감: 림 타원이 원이 되고, 몸통은 납작해지며 사라짐 (뒤 메타볼은 꽉 찬 그대로)
-  rim.animate([{left:(rx-rw/2)+'px',top:(ry-rw*.06)+'px',width:rw+'px',height:(rw*.12)+'px',opacity:0},{opacity:1,offset:.2},{left:(CC[0]-CR)+'px',top:(CC[1]-CR)+'px',width:2*CR+'px',height:2*CR+'px',opacity:1}],{duration:D1,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
-  gEl.style.transformOrigin=`${rx-GXL}px ${ry-GXT}px`;
-  gEl.animate([{transform:'none',opacity:1},{transform:`translate(${CC[0]-rx}px,${CC[1]-ry}px) scale(${2*CR/rw},.12)`,opacity:0}],{duration:D1*.85,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
-  const a0=performance.now(),r0=Math.hypot(393,852);ST.k=0;ST.r=r0;
-  (function f(){const t=performance.now()-a0,u1=Math.min(1,t/D1);ST.ma=Math.max(0,1-u1*1.4);
-    // 2) 그다음 화면 가득한 메타볼이 원 안으로 줄어듦
-    const u=Math.max(0,Math.min(1,(t-D1)/D2)),e=u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;ST.k=t>D1?1:0;ST.r=r0+(CR-r0)*e;
-    if(u<1)requestAnimationFrame(f);else setTimeout(()=>{const q=new URLSearchParams(location.search);q.set('gl',g.k);location.href='garnish.html?'+q;},150);})();}
+  setTimeout(()=>{const q=new URLSearchParams(location.search);q.set('gl',g.k);location.href='garnish.html?'+q;},280);}
 $('nx').onclick=choose;
 $('bk').onclick=()=>back();
 $('vol').onclick=()=>{const L=window.__nbCtxList||[];const on=!$('vol').classList.toggle('off');L.forEach(c=>{try{on?c.resume():c.suspend();}catch(_){}});$('vol').querySelector('img').src=on?'assets/gnb-volume.svg':'assets/gnb-volume-off.svg';$('vol').setAttribute('aria-label',on?'소리 끄기':'소리 켜기');};

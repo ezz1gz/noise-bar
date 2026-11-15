@@ -27,6 +27,11 @@ body{display:flex;align-items:center;justify-content:center;overflow:hidden;font
 .ing .fl{position:absolute;inset:0;animation:inbob 2s linear infinite}
 @keyframes inbob{0%,0.35%{transform:translate(0,0)}43.5%{transform:translate(17.19px,1.79px)}48.6%{transform:translate(19.23px,2px)}93.5%{transform:translate(9.38px,-13.93px)}100%{transform:translate(0,0)}}
 .ing svg{position:absolute;inset:0;overflow:visible}
+/* 잔 속 가니쉬: 천천히 자전 — 꼭짓점 수(넘버)가 클수록 빠르게, 계열별로 방향이 갈림 */
+.ing .spin{position:absolute;inset:0;transform-origin:50% 50%;animation:gspin var(--sd,16s) linear infinite}
+.ing.rev .spin{animation-direction:reverse}
+@keyframes gspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ing .spin{animation:none}}
 .tag{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);font-size:12px;color:#555;background:rgba(255,255,255,.85);padding:6px 12px;border-radius:14px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s}
 .tag.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.g .bob,.ing .fl{animation:none}
@@ -395,9 +400,11 @@ setInterval(()=>{if(!AC||AC.state!=='running')return;const now=performance.now()
 
 function toGlass(el,cx,cy){const d=el._d,s=SIZES[d.sz]*.62;const dx=cx-GC[0],dy=cy-GC[1],r=Math.hypot(dx,dy),lim=GR-s/2-8;
   const k=r>lim?lim/r:1;const gx=GC[0]+dx*k-37.5,gy=GC[1]+dy*k-263;
-  const w=document.createElement('div');w.className='ing k-'+d.k;w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
+  // 넘버가 클수록 빨리 돎(넘버 규칙) · 계열로 방향 결정
+  const spinDur=Math.max(9,24-d.n);const rev=(d.k==='fizz'||d.k==='melt');
+  const w=document.createElement('div');w.className='ing k-'+d.k+(rev?' rev':'');w.style.width=w.style.height=s+'px';w.style.transform=`translate(${gx-s/2}px,${gy-s/2}px)`;
   const id='q'+(UID++),f=FAM[d.k],P=shapePath(d.k,d.n,36-f.off[0]/2,36-f.off[1]/2,d.seed);
-  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg)"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="${id}s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".14"/></filter><linearGradient id="${id}g" x1="36" y1="6" x2="36" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="${f.c[0]}"/><stop offset="1" stop-color="${f.c[1]}"/></linearGradient></defs><path d="${P}" fill="${FLAT[d.k][0]==='#EBEBEB'?'#FFFFFF':FLAT[d.k][0]}" fill-opacity="${GLA[d.k]}" filter="url(#${id}s)"/></svg></div>`;
+  w.innerHTML=`<div class="fl" style="animation-delay:${(-Math.random()*2).toFixed(2)}s"><div class="spin" style="--sd:${spinDur}s"><svg viewBox="0 0 72 72" style="transform:rotate(${d.rot}deg)"><defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter><filter id="${id}s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".14"/></filter><linearGradient id="${id}g" x1="36" y1="6" x2="36" y2="66" gradientUnits="userSpaceOnUse"><stop stop-color="${f.c[0]}"/><stop offset="1" stop-color="${f.c[1]}"/></linearGradient></defs><path d="${P}" fill="${FLAT[d.k][0]==='#EBEBEB'?'#FFFFFF':FLAT[d.k][0]}" fill-opacity="${GLA[d.k]}" filter="url(#${id}s)"/></svg></div></div>`;
   glass.appendChild(w);if(!el._fake)playG(d,(gx/318)*2-1);loopG(w,d);w.animate([{opacity:0,scale:'1.5'},{opacity:.6,scale:'1'}],{duration:500,easing:'cubic-bezier(.45,1.45,.8,1)'});
   while(glass.children.length>3){const o=glass.firstElementChild;o.animate([{opacity:.6},{opacity:0}],{duration:300}).onfinish=()=>o.remove();glass.appendChild(glass.firstElementChild);o.remove();break;}
   tag.textContent=`${f.n} ${d.n} · ${d.sz} 넣었어요`;if(window.__g2)__g2.added(w,d);tag.classList.add('on');clearTimeout(tag._t);tag._t=setTimeout(()=>tag.classList.remove('on'),1400);}
