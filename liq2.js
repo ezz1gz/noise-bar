@@ -92,10 +92,10 @@ function spot(){const top=Math.max(190,(parseFloat(getComputedStyle(S).getProper
   return c.find(([x,y])=>ld().every(d=>Math.hypot(d.x-x,d.y-y)>110))||c[ld().length%c.length];}
 function add(l){if(ld().length>=MAXL){(window.nbNotice?nbNotice(['리큐르는 세 가지까지 담을 수 있어요','담긴 원을 한 번 더 누르면 뺄 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`));return;}
   gestTip=true;const[x,y]=spot();addDrop(l,x,y);const d=drops[drops.length-1];d.v=.6;d.l2drop=performance.now();select(d);}
-function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
+function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);if(preview&&preview.k===d.k)stopPreview();try{const g=LG[d.k];if(g)g.gain.setTargetAtTime(0,AC.currentTime,.05);}catch(_){}toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
 function tap(l){wake();const ex=ld().find(x=>x.k===l.k);if(ex){if(isSel(ex))drop(ex);else select(ex);return;}add(l);}
 function bind(b,l){let st=null;
-  b.addEventListener('pointerdown',e=>{wake();st={x:e.clientX,y:e.clientY,mode:null};st.t=setTimeout(()=>{if(st&&!st.mode){st.mode='prev';startPreview(l,b);}},320);});
+  b.addEventListener('pointerdown',e=>{wake();st={x:e.clientX,y:e.clientY,mode:null};st.t=ld().some(x=>x.k===l.k)?0:setTimeout(()=>{if(st&&!st.mode){st.mode='prev';startPreview(l,b);}},420);/* 이미 담긴 원은 길게 눌러도 미리듣기 대신 탭으로 처리 */});
   b.addEventListener('pointermove',e=>{if(st&&!st.mode&&Math.hypot(e.clientX-st.x,e.clientY-st.y)>8){clearTimeout(st.t);st.mode='scroll';}});
   const end=c=>{if(!st)return;clearTimeout(st.t);if(!st.mode&&!c)tap(l);stopPreview();st=null;};
   b.addEventListener('pointerup',()=>end(false));b.addEventListener('pointercancel',()=>end(true));b.addEventListener('pointerleave',()=>{if(st&&st.mode==='prev')end(true);});

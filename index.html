@@ -1488,10 +1488,10 @@ function spot(){const top=Math.max(190,(parseFloat(getComputedStyle(S).getProper
   return c.find(([x,y])=>ld().every(d=>Math.hypot(d.x-x,d.y-y)>110))||c[ld().length%c.length];}
 function add(l){if(ld().length>=MAXL){(window.nbNotice?nbNotice(['리큐르는 세 가지까지 담을 수 있어요','담긴 원을 한 번 더 누르면 뺄 수 있어요'],stage):toast(`잔엔 ${MAXL}가지까지`));return;}
   gestTip=true;const[x,y]=spot();addDrop(l,x,y);const d=drops[drops.length-1];d.v=.6;d.l2drop=performance.now();select(d);}
-function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
+function drop(d){if(L2.sel===d)L2.sel=null;removeDrop(d);if(preview&&preview.k===d.k)stopPreview();try{const g=LG[d.k];if(g)g.gain.setTargetAtTime(0,AC.currentTime,.05);}catch(_){}toast(LBY[d.k].n+' 리큐르를 뺐어요');render();}
 function tap(l){wake();const ex=ld().find(x=>x.k===l.k);if(ex){if(isSel(ex))drop(ex);else select(ex);return;}add(l);}
 function bind(b,l){let st=null;
-  b.addEventListener('pointerdown',e=>{wake();st={x:e.clientX,y:e.clientY,mode:null};st.t=setTimeout(()=>{if(st&&!st.mode){st.mode='prev';startPreview(l,b);}},320);});
+  b.addEventListener('pointerdown',e=>{wake();st={x:e.clientX,y:e.clientY,mode:null};st.t=ld().some(x=>x.k===l.k)?0:setTimeout(()=>{if(st&&!st.mode){st.mode='prev';startPreview(l,b);}},420);/* 이미 담긴 원은 길게 눌러도 미리듣기 대신 탭으로 처리 */});
   b.addEventListener('pointermove',e=>{if(st&&!st.mode&&Math.hypot(e.clientX-st.x,e.clientY-st.y)>8){clearTimeout(st.t);st.mode='scroll';}});
   const end=c=>{if(!st)return;clearTimeout(st.t);if(!st.mode&&!c)tap(l);stopPreview();st=null;};
   b.addEventListener('pointerup',()=>end(false));b.addEventListener('pointercancel',()=>end(true));b.addEventListener('pointerleave',()=>{if(st&&st.mode==='prev')end(true);});
@@ -1581,7 +1581,7 @@ frame();
  const crw=document.querySelector('#vIdle .crw');const L=document.createElement('span');L.className='nbL';const R=document.createElement('span');R.className='nbR';crw.appendChild(L);crw.appendChild(R);
  const _u=updBar;let lastL='',lastR='';
  updBar=function(pc){_u(pc);try{
-   NOISE.forEach((n,i)=>{n.row.style.setProperty('--s',share[i].toFixed(3));});
+   NOISE.forEach((n,i)=>{n.row.style.setProperty('--s',share[i].toFixed(3));n.row.classList.toggle('z',share[i]<.005);});
    tray.classList.toggle('nbSel',sel>=0);
    let l,r,rp=false;
    if(solo>=0){const n=NOISE[solo];l=`<i style="background:${n.c}"></i><small>${n.n}</small>`;r=pc[solo]+'%';rp=true;}
@@ -1979,7 +1979,14 @@ document.getElementById('nbMenu').addEventListener('click',e=>{if(e.target.id===
 #stage.s1 .crw.nbLt .nbL small,#stage.s1 .crw.nbLt .nbR,#stage.s1 .crw.nbLt .pv small{color:#141117!important}
 #stage.s1 .crw.nbDk .pv b,#stage.s1 .crw.nbDk .pv b em{color:#fff!important}
 #stage.s1 #tray{touch-action:none}
-#stage.s1 .row.nbSame.sel .trk .f,#stage.s1 .row.nbSame.locked .trk .f{background:linear-gradient(rgba(255,255,255,.38),rgba(255,255,255,.38)),var(--c)!important;box-shadow:0 0 0 .75px rgba(255,255,255,.6),0 2px 8px rgba(0,0,0,.12)!important}
+/* 배경과 같은 색일 때: 톤을 바꾸지 않고 화이트처럼 얇은 회색 선으로 구분 */
+#stage.s1 .row.nbSame.sel .trk .f,#stage.s1 .row.nbSame.locked .trk .f{background:var(--c)!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.22)!important}
+/* 비율 0%면 색 바 없음 */
+#stage.s1 .row.z .trk .f{background:transparent!important;box-shadow:none!important}
+/* '~ 고정' · '~만 듣기' 버튼 한 줄로: 패딩 줄이고 줄바꿈 없음 */
+#stage.s1 .bch{padding:0 10px!important;white-space:nowrap!important;gap:4px!important}
+#stage.s1 .bch[aria-pressed="true"]{width:auto!important;min-width:150px;max-width:178px}
+#stage.s1 .bch .t{white-space:nowrap}
 </style>
 
 <link rel="stylesheet" href="liq2.css">

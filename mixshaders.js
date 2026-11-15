@@ -134,7 +134,7 @@ void main(){
     col=mix(sc,col,smoothstep(.45,1.,uMix));}
   float lum=dot(col,vec3(.299,.587,.114));
   col=mix(vec3(lum),col,1.+.2*m);
-  col+=(hash(gl_FragCoord.xy+fract(uTime*30.)*100.)-.5)*.035*m;
+  // (종이 같은 알갱이 질감 없앰 — 다음 화면 배경에 이어 깔릴 때 거칠어 보여서)
   o=vec4(clamp(col,0.,1.),1.);
 }`;
 
