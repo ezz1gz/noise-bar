@@ -39,7 +39,7 @@ function okl(h){const c=hexRGB(h).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.0
   return[.2104542553*l+.7936177850*m-.0040720468*q,1.9779984951*l-2.4285922050*m+.4505937099*q,.0259040371*l+.7827717662*m-.8086757660*q];}
 // 리큐르 한 방울 = 톤 그레이딩 [밝기 이동, 색상 회전, 채도 배율, 밝기 배율] + 틴트(a,b)
 function liqGrade(){if(!LT.length)return[[0,0,1,0],[0,0]];let a=0,b=0,L=0;LT.forEach(h=>{const o=okl(h);a+=o[1];b+=o[2];L+=o[0];});a/=LT.length;b/=LT.length;L/=LT.length;
-  const n=Math.hypot(a,b)||1,k=Math.min(.055,n*.35);return[[(L-.62)*.05,0,1.06,0],[a/n*k,b/n*k]];}
+  const n=Math.hypot(a,b)||1,k=Math.min(.1,n*.55);return[[(L-.62)*.05,0,1.14,0],[a/n*k,b/n*k]];}
 function labCuts(){const tot=SH.reduce((x,y)=>x+y,0)||1;let acc=0;const c=[0,1,2].map(i=>(acc+=SH[i])/tot);const q=SH.map(Math.sqrt),qt=q.reduce((x,y)=>x+y,0);acc=0;const cs=[0,1,2].map(i=>(acc+=q[i])/qt);return c.map((v,i)=>v+(cs[i]-v)*.75);}
 // 레시피(베이스·비율·리큐르)마다 다른 흐름 모양 — 같은 레시피는 늘 같은 모양
 function mixSeed(){const t=[Q.get('pk')||'',Q.get('s')||'',Q.get('lk')||''].join('|');let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}const a=(h>>>0)/4294967296,b=(Math.imul(h,2654435761)>>>0)/4294967296;return[a*37.+3.,b*29.+5.];}
