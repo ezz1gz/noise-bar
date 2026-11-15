@@ -41,6 +41,8 @@ function okl(h){const c=hexRGB(h).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.0
 function liqGrade(){if(!LT.length)return[[0,0,1,0],[0,0]];let a=0,b=0,L=0;LT.forEach(h=>{const o=okl(h);a+=o[1];b+=o[2];L+=o[0];});a/=LT.length;b/=LT.length;L/=LT.length;
   const n=Math.hypot(a,b)||1,k=Math.min(.055,n*.35);return[[(L-.62)*.05,0,1.06,0],[a/n*k,b/n*k]];}
 function labCuts(){const tot=SH.reduce((x,y)=>x+y,0)||1;let acc=0;const c=[0,1,2].map(i=>(acc+=SH[i])/tot);const q=SH.map(Math.sqrt),qt=q.reduce((x,y)=>x+y,0);acc=0;const cs=[0,1,2].map(i=>(acc+=q[i])/qt);return c.map((v,i)=>v+(cs[i]-v)*.75);}
+// 레시피(베이스·비율·리큐르)마다 다른 흐름 모양 — 같은 레시피는 늘 같은 모양
+function mixSeed(){const t=[Q.get('pk')||'',Q.get('s')||'',Q.get('lk')||''].join('|');let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}const a=(h>>>0)/4294967296,b=(Math.imul(h,2654435761)>>>0)/4294967296;return[a*37.+3.,b*29.+5.];}
 function moodVec(){const tot=SH.reduce((x,y)=>x+y,0)||1,g=k=>{const i=PK.indexOf(k);return i<0?0:SH[i]/tot;};return[g('brown'),g('blue'),g('pink'),g('white')];}
 const FLUID_GLSL=`uniform vec3 uP2[4];uniform vec3 uCut;uniform vec4 uMood;uniform vec4 uGr;uniform vec2 uTn;uniform vec4 uShr;
 float fh_(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453123);}

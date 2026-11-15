@@ -31,8 +31,8 @@ function start(){if(LIVE)return LIVE;const st=readState();if(!st||!window.NBMIXS
   const W=393,H=852,cv=document.createElement('canvas');cv.width=W;cv.height=H;
   const gl=cv.getContext('webgl2',{antialias:false,preserveDrawingBuffer:true,alpha:false});if(!gl)return null;
   const {SIM,DISP}=NBMIXSH;
-  const sim=mkProg(gl,SIM,['uPrev','uSimRes','uTime','uDt','uFlow','uScale','uAsp','uRelax','uPtrOn','uPtrR','uPtr']);
-  const disp=mkProg(gl,DISP,['uSnap','uHasSnap','uMap','uRes','uTime','uMix','uScale','uSoft','uAsp','uPal','uPal2','uPal3','uCuts','uCock','uWhite','uPaint','uShare','uMood','uGa','uGb','uTa','uTb','uDrop']);
+  const sim=mkProg(gl,SIM,['uSeed','uPrev','uSimRes','uTime','uDt','uFlow','uScale','uAsp','uRelax','uPtrOn','uPtrR','uPtr']);
+  const disp=mkProg(gl,DISP,['uSeed','uSnap','uHasSnap','uMap','uRes','uTime','uMix','uScale','uSoft','uAsp','uPal','uPal2','uPal3','uCuts','uCock','uWhite','uPaint','uShare','uMood','uGa','uGb','uTa','uTb','uDrop']);
   const unp=mkProg(gl,UNPACK_FS,['uT','uR']);
   const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
   const hasFloat=!!(gl.getExtension('EXT_color_buffer_float')||gl.getExtension('EXT_color_buffer_half_float'));let FMT=hasFloat?{i:gl.RGBA16F,t:gl.HALF_FLOAT}:{i:gl.RGBA8,t:gl.UNSIGNED_BYTE};
@@ -46,15 +46,15 @@ function start(){if(LIVE)return LIVE;const st=readState();if(!st||!window.NBMIXS
   // MIX와 같은 값 (common.js가 주소에서 다시 계산)
   const PAL=PC.map(hexRGB),PAL2=PK.map((k,i)=>hexRGB(COCK[k]||PC[i]));
   const tot=SH.reduce((a,b)=>a+b,0)||1,share=SH.map(v=>v/tot);let acc=0;const cutsT=[0,1,2].map(i=>(acc+=share[i]));const q=share.map(Math.sqrt),qt=q.reduce((a,b)=>a+b,0);acc=0;const cutsS=[0,1,2].map(i=>(acc+=q[i])/qt);
-  const cuts=cutsT.map((c,i)=>c+(cutsS[i]-c)*.75);
+  const cuts=cutsT.map((c,i)=>c+(cutsS[i]-c)*.3);
   const [GR,TN]=liqGrade(),drop={x:+(Q.get('dx')||.5),y:+(Q.get('dy')||.45),seed:st.seed||0};
   const stir=st.stir!=null?st.stir:STIR,scale=.4,mk=st.mk||1,mood=moodVec();
-  let simT=st.simT||0,dispT=st.dispT||0;
+  let simT=st.simT||0,dispT=st.dispT||0;const SEED=new Float32Array(mixSeed());
   function simStep(dt){gl.useProgram(sim.p);gl.bindFramebuffer(gl.FRAMEBUFFER,B.fb);gl.viewport(0,0,sw,shh);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=sim.u;
-    gl.uniform1i(u.uPrev,0);gl.uniform2f(u.uSimRes,sw,shh);gl.uniform1f(u.uTime,simT);gl.uniform1f(u.uDt,dt);gl.uniform1f(u.uFlow,(.05+stir*.5)*mk);gl.uniform1f(u.uScale,.8+scale*2.4);gl.uniform1f(u.uAsp,W/H);gl.uniform1f(u.uRelax,.04);
+    gl.uniform2fv(u.uSeed,SEED);gl.uniform1i(u.uPrev,0);gl.uniform2f(u.uSimRes,sw,shh);gl.uniform1f(u.uTime,simT);gl.uniform1f(u.uDt,dt);gl.uniform1f(u.uFlow,(.05+stir*.5)*mk);gl.uniform1f(u.uScale,.8+scale*2.4);gl.uniform1f(u.uAsp,W/H);gl.uniform1f(u.uRelax,.04);
     gl.uniform1f(u.uPtrOn,0);gl.uniform1f(u.uPtrR,.14);gl.uniform4f(u.uPtr,0,0,0,0);gl.drawArrays(gl.TRIANGLES,0,3);[A,B]=[B,A];}
   function draw(){gl.useProgram(disp.p);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,W,H);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,A.tex);const u=disp.u;
-    gl.uniform1i(u.uMap,0);gl.uniform1i(u.uSnap,1);gl.uniform1f(u.uHasSnap,0);gl.uniform2f(u.uRes,W,H);gl.uniform1f(u.uTime,dispT);gl.uniform1f(u.uMix,1);gl.uniform1f(u.uScale,.7+scale*2.2);
+    gl.uniform2fv(u.uSeed,SEED);gl.uniform1i(u.uMap,0);gl.uniform1i(u.uSnap,1);gl.uniform1f(u.uHasSnap,0);gl.uniform2f(u.uRes,W,H);gl.uniform1f(u.uTime,dispT);gl.uniform1f(u.uMix,1);gl.uniform1f(u.uScale,.7+scale*2.2);
     gl.uniform1f(u.uSoft,.02+(1-.3)*.3);gl.uniform1f(u.uAsp,W/H);
     gl.uniform3fv(u.uPal,new Float32Array(PAL.flat()));gl.uniform3fv(u.uPal2,new Float32Array(PAL2.flat()));gl.uniform3fv(u.uPal3,new Float32Array(PAL.flat()));gl.uniform1f(u.uCock,1);gl.uniform1f(u.uPaint,0);
     gl.uniform4fv(u.uShare,new Float32Array(share));gl.uniform4fv(u.uMood,new Float32Array(mood));gl.uniform1f(u.uWhite,0);
