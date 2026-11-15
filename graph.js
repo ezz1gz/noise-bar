@@ -9,7 +9,7 @@ const DEF={
  liq:{range:1,themes:{breath:{width:2.6,dash:0,gap:0,smooth:.7,alpha:.95},flow:{width:2.6,dash:10,gap:7,smooth:.6,alpha:.9},
                       beat:{width:2.6,dash:0,gap:0,step:.25,alpha:.95},scatter:{width:2.9,dash:0,gap:0,dot:1,alpha:.95}}},
  gar:{size:1.28,ring:.35,spread:.8,alpha:.95,dots:1},
- style:'ref'};
+ style:'theme'};  // 법칙(2.7): 리큐르는 테마별 선 — 숨=매끈한 실선 / 흐름=긴 대시 / 박자=계단 / 흩뿌림=점
 const clone=o=>JSON.parse(JSON.stringify(o));
 function merge(d,s){if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]===undefined)continue;if(typeof d[k]==='object'&&d[k])merge(d[k],s[k]);else if(typeof s[k]===typeof d[k])d[k]=s[k];}return d;}
 function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}return merge(clone(DEF),s);}
