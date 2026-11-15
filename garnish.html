@@ -332,7 +332,10 @@ function blob(cx,cy,n,R,seed){const N=n*16,pts=[];let r0=Math.floor(seed*1e5)+7;
 const FLAT={melt:['#EC5B2B',.6],blossom:['#FF589E',.6],spark:['#1AA6E1',.6],fizz:['#EBEBEB',1]};
 // 잔 속에서는 메타볼이 비치게 반투명 (화이트도 불투명하지 않게)
 const GLA={melt:.55,blossom:.55,spark:.55,fizz:.55};
-function flatMarkup(k,n,seed,S){const f=FAM[k],P=shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed),id='f'+(UID++);return `<svg viewBox="0 0 72 72" width="${S||72}" height="${S||72}" style="overflow:visible"><defs><filter id="${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".1"/></filter></defs><path d="${P}" fill="${FLAT[k][0]}" fill-opacity="${FLAT[k][1]}" ${k==='fizz'?`filter="url(#${id})"`:''}/></svg>`;}
+function flatMarkup(k,n,seed,S){const f=FAM[k],P=shapePath(k,n,36-f.off[0]/2,36-f.off[1]/2,seed),id='f'+(UID++);
+  // 피즈는 흰색이라 하얀 시트에서 안 보임 → 채워졌을 때 보이는 회색 + 테두리로
+  const fz=k==='fizz',fill=fz?'#C4C4C4':FLAT[k][0],strk=fz?' stroke="#9A9A9A" stroke-width="1.5"':'';
+  return `<svg viewBox="0 0 72 72" width="${S||72}" height="${S||72}" style="overflow:visible"><defs><filter id="${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="3.3" flood-opacity=".1"/></filter></defs><path d="${P}" fill="${fill}" fill-opacity="${FLAT[k][1]}"${strk} ${fz?`filter="url(#${id})"`:''}/></svg>`;}
 function shapePath(k,n,cx,cy,seed){return k==='spark'?star(cx,cy,n,28.5,.4):k==='fizz'?star(cx,cy,n,27,.69):k==='blossom'?lobes(cx,cy,n,23.5):blob(cx,cy,n,25,seed);}
 // 기본형(피그마 에셋 그대로) 배치 — 72 상자 기준
 function baseMarkup(k){

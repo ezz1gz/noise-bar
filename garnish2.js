@@ -53,7 +53,7 @@ $('g2sg').onclick=close;
 // 밖(잔·빈 곳)을 누르면 시트 닫기
 ph.addEventListener('pointerdown',e=>{if(ph.classList.contains('g2open')&&!sh.contains(e.target))close();},true);
 let serving=false;
-function serve(){if(cancelPending()){setTimeout(serve,260);return;}const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
+function serve(){ITEMS().forEach(confirmD);const L=ITEMS();if(!L.length){note(['가니쉬를 하나 이상 올려요']);return;}if(serving)return;serving=true;const q=new URLSearchParams(location.search);
   q.set('g',L.map(d=>`${d.k}-${d.n}-${d.sz}-f${d.f||3}-v${Math.round((d.vol==null?.6:d.vol)*100)}`).join(','));const go=()=>{location.href='name.html?'+q;};
   // 잔 모션 없이 바로 서브로 (살짝 페이드만)
   ph.classList.add('g2out');setTimeout(go,240);}
