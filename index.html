@@ -1323,8 +1323,10 @@ $('snd').addEventListener('click',()=>{muted=!muted;stage.classList.toggle('mute
 function tiltW(k){const a=window.__nbTilt||0,hi=(k==='white'||k==='blue');return Math.max(.15,Math.min(1.9,1+(hi?1:-1)*a*1.7));}
 function updAudio(){
   if(!AC)return;const t=AC.currentTime;
-  NG.forEach((g,i)=>g.gain.setTargetAtTime(share[i]*.2*tiltW(NOISE[i].k)*(solo<0?1:solo===i?1.3:.05)*(liqSolo?.05:1),t,.08));
-  const want={},pos={},tt=performance.now()/1000;const NL=Math.max(1,lives().length);lives().forEach((d,i)=>{want[d.k]=1.3*d.v*(liqSolo?(d===liveDrop()?1.3:.05):1)/Math.sqrt(NL*.8+.2);pos[d.k]={pan:Math.max(-.9,Math.min(.9,(d.x/W*2-1)*.45+.4*Math.sin(tt*2*Math.PI/11+i*2.1))),rate:rateOf(d)};});
+  // 리큐르 단계에서 리큐르를 고르면 베이스·다른 리큐르를 아주 살짝 줄여 그 리큐르에 집중하게
+  const fl=document.getElementById('flow');const inLiq=step===2&&(!fl||fl.hidden);const curL=inLiq?liveDrop():null;
+  NG.forEach((g,i)=>g.gain.setTargetAtTime(share[i]*.2*tiltW(NOISE[i].k)*(solo<0?1:solo===i?1.3:.05)*(liqSolo?.05:1)*(curL&&!liqSolo?.7:1),t,.08));
+  const want={},pos={},tt=performance.now()/1000;const NL=Math.max(1,lives().length);lives().forEach((d,i)=>{want[d.k]=1.3*d.v*(liqSolo?(d===liveDrop()?1.3:.05):(curL?(d===curL?1:.65):1))/Math.sqrt(NL*.8+.2);pos[d.k]={pan:Math.max(-.9,Math.min(.9,(d.x/W*2-1)*.45+.4*Math.sin(tt*2*Math.PI/11+i*2.1))),rate:rateOf(d)};});
   if(preview&&!want[preview.k]){want[preview.k]=.95;pos[preview.k]={pan:0,rate:preview.rate||1};}
   LIQ.forEach(l=>{if(want[l.k]||LG[l.k]){const g=liqGain(l.k),p=pos[l.k];g.gain.setTargetAtTime(want[l.k]||0,t,.12);
     if(p){g.pn.pan.setTargetAtTime(p.pan,t,.08);g.sd.gain.setTargetAtTime(.12,t,.15);g.src.playbackRate.setTargetAtTime(p.rate,t,.2);}}});
