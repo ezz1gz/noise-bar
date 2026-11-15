@@ -6,9 +6,9 @@
 const KEY='nb-graph-cfg';
 const DEF={
  base:{count:36,width:3,height:1.7,min:10,future:.5,window:10,head:.47,round:0,contrast:.85,group:6,ggap:1.6},
- liq:{range:1,themes:{breath:{width:1.9,dash:0,gap:0,smooth:.7,alpha:.9},flow:{width:1.9,dash:10,gap:7,smooth:.6,alpha:.85},
-                      beat:{width:1.9,dash:0,gap:0,step:.25,alpha:.9},scatter:{width:2.2,dash:0,gap:0,dot:1,alpha:.9}}},
- gar:{size:1,ring:.35,spread:.8,alpha:.95,dots:1},
+ liq:{range:1,themes:{breath:{width:2.6,dash:0,gap:0,smooth:.7,alpha:.95},flow:{width:2.6,dash:10,gap:7,smooth:.6,alpha:.9},
+                      beat:{width:2.6,dash:0,gap:0,step:.25,alpha:.95},scatter:{width:2.9,dash:0,gap:0,dot:1,alpha:.95}}},
+ gar:{size:1.28,ring:.35,spread:.8,alpha:.95,dots:1},
  style:'ref'};
 const clone=o=>JSON.parse(JSON.stringify(o));
 function merge(d,s){if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]===undefined)continue;if(typeof d[k]==='object'&&d[k])merge(d[k],s[k]);else if(typeof s[k]===typeof d[k])d[k]=s[k];}return d;}
@@ -77,7 +77,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  if(c.style==='ref'){
   // 참고 시안 스타일: 리큐르마다 크게 굽이치는 점선 하나 — 굽이의 크기 = 그 리큐르의 실제 크기, 모양의 출렁임 = 실제 크기 변화
   rows.forEach(({L,v},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;const lvl=Math.min(1,mean/PEAK.liq);
-   const per=[7.5,5.2,9.6][j%3],ph=j*2.1;ctx.strokeStyle='#fff';ctx.lineWidth=1.7;ctx.lineCap='round';ctx.globalAlpha=.85;ctx.setLineDash([2.4,6.5]);ctx.beginPath();
+   const per=[7.5,5.2,9.6][j%3],ph=j*2.1;ctx.strokeStyle='#fff';ctx.lineWidth=2.1;ctx.lineCap='round';ctx.globalAlpha=.9;ctx.setLineDash([2.4,6.5]);ctx.beginPath();
    for(let m=0;m<M;m++){const x=X0+m*STEP,t=tOf(x),wob=(v[m]-mean)/PEAK.liq;
     const y=R.cy+R.lr*(.25+.75*lvl)*(.85*Math.sin(2*Math.PI*t/per+ph)+.35*wob)*taper(x)*1.55;m?ctx.lineTo(x,y):ctx.moveTo(x,y);}
    ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;});
