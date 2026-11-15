@@ -60,7 +60,8 @@ let left=0,doneT=0;
 function drop(){left=9+Math.floor(Math.random()*4);const next=()=>{if(left<=0)return;left--;spawn();setTimeout(next,90+Math.random()*320);};next();}
 function landTo(g){return GY+landY(g.s);}
 let gone=false;function go(){if(gone)return;gone=true;try{sessionStorage.setItem('nbSplash','1');}catch(_){}ph.classList.add('out');setTimeout(()=>location.replace('index.html'+location.search),700);}
-function start(){if(started)return;started=true;drop();setTimeout(go,250);} // 터치하면 바로 베이스로 (가니쉬는 사라지는 동안 떨어지기 시작)
+// 첫 터치: 가니쉬가 하나씩 떨어지고 다 떨어진 뒤 3초 후 베이스로 · 떨어지는 중에 한 번 더 터치하면 바로 건너뜀
+function start(){if(started){go();return;}started=true;drop();}
 ph.addEventListener('pointerdown',start);ph.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')start();});
 let last=performance.now();
 (function fr(now){const t=(now-t0)/1000,dt=Math.min(.05,(now-last)/1000);last=now;liquid(t);
@@ -69,6 +70,7 @@ let last=performance.now();
     else{const lx=g.x-GX;g.y=landTo(g)+Math.sin(t*2.3+lx*.06)*5.5+(Math.sin(t*1.15)*14)*(lx/CW-.5)+KICK*Math.sin(t*9)*4;g.rot+=Math.sin(t*1.5+g.ph)*.35;}
     g.el.style.transform=`translate(${g.x-g.s/2}px,${g.y-g.s/2}px) rotate(${g.rot}deg)`;});
   KICK*=Math.pow(.25,dt);
+  if(started&&!doneT&&left<=0&&G.length&&G.every(g=>g.landed||g.y>900)){doneT=now;setTimeout(go,3000);}
   // 다 떨어지고(잔에 담기거나 화면 밖) 3초 뒤 자연스럽게 넘어감
 
   requestAnimationFrame(fr);})(performance.now());
