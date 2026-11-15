@@ -8,7 +8,7 @@ const css=`.nbIntro .cp span,.nbNote span{height:auto!important;min-height:26px;
 .nbIntro{position:absolute;inset:0;z-index:60;pointer-events:auto;touch-action:none;cursor:pointer}
 .nbIntro .cp{position:absolute;left:0;right:0;top:46.4%;display:flex;flex-direction:column;align-items:center;transform:translateY(-50%);
  font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;font-weight:400;letter-spacing:-.02em;line-height:26px;color:#fff}
-.nbIntro .cp span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap;
+.nbIntro .cp span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.22);text-shadow:0 1px 8px rgba(0,0,0,.55);white-space:nowrap;
  opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .6s cubic-bezier(.32,.72,0,1)}
 .nbIntro .cp span.on{opacity:1;transform:none}
 .nbIntro .cp span.nbT{margin-bottom:23px}
@@ -16,7 +16,7 @@ const css=`.nbIntro .cp span,.nbNote span{height:auto!important;min-height:26px;
 .nbIntro .cp.gone span{opacity:0;transform:translateY(-4px);transition:opacity .3s ease,transform .35s ease}
 .nbNote{position:absolute;left:0;right:0;top:46.4%;z-index:59;display:flex;flex-direction:column;align-items:center;transform:translateY(-50%);pointer-events:none;
  font-family:'Pretendard Variable','Pretendard',-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:16px;letter-spacing:-.02em;line-height:26px;color:#fff;transition:opacity .35s ease}
-.nbNote span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.4);text-shadow:0 0 10px rgba(0,0,0,.25);white-space:nowrap}
+.nbNote span{display:block;height:26px;padding:0 10px;background:rgba(0,0,0,.22);text-shadow:0 1px 8px rgba(0,0,0,.55);white-space:nowrap}
 .nbNote.out{opacity:0}
 .nbIntro.out .cp span,.nbIntro.out .cp span.on{opacity:0;transform:translateY(-4px);transition:opacity .35s ease,transform .4s ease}`;
 function addCss(){if(document.getElementById('nbIntroCss'))return;const s=document.createElement('style');s.id='nbIntroCss';s.textContent=css;document.head.appendChild(s);}
