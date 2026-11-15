@@ -19,6 +19,12 @@
 #gw>svg{position:absolute;left:0;top:0}
 
 .hint{position:absolute;left:50%;top:478px;transform:translateX(-50%);font-size:12px;color:rgba(255,255,255,.7);white-space:nowrap;pointer-events:none;transition:opacity .5s}
+/* 소리의 바다 추가 안내 배너 */
+.seaTip{position:fixed;left:16px;right:16px;bottom:150px;z-index:9000;display:flex;flex-direction:column;gap:5px;padding:16px 18px;border-radius:18px;background:rgba(20,18,24,.78);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 10px 36px rgba(0,0,0,.34);color:#fff;text-align:center;cursor:pointer;opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s}
+.seaTip.on{opacity:1;transform:none}
+.seaTip b{font-weight:700;font-size:14.5px;line-height:1.45}
+.seaTip span{font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.82)}
+.seaTip .x{font-style:normal;font-size:11px;color:rgba(255,255,255,.5);margin-top:3px}
 .toast{position:absolute;left:50%;top:110px;transform:translateX(-50%);background:rgba(20,20,24,.78);color:#fff;font-size:12px;padding:7px 12px;border-radius:14px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:9}.toast.on{opacity:1}
 .ph{background:#3a1a55}
 </style></head><body><div class="ph" id="ph">
@@ -705,10 +711,21 @@ addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gt
 // 임시: 소리의 바다 연결 막음 (버튼 눌러도 이동/연결 안 함)
 document.getElementById('ocn').onclick=()=>{toast('소리의 바다는 잠시 막아뒀어요');};
 // ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
-(()=>{return; /* 임시: 소리의 바다 연결 막음 — 폰에서 자동 전송 안 함 */
+(()=>{
 try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
 const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
-fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok)try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}).catch(()=>{});}catch(_){}})();
+fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)}).then(r=>{if(r.ok){window.__seaSent=true;try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}}).catch(()=>{});}catch(_){}})();
+
+// ── 플레이를 들은 뒤: 오른쪽 아이맥 '소리의 바다'에 추가됐다는 안내 + 청감 체험 권유 (세션당 한 번)
+(()=>{try{if(sessionStorage.getItem('nb-seatip'))return;}catch(_){}
+  const tip=document.createElement('div');tip.className='seaTip';tip.setAttribute('role','status');
+  tip.innerHTML='<b>방금 만든 잔이 오른쪽 아이맥 〈소리의 바다〉에 떠올랐어요</b><span>가서 내 잔을 찾아보세요 · 오른쪽 위 잔 버튼으로 <b>청감 모드</b>도 들어보세요</span><i class="x" aria-hidden="true">탭하면 닫기</i>';
+  const show=()=>{document.body.appendChild(tip);requestAnimationFrame(()=>tip.classList.add('on'));try{sessionStorage.setItem('nb-seatip','1');}catch(_){}};
+  const hide=()=>{tip.classList.remove('on');setTimeout(()=>tip.remove(),400);};
+  tip.addEventListener('click',hide);
+  // 들은 뒤(약 11초) 한 번. 더 일찍 청감 버튼을 눌렀으면 띄우지 않음
+  setTimeout(()=>{if(document.body.classList.contains('listen'))return;show();},11000);
+})();
 </script>
 
 <script>
