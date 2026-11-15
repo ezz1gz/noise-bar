@@ -755,7 +755,7 @@ addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNo
 (()=>{const c=document.createElement('canvas');c.width=8;c.height=8;const x=c.getContext('2d',{willReadFrequently:true});let img=null;
  function src(){const L=window.NBMixLive&&NBMixLive.start&&NBMixLive.start();if(L)return L.canvas;if(!img){const u=typeof getMixShot==='function'&&getMixShot();if(u){img=new Image();img.src=u;}}return img&&img.complete?img:null;}
  setInterval(()=>{const s=src();if(!s)return;try{const w=s.width||s.naturalWidth,h=s.height||s.naturalHeight;x.drawImage(s,0,h*.3,w,h*.4,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;L/=64;
-   const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.74:L>.8);}catch(_){}},700);})();
+   const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.66:L>.72);}catch(_){}},700);})();
 </script><script src="nbcontrast.js"></script>
 <script>(()=>{let im=null;try{const u=getMixShot();if(u){im=new Image();im.src=u;}}catch(_){}
  const ph=document.getElementById('ph');
@@ -831,7 +831,7 @@ addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNo
   background:rgba(255,255,255,.2);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 18px rgba(0,0,0,.18);pointer-events:auto;cursor:pointer;opacity:0;transform:translateY(6px);transition:opacity .6s,transform .6s;visibility:hidden}
 #nbui .again.on{opacity:1;transform:none;visibility:visible}
 /* 밝은 배경에서는 그래프를 회색으로 (흰 그래프가 묻히지 않게) */
-html.nbBright .gcv{filter:brightness(.42) drop-shadow(0 0 3px rgba(255,255,255,.55))!important}
+html.nbBright .gcv{filter:brightness(.4)!important}
 #nbui .pl .pp{width:58px;height:58px}#nbui .pl .pp img{width:58px;height:58px}
 #nbui .pp .play{display:none}.paused #nbui .pp .play{display:block}.paused #nbui .pp .pause{display:none}
 /* 배경: 재생 = 믹스 그림 블러 10 · 청감 = #262626 위 위쪽에 믹스 색 번짐 40% */
