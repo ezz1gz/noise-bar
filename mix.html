@@ -94,8 +94,7 @@ cv.addEventListener('pointermove',e=>{if(!ptr.down)return;const[x,y]=pp(e),now=p
 const st=$('stir');const paint=()=>st.style.setProperty('--p',st.value+'%');st.value=Math.round(P.stir*100);$('so').textContent=st.value;paint();
 st.addEventListener('input',()=>{P.stir=st.value/100;$('so').textContent=st.value;paint();});
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1500);}
-// 처음: 솔리드로 잠깐 → 흔들기 시작(자동) — 휘젓기 정도가 클수록 빨리·크게 섞임
-setTimeout(()=>{const touch=('ontouchstart' in window)||navigator.maxTouchPoints>0;if(!touch)mixTarget=1;},650);
+// 처음엔 솔리드 그대로 — 사용자가 흔들거나 화면을 휘저어야 섞이기 시작 (자동으로 섞지 않음)
 $('nx').onclick=()=>{if(mixAmt<.9){toast('조금만 더 섞어요');mixTarget=1;return;}try{draw();const o=document.createElement('canvas');o.width=786;o.height=1704;o.getContext('2d').drawImage(cv,0,0,786,1704);saveMixShot(o.toDataURL('image/jpeg',.9));}catch(_){}
   // 다음 화면들이 이 메타볼을 그대로 이어 움직이게: 좌표 지도·시간·한 방울 자리 저장
   try{NBMixLive.saveFrom(gl,A.tex,simW,simH,{simT,dispT,seed:drop.seed,mk:snapOK?2.6:1,stir:P.stir});}catch(e){console.warn(e);}
