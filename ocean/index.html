@@ -463,6 +463,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 <script src="../snd/rec.js"></script>
 <script src="../lib/qrcode.js"></script>
+<script src="../graph.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -959,6 +960,16 @@ async function renderSolo(m,SEC){if(!AC)return null;const sr=AC.sampleRate,O=new
   const buf=await O.startRendering(),ch=buf.getChannelData(0);let pk=0;for(let i=0;i<ch.length;i++){const a=Math.abs(ch[i]);if(a>pk)pk=a;}
   const k=pk>0?.89/pk:1;for(let i=0;i<ch.length;i++)ch[i]*=k;return{data:ch,sr};}
 window.__nbRenderSolo=renderSolo;
+// 플레이 화면 그래프(graph.js)에 넘길 소리 구성: 그 잔의 실제 버퍼들 (play의 __nbAudio와 같은 모양)
+window.__nbGraphA=async function(m){if(!AC)initAudio();if(!AC)return null;const T=20+((m.id||m.n||'').length*7.3)%30;
+  const mk=(buf,v,rate)=>({buf,gain:{value:v},src:{playbackRate:{value:rate||1}},off:0,t0:0});
+  const NG=['PINK','WHITE','BLUE','BROWN'].map((k,i)=>m.b[i]?mk(bufs[k],m.b[i]/100):null).filter(Boolean);
+  const L=m.live||{lk:liqKeys(m).map(x=>x[0]),lv:liqKeys(m).map(x=>x[1]),g:[]},LG={},lives=[];
+  for(let i=0;i<L.lk.length;i++){const k=L.lk[i],l=LBY[k];if(!l)continue;let b=null;
+    if(l.url&&window.NBREC){try{b=NBREC.get(l.url)||await NBREC.load(AC,l.url);}catch(_){}}else{if(!LBUF[l.src])LBUF[l.src]=genBuf(LEN[l.src],GEN[l.src],l.src==='clock'?.08:.11);b=LBUF[l.src];}
+    if(!b)continue;LG[k]=mk(b,L.lv[i]||.5,l.rate);lives.push({k,th:l.th||'flow',v:L.lv[i]||.5});}
+  const gar=L.g.map((d,i)=>({i,k:d.k,n:d.n,sz:d.sz,t:T-(.3+i*.32),lv:VOL[d.sz]||.6}));
+  return{A:{AC:{currentTime:T},NG,LG,lives,keys:[]},T,gar};};
 return{playLive,stopLive,voice,ping:pingW,per:k=>PER[k],gper:gPer,lby:k=>LBY[k]};})();
 // 기존 재생에 리큐르·가니쉬도 같이
 
@@ -1239,7 +1250,12 @@ window.NBPrintCard=async function(m,graphCv){
   const light=lumAt(.03,.3,0,.7)>.76,lightG=lumAt(.3,.82)>.87,lightB=lumAt(.88,.99)>.8;
   const INK=light?'#000':'#fff',GR='#EDEDED',INKB='#EDEDED',QRC='#EDEDED'; // 그래프·로고·QR은 배경 상관없이 #EDEDED
   // ② 그래프 — 정보카드의 그 사람 그래프 그대로
-  if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
+  // ② 그래프 = 폰 플레이 화면 그래프(graph.js)를 그 잔 레시피로 그대로 그림
+  let pg=null;try{if(window.NBG&&NBG.snap&&window.__nbGraphA){const G=await __nbGraphA(m);if(G){const c2=document.createElement('canvas');c2.width=804;c2.height=1748;const g2=c2.getContext('2d');g2.setTransform(2,0,0,2,0,0);
+    NBG.snap(g2,{x0:58,x1:344,cy:428,bh:44,lr:150},G.A,G.T,G.gar);const cr=document.createElement('canvas');cr.width=684;cr.height=880;cr.getContext('2d').drawImage(c2,60,416,684,880,0,0,684,880);pg=cr;}}}catch(e){console.warn('graph',e);}
+  if(pg){const t=pg,tx=t.getContext('2d');tx.globalCompositeOperation='source-in';tx.fillStyle=(MODE==='blend'&&lightG)?'#B9B4BC':GR;tx.fillRect(0,0,t.width,t.height);
+    const gw=W-180,gh=gw*t.height/t.width*1.3,gy=1170-gh/2;x.save();if(MODE==='blend'&&lightG)x.globalCompositeOperation='multiply';x.drawImage(t,90,gy,gw,gh);x.restore();}
+  else if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
     const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1170-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
   // ③ 글자: 닉네임의 · 잔 이름
   try{await Promise.all([document.fonts.load('300 100px Pretendard'),document.fonts.load('400 52px Pretendard')]);}catch(_){}
