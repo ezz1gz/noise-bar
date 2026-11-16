@@ -1236,7 +1236,7 @@ window.NBPrintCard=async function(m,graphCv){
   // 밝은 메타볼이면 Figma 103:6286(검정 글자·회색 그래프), 진하면 96:6094(흰 글자)
   // 밝기는 자리별로: 위(글자)·가운데(그래프)·아래(로고·QR) — 밝으면 Figma 103:6286(검정·회색), 진하면 96:6094(흰색)
   const lumAt=(y0,y1,x0=0,x1=1)=>{if(!bg)return .4;try{const t=document.createElement('canvas');t.width=8;t.height=8;const tx=t.getContext('2d');tx.drawImage(bg,bg.width*x0,bg.height*y0,bg.width*(x1-x0),bg.height*(y1-y0),0,0,8,8);const d=tx.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;return L/64;}catch(_){return .4;}};
-  const light=lumAt(.03,.3,0,.7)>.76,lightG=lumAt(.3,.82)>.74,lightB=lumAt(.88,.99)>.8;
+  const light=lumAt(.03,.3,0,.7)>.76,lightG=lumAt(.3,.82)>.87,lightB=lumAt(.88,.99)>.8;
   const INK=light?'#000':'#fff',GR='#EDEDED',INKB='#EDEDED',QRC='#EDEDED'; // 그래프·로고·QR은 배경 상관없이 #EDEDED
   // ② 그래프 — 정보카드의 그 사람 그래프 그대로
   if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
