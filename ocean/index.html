@@ -1211,11 +1211,13 @@ window.NBPrintCard=async function(m,graphCv){
   x.fillStyle='#b65cff';x.fillRect(0,0,W,H);
   if(bg){x.filter='blur(10px) saturate(1.12)';x.drawImage(bg,-40,-40,W+80,H+80);x.filter='none';}
   // 밝은 메타볼이면 Figma 103:6286(검정 글자·회색 그래프), 진하면 96:6094(흰 글자)
-  let lum=.4;if(bg){try{const t=document.createElement('canvas');t.width=8;t.height=12;const tx=t.getContext('2d');tx.drawImage(bg,0,0,8,12);const d=tx.getImageData(0,0,8,12).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;lum=L/96;}catch(_){}}
-  const light=lum>.8,INK=light?'#000':'#fff',GR=light?'#CACACA':'rgba(255,255,255,.7)',QRC=light?'#000':'#FFEDED';
+  // 밝기는 자리별로: 위(글자)·가운데(그래프)·아래(로고·QR) — 밝으면 Figma 103:6286(검정·회색), 진하면 96:6094(흰색)
+  const lumAt=(y0,y1)=>{if(!bg)return .4;try{const t=document.createElement('canvas');t.width=8;t.height=8;const tx=t.getContext('2d');tx.drawImage(bg,0,bg.height*y0,bg.width,bg.height*(y1-y0),0,0,8,8);const d=tx.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;return L/64;}catch(_){return .4;}};
+  const light=lumAt(.03,.3)>.8,lightG=lumAt(.3,.82)>.8,lightB=lumAt(.88,.99)>.8;
+  const INK=light?'#000':'#fff',GR=lightG?'#CACACA':'rgba(255,255,255,.7)',INKB=lightB?'#000':'#fff',QRC=lightB?'#000':'#FFEDED';
   // ② 그래프 — 정보카드의 그 사람 그래프 그대로
   if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
-    x.save();if(!light){x.shadowColor='rgba(0,0,0,.18)';x.shadowBlur=10;}x.drawImage(t,90,640,W-180,(W-180)*graphCv.height/graphCv.width*1.25);x.restore();}
+    x.save();if(!lightG){x.shadowColor='rgba(0,0,0,.18)';x.shadowBlur=10;}x.drawImage(t,90,640,W-180,(W-180)*graphCv.height/graphCv.width*1.25);x.restore();}
   // ③ 글자: 닉네임의 · 잔 이름
   try{await Promise.all([document.fonts.load('300 100px Pretendard'),document.fonts.load('400 52px Pretendard')]);}catch(_){}
   const r=m.raw||{},who=(r.who||(m.by||'').replace(/^@/,'')||'guest'),nm=(r.name||m.n||'');
@@ -1225,7 +1227,7 @@ window.NBPrintCard=async function(m,graphCv){
   const words=nm.split(/\s+/);let lines=[],cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(x.measureText(t).width>W*.62&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);lines=lines.slice(0,3);
   lines.forEach((l,i)=>x.fillText(l,90,330+i*140));x.shadowBlur=0;x.shadowColor='rgba(0,0,0,0)';
   // ④ 로고: 왼쪽 아래 (Figma 벡터 그대로)
-  x.save();x.scale(2,2);x.fillStyle=INK;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore();
+  x.save();x.scale(2,2);x.fillStyle=INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore();
   // ⑤ QR: 오른쪽 아래 42×42 (Figma 크기) — 내 잔 듣기 · MP3 저장 화면
   const url=NB_BASE+'l#'+mixPayload(m);
   try{const q=qrcode(0,'L');q.addData(unescape(encodeURIComponent(url)));q.make();const n=q.getModuleCount(),S=84,X0=1100,Y0=1860,cell=S/n;
