@@ -61,7 +61,8 @@ function avoidBars(box,host){try{const hr=host.getBoundingClientRect(),k=hr.widt
 window.nbNotice=function(lines,host){addCss();host=host||document.getElementById('ph')||document.getElementById('stage')||document.body;
   if(typeof lines==='string')lines=[lines];
   // 설명끼리 겹치지 않게: 단계 설명이 떠 있으면 끝나고(타이틀이 올라간 뒤) 띄움 · 앞 안내가 있으면 먼저 사라진 뒤 띄움
-  if(document.querySelector('.nbIntro')){const f=()=>{removeEventListener('nbintro:done',f);setTimeout(()=>window.nbNotice(lines,host),900);};addEventListener('nbintro:done',f);return;}
+  // (단계 설명이 끝났다는 신호를 놓쳐도 안내가 영영 멈춰 있지 않게 최대 9초만 기다림)
+  if(document.querySelector('.nbIntro')&&!lines.__waited){let done=false;const go=()=>{if(done)return;done=true;removeEventListener('nbintro:done',f);lines.__waited=1;setTimeout(()=>window.nbNotice(lines,host),900);};const f=()=>go();addEventListener('nbintro:done',f);setTimeout(go,9000);return;}
   let n=host.querySelector('.nbNote');if(n&&!n._dying){clearTimeout(n._t);n._dying=1;n.classList.add('out');setTimeout(()=>{n.remove();window.nbNotice(lines,host);},400);return;}else if(n){setTimeout(()=>window.nbNotice(lines,host),420);return;}
   n=document.createElement('div');n.className='nbNote';n.setAttribute('role','status');n.innerHTML=lines.map(l=>`<span>${l}</span>`).join('');host.appendChild(n);avoidBars(n,host);n._iv=setInterval(()=>{if(!n.isConnected)return clearInterval(n._iv);avoidBars(n,host);},150);
   n.animate([{opacity:0,transform:'translateY(calc(-50% + 6px))'},{opacity:1,transform:'translateY(-50%)'}],{duration:350,easing:'cubic-bezier(.32,.72,0,1)'});
