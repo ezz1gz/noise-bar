@@ -100,7 +100,9 @@ html.phone .mkBack{display:flex;position:fixed;z-index:390;left:16px;top:calc(en
 .sres b,.feed b{font-size:13.5px;font-weight:600}.sres small,.feed small{font-size:12px;opacity:.75;margin-left:auto;white-space:nowrap}
 .feed h3{margin:0;padding:11px 14px 4px;font:700 10px 'Space Mono',monospace;letter-spacing:.14em;opacity:.8;display:flex;justify-content:space-between}
 .feed h3 span{color:#ff6b9e}.feed:not(.has) .fl::after{content:'폰에서 만든 잔이 여기에 실시간으로 떠요';display:block;padding:6px 14px 12px;font-size:12px;opacity:.7}
-.feed .fl{padding-bottom:4px}
+.feed .fl{padding-bottom:4px;max-height:min(46vh,420px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.35) transparent}
+.feed .fl::-webkit-scrollbar{width:6px}.feed .fl::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:3px}
+.sres{max-height:min(40vh,380px);overflow-y:auto}
 .idle .seaUI{opacity:.85}
 html.phone .seaUI{left:12px;right:12px;width:auto;top:calc(env(safe-area-inset-top) + 120px)}
 html.phone .feed{position:fixed;left:12px;right:12px;bottom:calc(66px + env(safe-area-inset-bottom))}
@@ -221,6 +223,20 @@ html:not(.phone) .labels .m.drop .v2{animation:nbDrop 1.3s cubic-bezier(.45,1.45
 .ocFix{position:fixed;z-index:31;pointer-events:none;height:auto;filter:brightness(0) invert(.38) drop-shadow(0 0 10px rgba(255,255,255,.35))}
 html.phone .ocFix{display:none!important}
 .idle .ocFix{opacity:.85}
+
+/* ── 정보카드 (Figma 정보카드): 사람마다 다른 실시간 그래프 · 밝은/어두운 배경 자동 · GLASS · 프린트 */
+#ui .card .bottom>i,#ui .card .bottom>b,#ui .card .bottom>img{display:none!important}
+#ui .card .bottom canvas{position:absolute;inset:0;width:100%;height:100%}
+#ui .card .gls{position:absolute;left:380px;top:352px;width:70px}
+#ui .card .gls .k{font-size:14px;line-height:1.3;letter-spacing:.7px;color:#7a7a7a;margin:0 0 6px}
+#ui .card .gls .it{font-size:14px;color:#333;display:flex;gap:6px;align-items:center}
+#ui .card .gls svg{flex:none}
+#ui .card .prt{position:absolute;left:343px;top:494px;height:40px;padding:0 16px 0 14px;display:flex;gap:6px;align-items:center;border-radius:20px;border:0;background:#1b1b1b;color:#fff;font:400 14px/1.3 'Pretendard',sans-serif;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.18);pointer-events:auto}
+#ui .card .prt:hover{background:#000}
+#ui .card.dk .ttl{color:#fff!important}
+#ui .card.dk .meta .k,#ui .card.dk .gls .k{color:rgba(255,255,255,.78)!important}
+#ui .card.dk .it,#ui .card.dk .gls .it{color:#fff!important}
+@media print{body *{visibility:hidden}}
 </style></head><body>
 <!-- 오른쪽 아래 컨트롤(뷰포트 고정): 스피커 누르면 음량 조절 열림 · 찾기 -->
 <div class="vol" role="group" aria-label="전체 음량"><button type="button" id="muteB" aria-label="소리 끄기" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 18 18" fill="#fff" aria-hidden="true"><path d="M2 6.5h3l4-3.5v12l-4-3.5H2z"/><g class="on"><path d="M12 6c1 .9 1 5.1 0 6M14.2 4c2.1 2 2.1 8 0 10" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g><g class="off"><path d="M11.5 6.5l5 5M16.5 6.5l-5 5" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></g></svg></button><input id="volR" aria-label="음량" type="range" min="0" max="100" value="40"><output id="volO">40</output></div>
@@ -408,7 +424,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <div class="meta"><div><p class="k">BASE</p><div class="row" id="cBase"></div></div>
         <div><p class="k">LIQUEUR</p><div class="it" id="cLiq"></div></div>
         <div><p class="k">GARNISH</p><div class="gar" id="cGar"></div></div></div></div>
-    <div class="bottom"><b class="" style="left:41.04937px;top:91.48937000000001px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="" style="left:28.379369999999998px;top:187.79936999999998px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="bl" style="left:70.45937px;top:100.61937px;width:3.04126px;height:3.04126px;background:#fff"></b><b class="" style="left:129.25937px;top:146.22937px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="" style="left:60.31625px;top:153.33625px;width:2.0275px;height:2.0275px;background:#D9D9D9"></b><i style="left:7.09px;top:107.71px;width:2.23px;height:28.99px;--k:0.55;animation-delay:-0.00s"></i><i style="left:50.36px;top:111.99px;width:2.23px;height:21.93px;--k:0.92;animation-delay:-0.13s"></i><i style="left:13.78px;top:109.47px;width:2.23px;height:22.44px;--k:0.89;animation-delay:-0.26s"></i><i style="left:43.68px;top:115.53px;width:2.23px;height:15.13px;--k:0.86;animation-delay:-0.39s"></i><i style="left:20.47px;top:115.53px;width:2.23px;height:10.34px;--k:0.83;animation-delay:-0.52s"></i><i style="left:25.39px;top:117.79px;width:2.23px;height:18.91px;--k:0.80;animation-delay:-0.65s"></i><i style="left:55.22px;top:107.71px;width:2.23px;height:28.99px;--k:0.77;animation-delay:-0.78s"></i><i style="left:98.49px;top:111.99px;width:2.23px;height:21.93px;--k:0.74;animation-delay:-0.91s"></i><i style="left:61.9px;top:109.47px;width:2.23px;height:22.44px;--k:0.71;animation-delay:-1.04s"></i><i style="left:91.81px;top:115.53px;width:2.23px;height:15.13px;--k:0.68;animation-delay:-1.17s"></i><i style="left:68.61px;top:115.53px;width:2.23px;height:10.34px;--k:0.65;animation-delay:-1.30s"></i><i style="left:73.52px;top:117.79px;width:2.23px;height:18.91px;--k:0.62;animation-delay:-1.43s"></i><i style="left:103.34px;top:107.71px;width:2.23px;height:28.99px;--k:0.59;animation-delay:-1.56s"></i><i style="left:146.61px;top:111.99px;width:2.23px;height:21.93px;--k:0.56;animation-delay:-0.09s"></i><i style="left:110.03px;top:109.47px;width:2.23px;height:22.44px;--k:0.93;animation-delay:-0.22s"></i><i style="left:139.93px;top:115.53px;width:2.23px;height:15.13px;--k:0.90;animation-delay:-0.35s"></i><i style="left:116.73px;top:115.53px;width:2.23px;height:10.34px;--k:0.87;animation-delay:-0.48s"></i><i style="left:121.64px;top:117.79px;width:2.23px;height:18.91px;--k:0.84;animation-delay:-0.61s"></i><i style="left:151.48px;top:78.83px;width:2.63px;height:63.87px;--k:0.81;animation-delay:-0.74s"></i><i style="left:194.75px;top:112.0px;width:2.23px;height:21.93px;--k:0.78;animation-delay:-0.87s"></i><i style="left:158.17px;top:109.47px;width:2.23px;height:22.44px;--k:0.75;animation-delay:-1.00s"></i><i style="left:188.06px;top:115.53px;width:2.23px;height:15.13px;--k:0.72;animation-delay:-1.13s"></i><i style="left:164.86px;top:115.53px;width:2.23px;height:10.34px;--k:0.69;animation-delay:-1.26s"></i><i style="left:169.77px;top:117.79px;width:2.23px;height:18.91px;--k:0.66;animation-delay:-1.39s"></i><i style="left:199.61px;top:107.71px;width:2.23px;height:28.99px;--k:0.63;animation-delay:-1.52s"></i><i style="left:242.88px;top:111.99px;width:2.23px;height:21.93px;--k:0.60;animation-delay:-0.05s"></i><i style="left:206.29px;top:109.47px;width:2.23px;height:22.44px;--k:0.57;animation-delay:-0.18s"></i><i style="left:236.2px;top:115.53px;width:2.23px;height:15.13px;--k:0.94;animation-delay:-0.31s"></i><i style="left:213.0px;top:115.53px;width:2.23px;height:10.34px;--k:0.91;animation-delay:-0.44s"></i><i style="left:217.9px;top:117.79px;width:2.23px;height:18.91px;--k:0.88;animation-delay:-0.57s"></i><i style="left:247.73px;top:107.71px;width:2.23px;height:28.99px;--k:0.85;animation-delay:-0.70s"></i><i style="left:254.42px;top:109.47px;width:2.23px;height:22.44px;--k:0.82;animation-delay:-0.83s"></i><i style="left:261.12px;top:115.53px;width:2.23px;height:10.34px;--k:0.79;animation-delay:-0.96s"></i><i style="left:266.03px;top:117.79px;width:2.23px;height:18.91px;--k:0.76;animation-delay:-1.09s"></i><img class="wv" src="assets/wave.svg" width="257.682" height="210.05" alt=""></div>
+    <div class="gls" id="cGlsW"><p class="k">GLASS</p><div class="it" id="cGls"></div></div>
+    <button type="button" class="prt" id="cPrt"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>프린트</button>
+    <div class="bottom"><canvas id="cGraph" width="558" height="420" aria-hidden="true"></canvas><b class="" style="left:41.04937px;top:91.48937000000001px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="" style="left:28.379369999999998px;top:187.79936999999998px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="bl" style="left:70.45937px;top:100.61937px;width:3.04126px;height:3.04126px;background:#fff"></b><b class="" style="left:129.25937px;top:146.22937px;width:3.04126px;height:3.04126px;background:#D9D9D9"></b><b class="" style="left:60.31625px;top:153.33625px;width:2.0275px;height:2.0275px;background:#D9D9D9"></b><i style="left:7.09px;top:107.71px;width:2.23px;height:28.99px;--k:0.55;animation-delay:-0.00s"></i><i style="left:50.36px;top:111.99px;width:2.23px;height:21.93px;--k:0.92;animation-delay:-0.13s"></i><i style="left:13.78px;top:109.47px;width:2.23px;height:22.44px;--k:0.89;animation-delay:-0.26s"></i><i style="left:43.68px;top:115.53px;width:2.23px;height:15.13px;--k:0.86;animation-delay:-0.39s"></i><i style="left:20.47px;top:115.53px;width:2.23px;height:10.34px;--k:0.83;animation-delay:-0.52s"></i><i style="left:25.39px;top:117.79px;width:2.23px;height:18.91px;--k:0.80;animation-delay:-0.65s"></i><i style="left:55.22px;top:107.71px;width:2.23px;height:28.99px;--k:0.77;animation-delay:-0.78s"></i><i style="left:98.49px;top:111.99px;width:2.23px;height:21.93px;--k:0.74;animation-delay:-0.91s"></i><i style="left:61.9px;top:109.47px;width:2.23px;height:22.44px;--k:0.71;animation-delay:-1.04s"></i><i style="left:91.81px;top:115.53px;width:2.23px;height:15.13px;--k:0.68;animation-delay:-1.17s"></i><i style="left:68.61px;top:115.53px;width:2.23px;height:10.34px;--k:0.65;animation-delay:-1.30s"></i><i style="left:73.52px;top:117.79px;width:2.23px;height:18.91px;--k:0.62;animation-delay:-1.43s"></i><i style="left:103.34px;top:107.71px;width:2.23px;height:28.99px;--k:0.59;animation-delay:-1.56s"></i><i style="left:146.61px;top:111.99px;width:2.23px;height:21.93px;--k:0.56;animation-delay:-0.09s"></i><i style="left:110.03px;top:109.47px;width:2.23px;height:22.44px;--k:0.93;animation-delay:-0.22s"></i><i style="left:139.93px;top:115.53px;width:2.23px;height:15.13px;--k:0.90;animation-delay:-0.35s"></i><i style="left:116.73px;top:115.53px;width:2.23px;height:10.34px;--k:0.87;animation-delay:-0.48s"></i><i style="left:121.64px;top:117.79px;width:2.23px;height:18.91px;--k:0.84;animation-delay:-0.61s"></i><i style="left:151.48px;top:78.83px;width:2.63px;height:63.87px;--k:0.81;animation-delay:-0.74s"></i><i style="left:194.75px;top:112.0px;width:2.23px;height:21.93px;--k:0.78;animation-delay:-0.87s"></i><i style="left:158.17px;top:109.47px;width:2.23px;height:22.44px;--k:0.75;animation-delay:-1.00s"></i><i style="left:188.06px;top:115.53px;width:2.23px;height:15.13px;--k:0.72;animation-delay:-1.13s"></i><i style="left:164.86px;top:115.53px;width:2.23px;height:10.34px;--k:0.69;animation-delay:-1.26s"></i><i style="left:169.77px;top:117.79px;width:2.23px;height:18.91px;--k:0.66;animation-delay:-1.39s"></i><i style="left:199.61px;top:107.71px;width:2.23px;height:28.99px;--k:0.63;animation-delay:-1.52s"></i><i style="left:242.88px;top:111.99px;width:2.23px;height:21.93px;--k:0.60;animation-delay:-0.05s"></i><i style="left:206.29px;top:109.47px;width:2.23px;height:22.44px;--k:0.57;animation-delay:-0.18s"></i><i style="left:236.2px;top:115.53px;width:2.23px;height:15.13px;--k:0.94;animation-delay:-0.31s"></i><i style="left:213.0px;top:115.53px;width:2.23px;height:10.34px;--k:0.91;animation-delay:-0.44s"></i><i style="left:217.9px;top:117.79px;width:2.23px;height:18.91px;--k:0.88;animation-delay:-0.57s"></i><i style="left:247.73px;top:107.71px;width:2.23px;height:28.99px;--k:0.85;animation-delay:-0.70s"></i><i style="left:254.42px;top:109.47px;width:2.23px;height:22.44px;--k:0.82;animation-delay:-0.83s"></i><i style="left:261.12px;top:115.53px;width:2.23px;height:10.34px;--k:0.79;animation-delay:-0.96s"></i><i style="left:266.03px;top:117.79px;width:2.23px;height:18.91px;--k:0.76;animation-delay:-1.09s"></i><img class="wv" src="assets/wave.svg" width="257.682" height="210.05" alt=""></div>
   </section>
 </div><div class="toast" id="toast" hidden></div><div class="toast" id="toast" hidden></div>
 </div>
@@ -906,7 +924,7 @@ listen();
 // ── 소리: 베이스(기존) + 리큐르(폰과 같은 소리 생성) + 가니쉬(폰과 같은 울림)
 let lvoices=[],gTimer=null;
 function stopLive(){if(!AC)return;const now=AC.currentTime;lvoices.forEach(v=>{try{v.g.gain.setTargetAtTime(0,now,.2);v.h.dead=true;v.h.s.stop(now+1);}catch(_){}});lvoices=[];clearInterval(gTimer);gTimer=null;}
-function pingG(d){if(!AC||!master)return;const a=AC,t=a.currentTime+.01,st=Math.max(0,FAMC[d.k].indexOf(d.n)),v=VOL[d.sz]||.6;
+function pingG(d){try{window.__cardPing&&__cardPing(d);}catch(_){}if(!AC||!master)return;const a=AC,t=a.currentTime+.01,st=Math.max(0,FAMC[d.k].indexOf(d.n)),v=VOL[d.sz]||.6;
   {const r=window.NBREC&&NBREC.slot(d.k,d.n);if(r){NBREC.play(a,r.url,master,v*.55,t);return;}}
   const tone=d.k==='spark'?[1318,1568,1760,2093][st]:d.k==='blossom'?[523,587,659,784][st]:d.k==='melt'?[180,220,262,311][st]:2600+st*900;
   const o=a.createOscillator(),g=a.createGain();o.type=d.k==='fizz'?'triangle':'sine';o.frequency.setValueAtTime(d.k==='melt'?tone*1.9:tone,t);if(d.k==='melt')o.frequency.exponentialRampToValueAtTime(tone,t+.09);
@@ -975,7 +993,8 @@ function garIcon(k,n){const c=document.createElement('canvas');c.width=c.height=
   else{for(let i=0;i<=64;i++){const t=i/64*Math.PI*2,r=R*(.84+.12*Math.cos(n*t));g.lineTo(r*Math.cos(t),r*Math.sin(t));}}
   g.fill();return c;}
 let cardM=null;
-function fillCard(m){cardM=m;const $c=id=>document.getElementById(id);$c('cTtl').textContent=phrase(m);
+function fillCard(m){cardM=m;window.cardM=m;const $c=id=>document.getElementById(id);$c('cTtl').textContent=phrase(m);
+  {const r=m.raw||{},GL={martini:'마티니',rocks:'락',coupe:'쿠페',highball:'하이볼',flute:'플루트'},g=GL[(r.gl||'').toLowerCase()]||m.gl||'';const w=$c('cGlsW');w.style.display=g?'':'none';$c('cGls').innerHTML='<svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M1.5 2h15L9 11zM9 11v8M4.5 20.5h9"/></svg><span></span>';$c('cGls').lastChild.textContent=g;}
   const ks=['pink','white','blue','brown'],ord=ks.map((k,i)=>[k,m.b[i]||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,2);
   $c('cBase').innerHTML=ord.map(([k,v])=>`<span class="it"><span class="sw" style="background:${SWC[k]}"></span>${v}</span>`).join('');
   const lq=(m.live&&m.live.lk.length)?m.lq.split(' · ')[0]:(m.lq||'').split(' · ')[0];const lc=(m.hexCol&&m.hexCol[2])||'#8AFF9A';
@@ -1040,7 +1059,7 @@ function frame(){
   if(anim){cam.x+=(anim.tx-cam.x)*(1-Math.exp(-dt*6));cam.y+=(anim.ty-cam.y)*(1-Math.exp(-dt*6));if(Math.hypot(anim.tx-cam.x,anim.ty-cam.y)<.5)anim=null;}
   else if(!ptr.down){cam.x+=cam.vx*dt;cam.y+=cam.vy*dt;const k=Math.exp(-dt*3.2);cam.vx*=k;cam.vy*=k;}
   if(!anim&&!ptr.down&&S.drift>0){const sp=S.drift/100;cam.x+=Math.cos(now*.05)*sp*40*dt+sp*18*dt;cam.y+=Math.sin(now*.037)*sp*26*dt;}
-  earTick(dt,now);render(simT,dpr);placeLabels();ambTick(dt,now);
+  earTick(dt,now);render(simT,dpr);try{window.__cardLum&&__cardLum();}catch(_){}placeLabels();ambTick(dt,now);
   requestAnimationFrame(frame);
 }
 
@@ -1087,7 +1106,7 @@ frame();
 const ago=t=>{const s=Math.max(0,(Date.now()-t)/1000|0);return s<60?'방금':s<3600?Math.floor(s/60)+'분 전':Math.floor(s/3600)+'시간 전';};
 function row(m){const b=document.createElement('button');b.type='button';b.innerHTML='<i></i><b></b><small></small>';b.querySelector('i').style.background=m.hexCol?m.hexCol[0]:'#fff';
  b.querySelector('b').textContent=m.by.replace(/^@/,'')+' · '+m.n;b.querySelector('small').textContent=ago(+m.t||Date.now());b.onclick=()=>{try{initAudio();}catch(_){}focus(m);};return b;}
-function draw(){fl.innerHTML='';items.slice(-5).reverse().forEach(m=>fl.appendChild(row(m)));feed.classList.toggle('has',items.length>0);fN.textContent='LIVE '+items.length;}
+function draw(){const st=fl.scrollTop;fl.innerHTML='';items.slice().reverse().forEach(m=>fl.appendChild(row(m)));fl.scrollTop=st;feed.classList.toggle('has',items.length>0);fN.textContent='LIVE '+items.length;}
 window.feedAdd=(m)=>{items.push(m);items.sort((a,b)=>(+a.t)-(+b.t));draw();};
 MIXES.filter(m=>m.live).forEach(m=>items.push(m));items.sort((a,b)=>(+a.t)-(+b.t));draw();setInterval(draw,30000);
 const q=document.getElementById('sq'),res=document.getElementById('sres');
@@ -1124,6 +1143,54 @@ document.getElementById('alCsv').onclick=()=>{const R=MIXES.filter(m=>m.live);co
 setInterval(alDraw,15000);
 // 전시용 화면: 관리자 창에서 숨기면 바로 반영
 addEventListener('storage',e=>{if(e.key===HKEY)location.reload();});
+
+// ── 정보카드 그래프: 지금 듣는 그 사람의 잔으로 그림 — 베이스 비율이 막대 무리 높이, 리큐르 테마가 점선 모양, 가니쉬가 울릴 때 점
+//    소리가 켜져 있으면 실제 소리(주파수 대역·크기)를 따라 움직이고, 꺼져 있으면 레시피만으로 움직임
+(()=>{const cv=document.getElementById('cGraph');if(!cv)return;const x=cv.getContext('2d'),W=cv.width,H=cv.height,card=document.getElementById('card');
+ let an=null,fd=null,dots=[];window.__cardPing=d=>{if(dots.length<14)dots.push({x:.08+Math.random()*.84,y:.18+Math.random()*.64,t:performance.now()/1000,r:d&&d.k==='melt'?3.4:2.6});};
+ function getAn(){try{if(an||!AC||!master)return an;}catch(_){return null;}try{an=AC.createAnalyser();an.fftSize=1024;an.smoothingTimeConstant=.72;master.connect(an);fd=new Uint8Array(an.frequencyBinCount);}catch(_){an=null;}return an;}
+ const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+ const BANDS=[[60,250],[250,700],[700,1800],[1800,4500],[4500,9000],[9000,15000]];
+ function band(lo,hi){if(!an||!fd)return 0;const n=fd.length,ny=AC.sampleRate/2;let a=0,c=0;for(let i=Math.floor(lo/ny*n);i<Math.min(n,Math.ceil(hi/ny*n));i++){a+=fd[i];c++;}return c?a/c/255:0;}
+ // 어떤 테마의 점선인지
+ function liqTheme(m){const r=m.raw||{};const lq=(r.lq||'').split(',')[0].split(':')[0];if(lq)return lq;const t=(m.lq||'');return /박자|키보드|시계|발/.test(t)?'beat':/파도|숨|빨래|세탁/.test(t)?'breath':/비|종이|카페|흩/.test(t)?'scatter':'flow';}
+ let lum=0,lumT=0;
+ function frame(){requestAnimationFrame(frame);const m=window.cardM||null;if(!m||card.classList.contains('off'))return;
+  const now=performance.now()/1000;getAn();if(an){try{an.getByteFrequencyData(fd);}catch(_){}}
+  const dk=card.classList.contains('dk'),col=dk?'rgba(255,255,255,.95)':'rgba(120,120,120,.95)',col2=dk?'rgba(255,255,255,.85)':'rgba(130,130,130,.85)';
+  x.clearRect(0,0,W,H);const seed=hash((m.id||m.n||'')+'');const rnd=i=>{const v=Math.sin((seed%997)*.13+i*12.9898)*43758.5453;return v-Math.floor(v);};
+  // 베이스: 6무리 × 4~5개 막대 (무리 = 저음→고음, 비율 = 브라운·핑크·화이트·블루)
+  const b=m.b||[25,25,25,25],sh={pink:b[0]||0,white:b[1]||0,blue:b[2]||0,brown:b[3]||0},tot=(sh.pink+sh.white+sh.blue+sh.brown)||1;
+  const wts=[sh.brown*1.2+sh.pink*.4,sh.brown*.7+sh.pink*.9,sh.pink*.9+sh.white*.6,sh.white*.9+sh.blue*.4,sh.white*.6+sh.blue*1,sh.blue*1.1+sh.white*.3].map(v=>v/tot);
+  const mid=H*.56,gx=W*.04,gw=W*.92,live=an&&band(60,15000)>.01;
+  for(let g=0;g<6;g++){const n=4+(rnd(g)>.5?1:0),cx=gx+gw*(g+.5)/6,lv=live?band(...BANDS[g])*1.8:(.35+.3*Math.sin(now*(1.3+rnd(g+9))+g*1.7));
+    for(let k=0;k<n;k++){const xx=cx+(k-(n-1)/2)*13,j=.55+.45*Math.abs(Math.sin(now*(2.2+rnd(g*7+k)*3)+k*1.9+rnd(k+g)*6));
+      const h=Math.max(6,(14+wts[g]*190)*(.35+.9*Math.min(1.2,lv))*j);x.fillStyle=(k===Math.floor(n/2)&&g===3)?col:col2;x.fillRect(xx-2.2,mid-h/2,4.4,h);}}
+  // 리큐르 점선: 테마마다 다른 선 모양 · 소리 크기에 따라 진폭
+  const th=liqTheme(m),amp=H*(.22+(live?Math.min(.18,band(150,3000)*.5):.08*Math.sin(now*.7)+.08));
+  x.save();x.setLineDash(th==='beat'?[6,7]:th==='scatter'?[2,9]:th==='breath'?[3,5]:[1.6,5.5]);x.lineWidth=2.4;x.strokeStyle=col;x.beginPath();
+  for(let i=0;i<=120;i++){const u=i/120,px=gx+gw*u;let y;
+    if(th==='breath')y=Math.sin(u*Math.PI*2*1.15+now*1.1+seed%7)*Math.exp(-Math.pow((u-.5)*1.4,2));
+    else if(th==='beat')y=(Math.floor(u*8+now*1.6+(seed%5))%2?1:-1)*.55*(.6+.4*Math.sin(u*9+seed));
+    else if(th==='scatter')y=(Math.sin(u*31+now*3+seed)*.5+Math.sin(u*73-now*5)*.3)*.8;
+    else y=Math.sin(u*Math.PI*3+now*.6+seed%9)*.6+Math.sin(u*Math.PI*7-now*.9)*.25;
+    const py=mid+y*amp;i?x.lineTo(px,py):x.moveTo(px,py);}
+  x.stroke();x.restore();
+  // 가니쉬: 울릴 때 점 (없으면 레시피 가니쉬 수만큼 천천히 깜빡임)
+  const gs=(m.live&&m.live.g)||[];if(!live&&gs.length&&Math.random()<.012*gs.length)window.__cardPing(gs[Math.floor(Math.random()*gs.length)]);
+  dots=dots.filter(d=>now-d.t<1.6);dots.forEach(d=>{const a=1-(now-d.t)/1.6;x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.arc(gx+gw*d.x,H*d.y,d.r*(1+.4*(1-a)),0,7);x.fill();});x.globalAlpha=1;}
+ frame();
+ // 카드 뒤 배경이 어두우면 흰 글자·흰 그래프 (Figma 두 버전)
+ window.__cardLum=function(){const c=document.getElementById('gl');if(!c||card.classList.contains('off'))return;const t=performance.now();if(t-lumT<400)return;lumT=t;
+  try{const g=c.getContext('webgl2');const r=card.getBoundingClientRect(),cr=c.getBoundingClientRect(),sx=c.width/cr.width,sy=c.height/cr.height;const px=new Uint8Array(4);let L=0,n=0;
+   for(let i=0;i<4;i++)for(let j=0;j<4;j++){const X=Math.round((r.left+r.width*(i+.5)/4-cr.left)*sx),Y=Math.round(c.height-(r.top+r.height*(j+.5)/4-cr.top)*sy);if(X<0||Y<0||X>=c.width||Y>=c.height)continue;g.readPixels(X,Y,1,1,g.RGBA,g.UNSIGNED_BYTE,px);L+=(.299*px[0]+.587*px[1]+.114*px[2])/255;n++;}
+   if(n){L/=n;lum=L;card.classList.toggle('dk',card.classList.contains('dk')?L<.62:L<.52);}}catch(_){}};
+ // 프린트: 이 사람의 잔 정보카드만 인쇄
+ document.getElementById('cPrt').addEventListener('click',e=>{e.stopPropagation();const m=window.cardM;if(!m)return;const img=cv.toDataURL('image/png');
+  const meta=[...card.querySelectorAll('.meta>div,.gls')].map(d=>`<div><p class="k">${d.querySelector('.k').textContent}</p><div>${d.querySelector('.row,.it,.gar').innerHTML}</div></div>`).join('');
+  const w=window.open('','_blank','width=520,height=680');if(!w)return;w.document.write(`<!doctype html><meta charset=utf8><title>NØISE BAR</title><style>body{margin:0;font-family:Pretendard,'Apple SD Gothic Neo',sans-serif;color:#111}.c{width:455px;height:555px;position:relative;margin:24px auto}.t{position:absolute;left:65px;top:65px;width:160px;font-weight:200;font-size:36px;line-height:1.3;letter-spacing:1.8px}.m{position:absolute;left:278px;top:65px;display:flex;flex-direction:column;gap:20px;font-size:14px}.k{color:#777;margin:0 0 6px;letter-spacing:.7px}.m span{display:inline-flex;align-items:center;gap:6px;margin-right:10px}.sw,.ld{width:24px;height:24px;display:inline-block}.ld{border-radius:50%}canvas{width:24px;height:24px}img.g{position:absolute;left:88px;top:278px;width:279px;height:210px;filter:grayscale(1) contrast(1.4)}.b{position:absolute;left:65px;bottom:30px;font-size:12px;color:#777}@page{margin:0}</style><div class="c"><div class="t">${card.querySelector('.ttl').textContent}</div><div class="m">${meta}</div><img class="g" src="${img}"><div class="b">NØISE BAR · ${m.n||''} ${m.by||''}</div></div><script>setTimeout(()=>{print();},350)<\/script>`);w.document.close();});
+})();
+
 })();
 
 })();
