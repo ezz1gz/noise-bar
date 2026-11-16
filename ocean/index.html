@@ -78,6 +78,7 @@ html.phone .seaTitle{font-size:40px;left:20px;top:calc(env(safe-area-inset-top) 
 html.phone .vol{right:12px;bottom:calc(12px + env(safe-area-inset-bottom))}html.phone .vol input{width:90px}
 html.phone body .dock{left:12px;right:12px;width:auto;bottom:calc(64px + env(safe-area-inset-bottom))}
 .mkBack{display:none}
+html.listen .mkBack,html.listen #cPrt{display:none!important}
 html.phone .mkBack{display:flex;position:fixed;z-index:390;left:16px;top:calc(env(safe-area-inset-top) + 14px);height:40px;padding:0 16px;align-items:center;gap:6px;border-radius:20px;background:rgba(20,17,23,.28);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#fff;font:600 14px 'Noto Sans KR',sans-serif;text-decoration:none}
 /* ═══ 레시피(활성화 시) · 실시간 표시 · 검색 · 피드 */
 .labels .m .rec{display:none;margin:8px auto 0;padding:9px 12px;border-radius:12px;background:rgba(20,17,23,.32);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:500 11.5px/1.55 'Noto Sans KR',sans-serif;text-align:left;white-space:nowrap;width:max-content}
@@ -1242,7 +1243,7 @@ window.NBPrintCard=async function(m,graphCv){
    <script>document.querySelector('img').decode().then(()=>setTimeout(()=>print(),150));<\/script>`);w.document.close();};
 window.__nbMixes=()=>MIXES;
 // ── QR로 들어온 '내 잔 듣기' 화면: ocean/?listen#<payload>
-(()=>{if(!location.search.includes('listen')||location.hash.length<3)return;const d=parsePayload(location.hash.slice(1));
+(()=>{if(!location.search.includes('listen')||location.hash.length<3)return;document.documentElement.classList.add('listen');document.querySelectorAll('.mkBack').forEach(e=>e.remove());const d=parsePayload(location.hash.slice(1));
  const ui=document.createElement('div');ui.className='lsn';ui.innerHTML=`<p class="lw"></p><p class="ln"></p><div class="lb"><button type="button" id="lPlay">▶ 내 소리 듣기</button><button type="button" id="lRec">MP3로 저장 (30초)</button></div><p class="ls" id="lSt">소리를 켜면 이 잔이 바다 한가운데서 들려요</p>`;
  ui.querySelector('.lw').textContent=(d.who||'guest')+'의';ui.querySelector('.ln').textContent=d.name||'이름 없는 잔';document.body.appendChild(ui);
  const st=document.createElement('style');st.textContent=`.lsn{position:fixed;z-index:500;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:18px 18px 16px;border-radius:22px;background:rgba(20,17,23,.62);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);color:#fff;font-family:Pretendard,'Apple SD Gothic Neo',sans-serif;max-width:460px;margin:0 auto}
