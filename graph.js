@@ -84,7 +84,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  }else
  rows.forEach(({L,P,v,win},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;
   ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=P.width;ctx.lineCap='round';ctx.lineJoin='round';ctx.globalAlpha=P.alpha;
-  if(L.th==='scatter'){for(let m=0;m<M;m+=2){const x=X0+m*STEP,a=v[m]/PEAK.liq,up=v[m]>mean*1.08;if(!up&&m%6)continue;const y=R.cy-(v[m]-mean)/PEAK.liq*rng*1.6*taper(x)*(hs(m*3.3+j)>.5?1:-1);
+  if(L.th==='scatter'){for(let m=0;m<M;m++){const x=X0+m*STEP,a=v[m]/PEAK.liq,up=v[m]>mean*1.08;if(!up&&m%3)continue;const y=R.cy-(v[m]-mean)/PEAK.liq*rng*1.6*taper(x)*(hs(m*3.3+j)>.5?1:-1);
     ctx.globalAlpha=P.alpha*(x<=phx?1:.7)*(up?1:.45);ctx.beginPath();ctx.arc(x,y,P.width*P.dot*(.5+a*1.1),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;return;}
   ctx.beginPath();
   if(L.th==='beat'){let prev=null;for(let m=0;m<M;m++){const x=X0+m*STEP,t=tOf(x),k=Math.floor(t/win),sg=k%2?1:-1,y=R.cy-sg*(v[m]/PEAK.liq)*rng*taper(x);

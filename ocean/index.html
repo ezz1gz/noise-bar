@@ -1189,13 +1189,13 @@ addEventListener('storage',e=>{if(e.key===HKEY)location.reload();});
   // 리큐르 점선: 테마마다 다른 선 모양 · 소리 크기에 따라 진폭
   const th=liqTheme(m),amp=H*(.22+(live?Math.min(.18,band(150,3000)*.5):.08*Math.sin(now*.7)+.08));
   // 폰 그래프와 같은 법칙: 숨=매끈한 실선 · 흐름=긴 대시 · 박자=계단 실선 · 흩뿌림=점
-  x.save();x.setLineDash(th==='flow'?[10,7]:[]);x.lineWidth=2.6;x.lineCap='round';x.lineJoin='round';x.strokeStyle=col;x.fillStyle=col;x.beginPath();const SP=[];
-  for(let i=0;i<=120;i++){const u=i/120,px=gx+gw*u;let y;
+  x.save();x.setLineDash(th==='flow'?[10,7]:[]);x.lineWidth=2.6;x.lineCap='round';x.lineJoin=th==='beat'?'miter':'round';x.strokeStyle=col;x.fillStyle=col;x.beginPath();const SP=[];
+  const NS=th==='scatter'?200:th==='beat'?480:120;for(let i=0;i<=NS;i++){const u=i/NS,px=gx+gw*u;let y;
     if(th==='breath')y=Math.sin(u*Math.PI*2*1.15+now*1.1+seed%7)*Math.exp(-Math.pow((u-.5)*1.4,2));
-    else if(th==='beat')y=(Math.floor(u*8+now*1.6+(seed%5))%2?1:-1)*.55*(.6+.4*Math.sin(u*9+seed));
+    else if(th==='beat'){const k=Math.floor(u*8+now*1.6+(seed%5));y=(k%2?1:-1)*.55*(.6+.4*Math.sin(k*1.13+seed));}
     else if(th==='scatter')y=(Math.sin(u*31+now*3+seed)*.5+Math.sin(u*73-now*5)*.3)*.8;
     else y=Math.sin(u*Math.PI*3+now*.6+seed%9)*.6+Math.sin(u*Math.PI*7-now*.9)*.25;
-    const py=mid+y*amp;if(th==='scatter'){if(i%3===0)SP.push([px,py,1.6+1.6*Math.abs(y)]);}else i?x.lineTo(px,py):x.moveTo(px,py);}
+    const py=mid+y*amp;if(th==='scatter')SP.push([px,py,1.5+1.4*Math.abs(y)]);else if(th==='beat'&&i&&Math.abs(py-x.__py)>.5){x.lineTo(px,x.__py);x.lineTo(px,py);}else i?x.lineTo(px,py):x.moveTo(px,py);x.__py=py;}
   if(th==='scatter')SP.forEach(([px,py,r])=>{x.beginPath();x.arc(px,py,r,0,7);x.fill();});else x.stroke();x.restore();
   // 가니쉬: 울릴 때 점 (없으면 레시피 가니쉬 수만큼 천천히 깜빡임)
   const gs=(m.live&&m.live.g)||[];if(!live&&gs.length&&Math.random()<.012*gs.length)window.__cardPing(gs[Math.floor(Math.random()*gs.length)]);
