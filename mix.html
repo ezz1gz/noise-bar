@@ -122,7 +122,12 @@ fitM();addEventListener('resize',fitM);
 })();
 </script>
 <script src="intro.js"></script>
-<script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스 Mix", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]].concat((window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')?[["흔들기 허용", "화면을 누르면 동작 접근 허용 창이 나와요", "‘허용’을 눌러주세요"]]:[])}),250));</script>
+<script>addEventListener('load',()=>setTimeout(()=>{
+  let seen=false;try{seen=sessionStorage.getItem('nbIntro:mix')==='1';}catch(e){}
+  nbIntro({key:'mix',title:document.querySelector('.logo'),pages:[["믹스 Mix", "베이스와 리큐르를 하나의 소리로 섞어요", "폰을 흔들거나 화면을 손가락으로 휘저어요"]].concat((window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')?[["흔들기 허용", "화면을 누르면 동작 접근 허용 창이 나와요", "‘허용’을 눌러주세요"]]:[])});
+  // 인트로를 이미 본(생략되는) 재방문일 땐 터치 전에 안내가 안 떠서 — 짧은 안내를 자동으로 띄움(사용자 모드에서도 보임)
+  if(seen)setTimeout(()=>{try{if(window.nbNotice)nbNotice(['끌어서 휘젓거나 폰을 흔들어 보세요']);}catch(e){}},700);
+},250));</script>
 <script>addEventListener('nbintro:done',e=>{if(e.detail==='mix'){const l=document.querySelector('.logo');if(l)l.classList.add('nbAt');}});</script>
 <style>/* 공통 글자색 법칙: 반전(difference) 대신 흰색 기본 + 뒤가 밝으면 검게 */.logo,.mpct{mix-blend-mode:normal!important;color:#fff}</style>
 <script src="nbcontrast.js"></script>

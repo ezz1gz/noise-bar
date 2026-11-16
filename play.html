@@ -755,7 +755,7 @@ addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNo
 (()=>{const c=document.createElement('canvas');c.width=8;c.height=8;const x=c.getContext('2d',{willReadFrequently:true});let img=null;
  function src(){const L=window.NBMixLive&&NBMixLive.start&&NBMixLive.start();if(L)return L.canvas;if(!img){const u=typeof getMixShot==='function'&&getMixShot();if(u){img=new Image();img.src=u;}}return img&&img.complete?img:null;}
  setInterval(()=>{const s=src();if(!s)return;try{const w=s.width||s.naturalWidth,h=s.height||s.naturalHeight;x.drawImage(s,0,h*.3,w,h*.4,0,0,8,8);const d=x.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;L/=64;
-   const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.66:L>.72);}catch(_){}},700);})();
+   const on=document.documentElement.classList.contains('nbBright');document.documentElement.classList.toggle('nbBright',on?L>.8:L>.86);}catch(_){}},700);})();
 </script><script src="nbcontrast.js"></script>
 <script>(()=>{let im=null;try{const u=getMixShot();if(u){im=new Image();im.src=u;}}catch(_){}
  const ph=document.getElementById('ph');
