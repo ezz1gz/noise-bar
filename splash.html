@@ -59,7 +59,9 @@ function spawn(){const ks=Object.keys(VB),k=ks[Math.floor(Math.random()*4)];
 let left=0,doneT=0;
 function drop(){left=9+Math.floor(Math.random()*4);const next=()=>{if(left<=0)return;left--;spawn();setTimeout(next,90+Math.random()*320);};next();}
 function landTo(g){return GY+landY(g.s);}
-let gone=false;function go(){if(gone)return;gone=true;try{sessionStorage.setItem('nbSplash','1');}catch(_){}ph.classList.add('out');setTimeout(()=>location.replace('index.html'+location.search),700);}
+let gone=false;function go(){if(gone)return;gone=true;try{sessionStorage.setItem('nbSplash','1');
+  // 새 잔을 시작할 때마다 단계 안내(인트로·플레이 안내)를 다시 보여줌 — 한 번 본 안내가 다음 잔에서 안 나오던 것
+  Object.keys(sessionStorage).filter(k=>k.startsWith('nbIntro:')||k.startsWith('nb-tip-')).forEach(k=>sessionStorage.removeItem(k));}catch(_){}ph.classList.add('out');setTimeout(()=>location.replace('index.html'+location.search),700);}
 // 첫 터치: 가니쉬가 하나씩 떨어지고 다 떨어진 뒤 3초 후 베이스로 · 떨어지는 중에 한 번 더 터치하면 바로 건너뜀
 function start(){if(started){go();return;}started=true;drop();}
 ph.addEventListener('pointerdown',start);ph.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')start();});
