@@ -918,7 +918,11 @@ function place(m){
   m.el.innerHTML=`<div class="row"><span class="dot" style="background:${m.hexCol[0]}"></span><span class="tag">${m.tag}</span></div><div class="name"></div><div class="who"><b>LIVE</b><span></span></div>${REC(m)}`;m.el.querySelector('.name').textContent=m.n;m.el.querySelector('.who span').textContent=m.by;m.el.classList.add('lv');
   m.el.onclick=e=>{e.stopPropagation();initAudio();focused===m&&!document.documentElement.classList.contains('listen')?unfocus():focus(m);};
   MIXES[i]=m;m.el.classList.remove('r');m.lw=m.el.offsetWidth;m.lh=m.el.offsetHeight;return m;}
-function arrive(d,fly){if(!d||!d.id||seen.has(d.id))return;try{if(JSON.parse(localStorage.getItem('nb-sea-hidden')||'[]').includes(d.id)){seen.add(d.id);return;}}catch(_){}seen.add(d.id);const m=place(toMix(d));m.id=d.id;m.raw=d;realN++;if(window.alDraw)alDraw();
+// 폰이 나중에 보내는 메타볼 그림: 이미 온 잔에 덧붙임 (먼저 오면 잠깐 맡아둠)
+const PEND={};
+function addImg(id,img){const m=MIXES.find(v=>v.id===id);if(m&&m.raw)m.raw.img=img;
+  ['nb-sea-live','nb-sea-arch'].forEach(K=>{try{const A=JSON.parse(localStorage.getItem(K)||'[]');const x=A.find(v=>v.id===id);if(x){x.img=img;localStorage.setItem(K,JSON.stringify(A));}}catch(_){}});return !!m;}
+function arrive(d,fly){if(d&&d.upd){if(d.img&&!addImg(d.id,d.img))PEND[d.id]=d.img;return;}if(d&&PEND[d.id]&&!d.img){d.img=PEND[d.id];delete PEND[d.id];}if(!d||!d.id||seen.has(d.id))return;try{if(JSON.parse(localStorage.getItem('nb-sea-hidden')||'[]').includes(d.id)){seen.add(d.id);return;}}catch(_){}seen.add(d.id);const m=place(toMix(d));m.id=d.id;m.raw=d;realN++;if(window.alDraw)alDraw();
   try{const keep=JSON.parse(localStorage.getItem('nb-sea-live')||'[]').filter(x=>x.id!==d.id);keep.push(d);localStorage.setItem('nb-sea-live',JSON.stringify(keep.slice(-16)));}catch(_){}
   // 기록 보관: 들어온 잔은 전부 이 아이맥에 남김 (바다엔 최근 16개만 띄움 · 리스트는 전부) — 오래된 것은 카드용 작은 그림만 빼고
   try{const K='nb-sea-arch';let A=JSON.parse(localStorage.getItem(K)||'[]');if(!A.some(x=>x.id===d.id)){A.push(d);A.sort((x,y)=>(+x.t||0)-(+y.t||0));if(A.length>3000)A=A.slice(-3000);A.forEach((x,i)=>{if(i<A.length-300&&x.img)delete x.img;});

@@ -727,7 +727,11 @@ const thumb=()=>new Promise(res=>{let u=null;try{u=typeof getMixShot==='function
     if(A/(p.length/4)>200&&L/(p.length/4)>30){let q=.72,o=c.toDataURL('image/jpeg',q);while(o.length>2400&&q>.3){q-=.12;o=c.toDataURL('image/jpeg',q);}if(o.length<2600)return res(o.slice(23));}}catch(_){}
     if(++tries<4)requestAnimationFrame(grab);else fromShot();};
   if(bgc)setTimeout(()=>requestAnimationFrame(grab),2500);else fromShot();setTimeout(()=>res(null),6000);});
-thumb().then(t=>{if(t)d.img=t;return fetch('https://ntfy.sh/noisebar-sea-k7q2x9m4vz',{method:'POST',body:JSON.stringify(d)});}).then(r=>{if(r.ok){window.__seaSent=true;try{dispatchEvent(new Event('nb:seasent'));}catch(_){}try{sessionStorage.setItem(key,'1');sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}}}).catch(()=>{});}catch(_){}})();
+// 잔은 화면이 열리자마자 바로 보냄(곧바로 다른 화면으로 가도 빠지지 않게 keepalive · 실패하면 다시) → 메타볼 그림은 나중에 따로 덧붙임
+const URL_='https://ntfy.sh/noisebar-sea-k7q2x9m4vz',post=(o,n)=>fetch(URL_,{method:'POST',body:JSON.stringify(o),keepalive:true}).then(r=>{if(!r.ok)throw 0;return r;}).catch(e=>{if(n>0)return new Promise(ok=>setTimeout(ok,1500*(4-n))).then(()=>post(o,n-1));throw e;});
+try{sessionStorage.setItem(key,'1');}catch(_){}
+post(d,3).then(()=>{window.__seaSent=true;try{dispatchEvent(new Event('nb:seasent'));}catch(_){}try{sessionStorage.setItem('nb-sea-me',d.id);}catch(_){}
+  thumb().then(t=>{if(t)post({v:1,id:d.id,upd:1,img:t},2).catch(()=>{});});}).catch(()=>{try{sessionStorage.removeItem(key);}catch(_){}});}catch(_){}})();
 
 
 </script>
