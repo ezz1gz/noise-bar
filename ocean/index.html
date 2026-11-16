@@ -1240,7 +1240,7 @@ window.NBPrintCard=async function(m,graphCv){
   const INK=light?'#000':'#fff',GR='#EDEDED',INKB='#EDEDED',QRC='#EDEDED'; // 그래프·로고·QR은 배경 상관없이 #EDEDED
   // ② 그래프 — 정보카드의 그 사람 그래프 그대로
   if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
-    const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1225-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
+    const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1170-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
   // ③ 글자: 닉네임의 · 잔 이름
   try{await Promise.all([document.fonts.load('300 100px Pretendard'),document.fonts.load('400 52px Pretendard')]);}catch(_){}
   const r=m.raw||{},who=(r.who||(m.by||'').replace(/^@/,'')||'guest'),nm=(r.name||m.n||'');
@@ -1250,11 +1250,12 @@ window.NBPrintCard=async function(m,graphCv){
   const words=nm.split(/\s+/);let lines=[],cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(x.measureText(t).width>W*.62&&cur){lines.push(cur);cur=w;}else cur=t;});if(cur)lines.push(cur);lines=lines.slice(0,3);
   lines.forEach((l,i)=>x.fillText(l,90,330+i*140));x.shadowBlur=0;x.shadowColor='rgba(0,0,0,0)';
   // ④ 로고: 왼쪽 아래 (Figma 벡터 그대로)
-  x.save();x.scale(2,2);x.fillStyle=INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore();
+  const gMul=MODE==='blend'&&lightG;x.save();if(gMul)x.globalCompositeOperation='multiply';x.scale(2,2);x.fillStyle=gMul?'#B9B4BC':INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore(); // 로고 = 그래프와 같은 색
   // ⑤ QR: 오른쪽 아래 42×42 (Figma 크기) — 내 잔 듣기 · MP3 저장 화면
   const url=NB_BASE+'l#'+mixPayload(m);
   try{const q=qrcode(0,'L');q.addData(unescape(encodeURIComponent(url)));q.make();const n=q.getModuleCount(),S=84,X0=1100,Y0=1860,cell=S/n;
-    x.fillStyle=QRC;for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(X0+j*cell,Y0+i*cell,cell+.35,cell+.35);
+    const P=12;x.fillStyle='rgba(30,14,40,.42)';x.beginPath();x.roundRect?x.roundRect(X0-P,Y0-P,S+P*2,S+P*2,11):x.rect(X0-P,Y0-P,S+P*2,S+P*2);x.fill(); // 어떤 배경이든: 검은 딤 위에 흰 QR
+    x.fillStyle='#FFF4EE';for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(X0+j*cell,Y0+i*cell,cell+.35,cell+.35);
     window.__lastQR={url,n};}catch(e){console.warn('QR',e);}
   const png=c.toDataURL('image/png');
   // ⑤ 인쇄: 54×86mm 한 장, 여백 0 — 창이 열리면 바로 인쇄 대화상자
