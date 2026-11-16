@@ -642,7 +642,9 @@ cv.addEventListener('pointermove',e=>{if(!ptr.down)return;const dx=e.clientX-ptr
   if(Math.hypot(e.clientX-ptr.sx,e.clientY-ptr.sy)>6)ptr.moved=true;
   cam.x-=dx;cam.y-=dy;cam.vx=cam.vx*.3-dx/dt*.7;cam.vy=cam.vy*.3-dy/dt*.7;ptr.x=e.clientX;ptr.y=e.clientY;ptr.t=now;});
 cv.addEventListener('pointerup',e=>{if(!ptr.down)return;ptr.down=false;
-  if(!ptr.moved){const r=cv.getBoundingClientRect();const sb=stage.getBoundingClientRect(),Zv=(sb.width/REFW)*((S.zoom||170)/170),hit=pick((e.clientX-r.left)/Zv,(e.clientY-r.top)/Zv);hit?focus(hit):unfocus();cam.vx=cam.vy=0;}});
+  if(!ptr.moved){const r=cv.getBoundingClientRect();const sb=stage.getBoundingClientRect(),Zv=(sb.width/REFW)*((S.zoom||170)/170),hit=pick((e.clientX-r.left)/Zv,(e.clientY-r.top)/Zv);hit&&hit!==focused?focus(hit):unfocus();cam.vx=cam.vy=0;}
+  else if(focused&&!document.documentElement.classList.contains('listen')&&Math.hypot(e.clientX-ptr.sx,e.clientY-ptr.sy)>60)unfocus();});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&focused&&!document.documentElement.classList.contains('listen'))unfocus();});
 cv.addEventListener('pointercancel',()=>{ptr.down=false;});
 
 // 화면 좌표(토러스에서 카메라와 가장 가까운 복제본)
@@ -660,7 +662,7 @@ const labels=$('labels');
 MIXES.forEach(m=>{const d=document.createElement('div');d.className='m';
   d.innerHTML=`<div class="row"><span class="dot" style="background:${HEX[m.c[0]]}"></span><span class="tag">${m.tag}</span></div><div class="name">${m.n}</div><div class="by">${m.by} · 저장 ${m.sv}</div>${REC(m)}`;
   d.setAttribute('role','button');d.setAttribute('tabindex','0');d.setAttribute('aria-label',m.n+' 들어보기');
-  d.addEventListener('click',e=>{e.stopPropagation();initAudio();focus(m);});
+  d.addEventListener('click',e=>{e.stopPropagation();initAudio();focused===m&&!document.documentElement.classList.contains('listen')?unfocus():focus(m);});
   d.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();focus(m);}});
   labels.appendChild(d);m.el=d;});
 
@@ -914,7 +916,7 @@ function place(m){
   const old=MIXES[i];Object.assign(m,{x:old.x,y:old.y,balls:old.balls,el:old.el,lw:old.lw,lh:old.lh});
   m.col=m.hexCol.map(h=>hex2(h));
   m.el.innerHTML=`<div class="row"><span class="dot" style="background:${m.hexCol[0]}"></span><span class="tag">${m.tag}</span></div><div class="name"></div><div class="who"><b>LIVE</b><span></span></div>${REC(m)}`;m.el.querySelector('.name').textContent=m.n;m.el.querySelector('.who span').textContent=m.by;m.el.classList.add('lv');
-  m.el.onclick=e=>{e.stopPropagation();initAudio();focus(m);};
+  m.el.onclick=e=>{e.stopPropagation();initAudio();focused===m&&!document.documentElement.classList.contains('listen')?unfocus():focus(m);};
   MIXES[i]=m;m.el.classList.remove('r');m.lw=m.el.offsetWidth;m.lh=m.el.offsetHeight;return m;}
 function arrive(d,fly){if(!d||!d.id||seen.has(d.id))return;try{if(JSON.parse(localStorage.getItem('nb-sea-hidden')||'[]').includes(d.id)){seen.add(d.id);return;}}catch(_){}seen.add(d.id);const m=place(toMix(d));m.id=d.id;m.raw=d;realN++;if(window.alDraw)alDraw();
   try{const keep=JSON.parse(localStorage.getItem('nb-sea-live')||'[]').filter(x=>x.id!==d.id);keep.push(d);localStorage.setItem('nb-sea-live',JSON.stringify(keep.slice(-16)));}catch(_){}
@@ -987,7 +989,9 @@ function ambInit(){if(amb||!AC)return;initAudio();amb={base:{},liq:{},gn:new Map
 function liqVoice(k){if(amb.liq[k])return amb.liq[k];const v=LIVE.voice(k);if(v)amb.liq[k]=v;return v;}
 function ambTick(dt,now){if(!AC||AC.state!=='running'){return;}ambInit();const Zv=(stage.getBoundingClientRect().width/REFW)*((S.zoom||170)/170);
   const bw={PINK:0,WHITE:0,BLUE:0,BROWN:0},lw={};let tot=0;
-  MIXES.forEach(m=>{if(!m.sp)return;const d=Math.hypot(m.sp[0]-EAR.x,m.sp[1]-EAR.y);const u=Math.max(0,Math.min(1,(d-EAR.r)/(EAR.R-EAR.r)));const w=Math.pow(1-u,2.2);m.hear=w;if(w<.01)return;tot+=w;
+  // 포커싱 중: 그 잔 소리만 (주변은 끔) · 전체 모드: 듣는 원에서 멀수록 은은하게 섞여 들림
+  const FO=focused&&focused.sp?focused:null,RR=FO?EAR.R:Math.max(EAR.R,880);
+  MIXES.forEach(m=>{if(!m.sp)return;let w;if(FO)w=m===FO?1:0;else{const d=Math.hypot(m.sp[0]-EAR.x,m.sp[1]-EAR.y);const u=Math.max(0,Math.min(1,(d-EAR.r)/(RR-EAR.r)));w=d<=EAR.r?1:.04+.96*Math.pow(1-u,2.4);if(u>=1)w=0;}m.hear=w;if(w<.01)return;tot+=w;
     ['PINK','WHITE','BLUE','BROWN'].forEach((k,i)=>bw[k]+=w*(m.b[i]||0)/100);liqKeys(m).forEach(([k,v])=>lw[k]=(lw[k]||0)+w*v);
     if(m.live&&m.live.g.length){const st=amb.gn.get(m)||m.live.g.map((_,i)=>now+.4*i+Math.random());amb.gn.set(m,st);m.live.g.forEach((g,i)=>{if(now>=st[i]){st[i]=now+LIVE.gper(g);LIVE.ping(g,w);}});}});
   const nrm=Math.max(1,tot),t=AC.currentTime;
@@ -1284,7 +1288,7 @@ window.NBPrintCard=async function(m,graphCv){
   window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c)));return true;}catch(_){return false;}};
   window.__nbCardDef=()=>Object.assign({},CARD_DEF);
   const admin=document.documentElement.classList.contains('admin');
-  // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 전시 모드는 창이 열리면 바로 인쇄 대화상자
+  // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 창이 뜨면 '이대로 인쇄'로 바로
   const w=window.open('','nbprint','width=980,height=820');if(!w){const a=document.createElement('a');a.href=png;a.download='NOISEBAR-card.png';a.click();return;}
   const SL=[['bar','그래프 막대 굵기',1,8,.1],['line','리큐르 선 굵기',1,8,.1],['dot','흩뿌림 점 크기',.4,3,.05],['gar','가니쉬 모양 크기',.5,2.5,.05],['gstretch','그래프 위아래 늘이기',1,2,.05],
     ['qrMM','QR 크기 (mm)',3,16,.1],['qrPad','QR 판 여백',0,40,1],['qrAlpha','QR 판 진하기',0,.9,.01],['qrR','QR 판 모서리',0,40,1]];
@@ -1297,9 +1301,8 @@ window.NBPrintCard=async function(m,graphCv){
    .bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.bt button,.bt a{flex:1 1 40%;color:#fff;background:#444;border:0;border-radius:14px;padding:8px 10px;text-decoration:none;cursor:pointer;text-align:center;font:inherit}
    .bt .pr{background:#fff;color:#1d1a20;font-weight:600;flex-basis:100%}.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}.pn[hidden]{display:none}#tg{position:fixed;right:14px;top:14px;color:#fff;background:#444;border:0;border-radius:14px;padding:7px 12px;cursor:pointer}
    @media print{html,body{background:none}.pn,#tg{display:none!important}.wrap{display:block;padding:0}#card{width:54mm;height:86mm;border-radius:0;box-shadow:none}}</style>
-   <div class="wrap"><img id="card" src="${png}" alt="NØISE BAR 카드"><div class="pn" id="pn" ${admin?'':'hidden'}><h2>카드 조절</h2><p class="sub">바꾸면 바로 보여요 · 저장하면 다음 카드부터 이 값으로 뽑혀요</p><div id="sl"></div>
+   <div class="wrap"><img id="card" src="${png}" alt="NØISE BAR 카드"><div class="pn" id="pn"><h2>카드 조절</h2><p class="sub">바꾸면 바로 보여요 · 저장하면 다음 카드부터 이 값으로 뽑혀요</p><div id="sl"></div>
    <div class="bt"><button class="pr" onclick="print()">이대로 인쇄</button><button id="sv">저장</button><button id="df">기본값</button><a id="dl" href="${png}" download="NOISEBAR-card.png">이미지 저장</a><button id="cp">값 복사</button></div><p class="st" id="st"></p></div></div>
-   <button id="tg" ${admin?'hidden':''}>카드 조절</button>
    <script>const O=opener,SL=${JSON.stringify(SL)};let C=${JSON.stringify(CC)},busy=false,again=false;
    const sl=document.getElementById('sl'),img=document.getElementById('card'),st=document.getElementById('st');
    function ui(){sl.innerHTML=SL.map(([k,l,a,b,s])=>'<div class="row"><label for="i_'+k+'">'+l+'</label><input type="range" id="i_'+k+'" min="'+a+'" max="'+b+'" step="'+s+'" value="'+C[k]+'"><output id="o_'+k+'">'+C[k]+'</output></div>').join('');
@@ -1308,8 +1311,7 @@ window.NBPrintCard=async function(m,graphCv){
    document.getElementById('sv').onclick=()=>{st.textContent=O.__nbCardSave(C)?'저장했어요 · 다음 카드부터 이 값으로 뽑혀요':'저장이 막혀 있어요';};
    document.getElementById('cp').onclick=async()=>{const t=JSON.stringify(C);try{await navigator.clipboard.writeText(t);st.textContent='복사했어요 · Claude에게 붙여넣으면 기본값으로 박아둘게요';}catch(_){prompt('이 값을 복사해 주세요',t);}};
    document.getElementById('df').onclick=()=>{C=O.__nbCardDef();ui();go();st.textContent='기본값이에요 · 저장해야 남아요';};
-   document.getElementById('tg').onclick=function(){document.getElementById('pn').hidden=false;this.hidden=true;};
-   ui();${admin?'':"img.decode().then(()=>setTimeout(()=>print(),150));"}<\/script>`);w.document.close();};
+   ui();<\/script>`);w.document.close();};
 window.__nbMixes=()=>MIXES;
 // ── QR로 들어온 '내 잔 듣기' 화면: ocean/?listen#<payload>
 (()=>{if(!location.search.includes('listen')||location.hash.length<3)return;document.documentElement.classList.add('listen');document.querySelectorAll('.mkBack').forEach(e=>e.remove());const d=parsePayload(location.hash.slice(1));
