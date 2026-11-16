@@ -1188,14 +1188,15 @@ addEventListener('storage',e=>{if(e.key===HKEY)location.reload();});
       const h=Math.max(6,(14+wts[g]*190)*(.35+.9*Math.min(1.2,lv))*j);x.fillStyle=(k===Math.floor(n/2)&&g===3)?col:col2;x.fillRect(xx-2.2,mid-h/2,4.4,h);}}
   // 리큐르 점선: 테마마다 다른 선 모양 · 소리 크기에 따라 진폭
   const th=liqTheme(m),amp=H*(.22+(live?Math.min(.18,band(150,3000)*.5):.08*Math.sin(now*.7)+.08));
-  x.save();x.setLineDash(th==='beat'?[6,7]:th==='scatter'?[2,9]:th==='breath'?[3,5]:[1.6,5.5]);x.lineWidth=2.4;x.strokeStyle=col;x.beginPath();
+  // 폰 그래프와 같은 법칙: 숨=매끈한 실선 · 흐름=긴 대시 · 박자=계단 실선 · 흩뿌림=점
+  x.save();x.setLineDash(th==='flow'?[10,7]:[]);x.lineWidth=2.6;x.lineCap='round';x.lineJoin='round';x.strokeStyle=col;x.fillStyle=col;x.beginPath();const SP=[];
   for(let i=0;i<=120;i++){const u=i/120,px=gx+gw*u;let y;
     if(th==='breath')y=Math.sin(u*Math.PI*2*1.15+now*1.1+seed%7)*Math.exp(-Math.pow((u-.5)*1.4,2));
     else if(th==='beat')y=(Math.floor(u*8+now*1.6+(seed%5))%2?1:-1)*.55*(.6+.4*Math.sin(u*9+seed));
     else if(th==='scatter')y=(Math.sin(u*31+now*3+seed)*.5+Math.sin(u*73-now*5)*.3)*.8;
     else y=Math.sin(u*Math.PI*3+now*.6+seed%9)*.6+Math.sin(u*Math.PI*7-now*.9)*.25;
-    const py=mid+y*amp;i?x.lineTo(px,py):x.moveTo(px,py);}
-  x.stroke();x.restore();
+    const py=mid+y*amp;if(th==='scatter'){if(i%3===0)SP.push([px,py,1.6+1.6*Math.abs(y)]);}else i?x.lineTo(px,py):x.moveTo(px,py);}
+  if(th==='scatter')SP.forEach(([px,py,r])=>{x.beginPath();x.arc(px,py,r,0,7);x.fill();});else x.stroke();x.restore();
   // 가니쉬: 울릴 때 점 (없으면 레시피 가니쉬 수만큼 천천히 깜빡임)
   const gs=(m.live&&m.live.g)||[];if(!live&&gs.length&&Math.random()<.012*gs.length)window.__cardPing(gs[Math.floor(Math.random()*gs.length)]);
   dots=dots.filter(d=>now-d.t<1.6);dots.forEach(d=>{const a=1-(now-d.t)/1.6;x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.arc(gx+gw*d.x,H*d.y,d.r*(1+.4*(1-a)),0,7);x.fill();});x.globalAlpha=1;}
@@ -1230,14 +1231,16 @@ window.NBPrintCard=async function(m,graphCv){
     t.getContext('2d').drawImage(gc,cx,cy,cw,ch,0,0,cw,ch);res(t);};setTimeout(()=>res(null),800);});
   x.fillStyle='#b65cff';x.fillRect(0,0,W,H);
   if(bg){x.imageSmoothingQuality='high';x.filter=thumbBg?'blur(46px) saturate(1.08)':'blur(10px) saturate(1.12)';const o=thumbBg?140:40;x.drawImage(bg,-o,-o,W+o*2,H+o*2);x.filter='none';}
+  const MODE=window.NB_CARD_MODE||'blend'; // dim: 배경 전체를 살짝 어둡게 · blend: 밝은 자리에서만 그래프를 배경에 묻히게(곱하기)
+  if(MODE==='dim'){x.fillStyle='rgba(20,10,30,.14)';x.fillRect(0,0,W,H);}
   // 밝은 메타볼이면 Figma 103:6286(검정 글자·회색 그래프), 진하면 96:6094(흰 글자)
   // 밝기는 자리별로: 위(글자)·가운데(그래프)·아래(로고·QR) — 밝으면 Figma 103:6286(검정·회색), 진하면 96:6094(흰색)
-  const lumAt=(y0,y1)=>{if(!bg)return .4;try{const t=document.createElement('canvas');t.width=8;t.height=8;const tx=t.getContext('2d');tx.drawImage(bg,0,bg.height*y0,bg.width,bg.height*(y1-y0),0,0,8,8);const d=tx.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;return L/64;}catch(_){return .4;}};
-  const light=lumAt(.03,.3)>.8,lightG=lumAt(.3,.82)>.8,lightB=lumAt(.88,.99)>.8;
+  const lumAt=(y0,y1,x0=0,x1=1)=>{if(!bg)return .4;try{const t=document.createElement('canvas');t.width=8;t.height=8;const tx=t.getContext('2d');tx.drawImage(bg,bg.width*x0,bg.height*y0,bg.width*(x1-x0),bg.height*(y1-y0),0,0,8,8);const d=tx.getImageData(0,0,8,8).data;let L=0;for(let i=0;i<d.length;i+=4)L+=(.299*d[i]+.587*d[i+1]+.114*d[i+2])/255;return L/64;}catch(_){return .4;}};
+  const light=lumAt(.03,.3,0,.7)>.76,lightG=lumAt(.3,.82)>.74,lightB=lumAt(.88,.99)>.8;
   const INK=light?'#000':'#fff',GR='#EDEDED',INKB='#EDEDED',QRC='#EDEDED'; // 그래프·로고·QR은 배경 상관없이 #EDEDED
   // ② 그래프 — 정보카드의 그 사람 그래프 그대로
   if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
-    x.save();if(!lightG){x.shadowColor='rgba(0,0,0,.18)';x.shadowBlur=10;}x.drawImage(t,90,640,W-180,(W-180)*graphCv.height/graphCv.width*1.25);x.restore();}
+    const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1225-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
   // ③ 글자: 닉네임의 · 잔 이름
   try{await Promise.all([document.fonts.load('300 100px Pretendard'),document.fonts.load('400 52px Pretendard')]);}catch(_){}
   const r=m.raw||{},who=(r.who||(m.by||'').replace(/^@/,'')||'guest'),nm=(r.name||m.n||'');
