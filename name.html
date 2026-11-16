@@ -67,7 +67,12 @@ function show(n){st=n;['s1','s2','s3'].forEach((id,i)=>$(id).classList.toggle('c
 nm.oninput=()=>{$('nx').classList.toggle('on',!!clean(nm.value));if(st===1){clean(nm.value)?armAuto():clearAuto();}};
 mk.oninput=()=>{$('nx').classList.toggle('on',!!clean(mk.value));if(st===2){clean(mk.value)?armAuto():clearAuto();}};
 const next=()=>{clearAuto();if(st===1){if(!clean(nm.value)){nm.focus();return;}show(2);}else if(st===2){if(!clean(mk.value)){mk.focus();return;}show(3);}
-  else if(st===3){Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));location.href='play.html?'+Q;}}; // 흰 페이드 없이 바로(플레이가 자체 페이드인)
+  else if(st===3){Q.set('nm',clean(nm.value));Q.set('mk',clean(mk.value));
+    // 서브→플레이 iframe 전환 틈에 뒤 화면/빈 배경이 잠깐 비치던 것 방지: 플레이와 같은 흐린 믹스 배경(없으면 플레이 배경색)으로 덮고 넘김
+    const cov=document.createElement('div');cov.style.cssText='position:fixed;inset:0;z-index:99999;background:#3a1a55;background-size:cover;background-position:center';
+    try{const v=JSON.parse(sessionStorage.getItem('nb-mixshot')||'null');if(v&&v.u){cov.style.backgroundImage='url("'+v.u+'")';cov.style.filter='blur(10px)';cov.style.transform='scale(1.12)';}}catch(_){}
+    document.body.appendChild(cov);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{location.href='play.html?'+Q;}));}}; // 흰 페이드 없이, 전환 틈은 플레이 배경으로 덮어 바로
 nm.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();next();}});mk.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();next();}});
 $('nx').onclick=next;
 $('bk').onclick=()=>{clearAuto();if(st>1){show(st-1);return;}Q.delete('nm');Q.delete('mk');location.href='garnish.html?'+Q;};
