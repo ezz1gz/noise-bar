@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NØISE BAR · 그래프 조절</title>
+<style>
+html,body{margin:0;background:#141117;color:#eee;font:13px Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif}
+.top{display:flex;align-items:baseline;gap:12px;padding:16px 20px 6px}.top h1{margin:0;font-size:17px}.top p{margin:0;opacity:.6}
+.wrap{display:flex;gap:20px;padding:10px 20px 20px;align-items:flex-start;flex-wrap:wrap}
+.pv{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+figure{margin:0}figcaption{opacity:.65;margin:0 0 6px}
+canvas{display:block;border-radius:14px}
+#cP{width:241px;height:524px;background:radial-gradient(120% 70% at 30% 30%,#7d5cff,#e866b8 55%,#f08a4b)}
+#cI{width:335px;height:252px;background:rgba(30,26,34,.82)}#cI.lt{background:#f3eef4}
+#cC{width:270px;height:430px;background:radial-gradient(110% 80% at 70% 30%,#ff8ac0,#b98aff 50%,#ffd2a8)}
+.pn{width:320px;background:#221e27;border-radius:16px;padding:14px 16px}
+.sec{margin:12px 0 6px;font-weight:600;opacity:.9}.sec:first-child{margin-top:0}
+.row{display:grid;grid-template-columns:1fr 46px;gap:2px 8px;align-items:center;margin:0 0 6px}.row label{grid-column:1/3;opacity:.8}.row input{width:100%}.row output{text-align:right;opacity:.75;font-variant-numeric:tabular-nums}
+.th{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 2px}.th button,.bt button{border:0;border-radius:14px;padding:6px 11px;background:#3a3440;color:#eee;cursor:pointer;font:inherit}.th button[aria-pressed=true]{background:#fff;color:#141117}
+.bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.bt button{flex:1 1 30%}.bt .pr{background:#fff;color:#141117;font-weight:600}
+.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}
+</style></head><body>
+<div class="top"><h1>그래프 조절</h1><p>폰 플레이 · 오션 정보카드 · 인쇄 카드가 모두 이 값으로 그려져요</p></div>
+<div class="wrap">
+ <div class="pv">
+  <figure><figcaption>폰 플레이</figcaption><canvas id="cP"></canvas></figure>
+  <div><figure><figcaption>오션 정보카드 <button id="lt" style="border:0;border-radius:10px;padding:2px 8px;background:#3a3440;color:#eee;cursor:pointer">밝은 배경</button></figcaption><canvas id="cI"></canvas></figure>
+   <figure style="margin-top:14px"><figcaption>인쇄 카드</figcaption><canvas id="cC"></canvas></figure></div>
+ </div>
+ <div class="pn" id="pn">
+  <div class="sec">미리보기 리큐르</div><div class="th" id="th"></div>
+  <div id="sl"></div>
+  <div class="bt"><button class="pr" id="sv">이 기기에 저장</button><button id="cp">값 복사</button><button id="df">기본값</button></div>
+  <p class="st" id="st">저장하면 이 기기의 플레이·오션·인쇄에 바로 적용돼요. 모든 폰과 아이맥에 같게 하려면 '값 복사'로 Claude에게 보내 주세요.</p>
+ </div>
+</div>
+<script src="graph-cfg.js"></script><script src="graph.js"></script>
+<script>
+const C=NBG.cfg;
+const SL=[['막대',[
+  ['base.count','막대 개수',12,72,1],['base.group','묶음 크기 (1 = 묶음 없음)',1,12,1],['base.ggap','묶음 사이 간격',0,4,.1],
+  ['base.width','막대 굵기',1,8,.1],['base.height','막대 높이',.5,3,.05],['base.alpha','막대 진하기',.1,1,.01]]],
+ ['리큐르 선',[['liq.width','선 굵기',1,8,.1],['liq.alpha','선 진하기',.1,1,.01],['liq.range','선 오르내림 크기',.4,1.6,.02],
+  ['liq.themes.flow.dash','흐름 대시 길이',2,24,.5],['liq.themes.flow.gap','흐름 대시 간격',2,20,.5],['liq.themes.scatter.dot','흩뿌림 점 크기',.4,3,.05]]],
+ ['가니쉬',[['gar.size','가니쉬 크기',.5,2.5,.02],['gar.alpha','가니쉬 진하기',.1,1,.01],['gar.ring','퍼지는 물결',0,1,.01]]]];
+const get=p=>p.split('.').reduce((o,k)=>o[k],NBG.cfg),set=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],NBG.cfg)[l]=v;};
+function ui(){document.getElementById('sl').innerHTML=SL.map(([h,rows])=>`<div class="sec">${h}</div>`+rows.map(([p,l,a,b,s])=>`<div class="row"><label for="${p}">${l}</label><input type="range" id="${p}" min="${a}" max="${b}" step="${s}" value="${get(p)}"><output>${+(+get(p)).toFixed(2)}</output></div>`).join('')).join('');
+ document.querySelectorAll('#sl input').forEach(i=>i.oninput=()=>{set(i.id,+i.value);i.nextElementSibling.textContent=+(+i.value).toFixed(2);});}
+ui();
+// 미리보기용 소리: 실제처럼 크기가 오르내리는 노이즈 버퍼
+const SR=8000,mkBuf=(sec,f)=>{const b=new AudioBuffer({length:SR*sec,sampleRate:SR,numberOfChannels:1}),d=b.getChannelData(0);let lp=0;for(let i=0;i<d.length;i++){const t=i/SR;lp+=(Math.random()*2-1-lp)*.2;d[i]=lp*f(t);}return b;};
+const NG=[1,1.6,.7,2.3].map((r,j)=>({buf:mkBuf(6,t=>.4+.6*Math.pow(Math.abs(Math.sin(t*r+j)),2)),gain:{value:[.3,.25,.2,.25][j]},src:{playbackRate:{value:1}},off:0,t0:0}));
+const THS={breath:'숨',flow:'흐름',beat:'박자',scatter:'흩뿌림'};let on=['breath','beat'];
+const LB={breath:mkBuf(8,t=>.5+.5*Math.sin(t*1.1)),flow:mkBuf(8,t=>.4+.6*Math.abs(Math.sin(t*.7)*Math.sin(t*2.3))),beat:mkBuf(8,t=>(t*2%1)<.35?1:.15),scatter:mkBuf(8,t=>Math.random()<.02?1:.2)};
+function A(clk){const LG={},lives=on.map(k=>{LG[k]={buf:LB[k],gain:{value:.6},src:{playbackRate:{value:1}},off:0,t0:0};return{k,th:k,v:.6};});return{AC:{currentTime:clk},NG,LG,lives,keys:[]};}
+function th(){document.getElementById('th').innerHTML=Object.keys(THS).map(k=>`<button data-k="${k}" aria-pressed="${on.includes(k)}">${THS[k]}</button>`).join('');}
+document.getElementById('th').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k;on=on.includes(k)?on.filter(x=>x!==k):on.concat(k);if(!on.length)on=[k];th();};th();
+const GAR=[{k:'blossom',n:5,sz:'M',per:2.8},{k:'spark',n:4,sz:'S',per:1.6},{k:'melt',n:4,sz:'L',per:3.4}];
+const evs=clk=>{const out=[];GAR.forEach((d,i)=>{const off=.5+.4*i;let t=off+Math.floor((clk-off)/d.per)*d.per;for(let k=0;k<2;k++,t-=d.per)if(clk-t>=0&&clk-t<1.8)out.push({i,k:d.k,n:d.n,sz:d.sz,t,lv:({S:.45,M:.6,L:.85})[d.sz]});});return out;};
+const dpr=Math.min(2,devicePixelRatio||1);
+function prep(id){const c=document.getElementById(id),r=c.getBoundingClientRect();c.width=r.width*dpr;c.height=r.height*dpr;return c;}
+const P=prep('cP'),I=prep('cI'),K=prep('cC');let light=false;
+document.getElementById('lt').onclick=function(){light=!light;I.classList.toggle('lt',light);this.textContent=light?'어두운 배경':'밝은 배경';};
+function paint(c,f,col){const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x.clearRect(0,0,c.width,c.height);f(x);x.setTransform(1,0,0,1,0,0);if(col){x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,c.width,c.height);x.globalCompositeOperation='source-over';}}
+(function loop(ms){const clk=20+ms/1000,a=A(clk),ev=evs(clk);
+ // 폰 플레이: 402×874 화면 그대로
+ paint(P,x=>{const s=P.width/402;x.setTransform(s,0,0,s,0,0);NBG.draw1(x,{x0:58,x1:344,cy:428,bh:44,lr:150},a,clk,ev);});
+ // 오션 정보카드: 558×420 그래프 칸
+ paint(I,x=>{const W=I.width,H=I.height,sc=(W-40*W/558)/286;x.setTransform(sc,0,0,sc,20*W/558-58*sc,H*.55-437*sc);NBG.draw1(x,{x0:58,x1:344,cy:437,bh:44*(H*.4/sc)/150,lr:H*.4/sc},a,clk,ev);},light?'#7a7a7a':'#fff');
+ // 인쇄 카드: 54×86mm에서 그래프 자리 (위아래 크기 1.3)
+ paint(K,x=>{const W=K.width,H=K.height,sc=W*(1096/1276)/342,gs=1.3;x.setTransform(sc,0,0,sc,W*90/1276-30*sc,H*1170/2032-437*sc);NBG.draw1(x,{x0:58,x1:344,cy:437,bh:44*gs,lr:150*gs},a,clk,ev);},'#EDEDED');
+ requestAnimationFrame(loop);})(0);
+const st=document.getElementById('st');
+document.getElementById('sv').onclick=()=>{st.textContent=NBG.save()?'저장했어요 · 이 기기의 플레이·오션·인쇄에 적용돼요':'이 브라우저에선 저장이 막혀 있어요';};
+document.getElementById('df').onclick=()=>{NBG.reset();ui();st.textContent='공용 기본값이에요 · 저장해야 이 기기에 남아요';};
+document.getElementById('cp').onclick=async()=>{const t=JSON.stringify(NBG.cfg);try{await navigator.clipboard.writeText(t);st.textContent='복사했어요 · Claude에게 붙여넣으면 모든 기기 공용 값으로 넣어둘게요';}catch(_){prompt('이 값을 복사해 주세요',t);}};
+</script>
+</body></html>

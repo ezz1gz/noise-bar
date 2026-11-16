@@ -5,17 +5,19 @@
 (function(){
 const KEY='nb-graph-cfg';
 const DEF={
- base:{count:36,width:3,height:1.7,min:10,future:.5,window:10,head:.47,round:0,contrast:.85,group:6,ggap:1.6},
- liq:{range:1,themes:{breath:{width:2.6,dash:0,gap:0,smooth:.7,alpha:.95},flow:{width:2.6,dash:10,gap:7,smooth:.6,alpha:.9},
+ base:{count:36,width:3,height:1.7,min:10,future:1,window:10,head:.47,round:0,contrast:.85,group:6,ggap:1.6,alpha:1},
+ liq:{range:1,alpha:1,width:2.6,themes:{breath:{width:2.6,dash:0,gap:0,smooth:.7,alpha:.95},flow:{width:2.6,dash:10,gap:7,smooth:.6,alpha:.9},
                       beat:{width:2.6,dash:0,gap:0,step:.25,alpha:.95},scatter:{width:2.9,dash:0,gap:0,dot:1,alpha:.95}}},
  gar:{size:1.28,ring:.35,spread:.8,alpha:.95,dots:1},
  style:'theme'};  // 법칙(2.7): 리큐르는 테마별 선 — 숨=매끈한 실선 / 흐름=긴 대시 / 박자=계단 / 흩뿌림=점
 const clone=o=>JSON.parse(JSON.stringify(o));
 function merge(d,s){if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]===undefined)continue;if(typeof d[k]==='object'&&d[k])merge(d[k],s[k]);else if(typeof s[k]===typeof d[k])d[k]=s[k];}return d;}
-function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}return merge(clone(DEF),s);}
+// 공용 값(graph-cfg.js · 모든 폰·아이맥 같은 값) 위에 이 기기에서 저장한 값 — 공용 값 버전이 바뀌면 예전 기기 값은 버림
+const SH=window.NB_GRAPH_SHARED||{},SHV=SH.ver||0;
+function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}const d=merge(clone(DEF),SH.cfg||{});if(s&&(s.__v||0)===SHV)merge(d,s);return d;}
 const NBG={DEF,KEY,cfg:load(),
- save(){try{localStorage.setItem(KEY,JSON.stringify(this.cfg));return true;}catch(_){return false;}},
- reload(){this.cfg=load();},reset(){this.cfg=clone(DEF);},saved(){try{return localStorage.getItem(KEY);}catch(_){return null;}},
+ save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign({},this.cfg,{__v:SHV})));return true;}catch(_){return false;}},
+ reload(){this.cfg=load();},reset(){this.cfg=merge(clone(DEF),SH.cfg||{});},saved(){try{return localStorage.getItem(KEY);}catch(_){return null;}},
  gar:()=>[]};   // play.html이 채움: 가니쉬 울림 목록 [{i,k,n,sz,t,lv}]
 window.NBG=NBG;
 
@@ -61,7 +63,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
   lv[i]=Math.sqrt(s);if(lv[i]>mx)mx=lv[i];if(lv[i]<mn)mn=lv[i];}
  PEAK.base+=(Math.max(mx,1e-4)-PEAK.base)*(mx>PEAK.base?.2:.01);PEAK.lo=(PEAK.lo===undefined?mn:PEAK.lo+(mn-PEAK.lo)*.05);const lo=Math.min(PEAK.lo,PEAK.base*.98)*B.contrast;
  const G=Math.max(1,Math.round(B.group||1)),gg=B.ggap||0,units=N+(Math.ceil(N/G)-1)*gg,uw=W/units,xOf=i=>R.x0+(i+Math.floor(i/G)*gg+.5)*uw;
- for(let i=0;i<N;i++){const x=xOf(i),h=Math.max(B.min,Math.max(0,lv[i]-lo)/(PEAK.base-lo)*R.bh*2*B.height);ctx.globalAlpha=x<=phx?1:B.future;ctx.fillStyle='#fff';
+ for(let i=0;i<N;i++){const x=xOf(i),h=Math.max(B.min,Math.max(0,lv[i]-lo)/(PEAK.base-lo)*R.bh*2*B.height);ctx.globalAlpha=B.alpha;ctx.fillStyle='#fff';
   if(B.round>0){ctx.beginPath();ctx.roundRect(x-B.width/2,R.cy-h/2,B.width,h,Math.min(B.width/2,h/2));ctx.fill();}else ctx.fillRect(x-B.width/2,R.cy-h/2,B.width,h);}
  ctx.globalAlpha=1;
  // ── 리큐르: 각자 실제 크기 → 테마 모양
@@ -85,7 +87,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  // 테마 모양 선 (카드와 같은 법칙): 숨=크게 부푸는 매끈한 실선 · 흐름=불규칙하게 굽이치는 긴 대시 · 박자=수직으로 꺾이는 계단 · 흩뿌림=촘촘한 점
  //  모양은 테마가 정하고, 크기(진폭)·잔떨림은 그 리큐르의 실제 소리 크기에서 나옴 · 시간축을 따라 흘러감
  rows.forEach(({L,P,v},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;const lvl=Math.min(1,mean/PEAK.liq),ph=j*2.1+.7;
-  const amp=R.lr*(.32+.68*lvl)*(1-j*.12),env=x=>{const u=(x-X0)/(X1-X0);return Math.exp(-Math.pow((u-.5)*1.4,2));};
+  const amp=R.lr*c.liq.range*(.32+.68*lvl)*(1-j*.12),env=x=>{const u=(x-X0)/(X1-X0);return Math.exp(-Math.pow((u-.5)*1.4,2));};
   // RS: 사인을 마루는 넓고 둥글게, 오르내리는 기울기는 좁게 (뾰족한 꼭짓점·늘어진 비탈 없애기)
   const RS=s=>Math.sign(s)*Math.pow(Math.abs(s),.6);
   const shp=(x,m)=>{const t=tOf(x),wob=(v[m]-mean)/PEAK.liq;
@@ -93,8 +95,8 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
    if(L.th==='beat'){const k=Math.floor(t/.62+ph);return (k%2?1:-1)*.55*(.6+.4*Math.sin(k*1.13+j*3.7));}
    if(L.th==='scatter')return (Math.sin(t*9.3+ph)*.5+Math.sin(t*22.6-ph*2)*.3)*.8*taper(x)+.12*wob;
    return (RS(Math.sin(2*Math.PI*t/4.4+ph))*.6+RS(Math.sin(2*Math.PI*t/1.9-ph))*.22)*taper(x)+.06*wob;};
-  ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=P.width;ctx.lineCap='round';ctx.lineJoin=L.th==='beat'?'miter':'round';ctx.globalAlpha=P.alpha;
-  if(L.th==='scatter'){for(let m=0;m<M;m++){const x=X0+m*STEP,y=shp(x,m);ctx.globalAlpha=P.alpha*(x<=phx?1:.7);ctx.beginPath();ctx.arc(x,R.cy-y*amp,P.width*P.dot*(.45+.5*Math.abs(y)),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;return;}
+  const LW=c.liq.width,LA=c.liq.alpha;ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=LW;ctx.lineCap='round';ctx.lineJoin=L.th==='beat'?'miter':'round';ctx.globalAlpha=LA;
+  if(L.th==='scatter'){for(let m=0;m<M;m++){const x=X0+m*STEP,y=shp(x,m);ctx.globalAlpha=LA;ctx.beginPath();ctx.arc(x,R.cy-y*amp,LW*P.dot*(.45+.5*Math.abs(y)),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;return;}
   ctx.beginPath();let prev=null;
   for(let m=0;m<M;m++){const x=X0+m*STEP,y=R.cy-shp(x,m)*amp;if(m===0)ctx.moveTo(x,y);else{if(L.th==='beat'&&prev!==null&&Math.abs(prev-y)>.5)ctx.lineTo(x,prev);ctx.lineTo(x,y);}prev=y;}
   ctx.setLineDash(L.th==='flow'?[P.dash||10,P.gap||7]:[]);ctx.lineDashOffset=0;ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;});
@@ -110,6 +112,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
 }
 // 한 장 그리기 (오션 인쇄 카드): A=소리 구성, 여러 번 그려 크기 기준(PEAK)을 맞춘 뒤 마지막 장면
 NBG.snap=(ctx,R,A,clock,gar)=>{const g0=NBG.gar;NBG.__A=A;NBG.gar=()=>gar||[];NBG.clock=clock;try{for(let k=0;k<60;k++){ctx.clearRect(0,0,402,874);draw(ctx,R,performance.now(),clock);}}finally{NBG.__A=null;NBG.gar=g0;}};
+NBG.draw1=(ctx,R,A,clock,gar)=>{const g0=NBG.gar;NBG.__A=A;NBG.gar=()=>gar||[];NBG.clock=clock;try{draw(ctx,R,performance.now(),clock);}finally{NBG.__A=null;NBG.gar=g0;}};
 NBG.mount=(cv,R,active)=>{const ctx=cv.getContext('2d');const d=Math.min(2,devicePixelRatio||1);cv.width=402*d;cv.height=874*d;let clock=0,last=performance.now(),q=1;
  (function fr(now){const dt=Math.min(.05,(now-last)/1000);last=now;const on=active();
    // 멈추면 소리가 잦아들듯: 수축하는 동안엔 파형이 계속 움직이다가 가운데(cy)로 가라앉아 납작해지고 끝에서 사라짐. 다 사라지면 완전히 멈춤
