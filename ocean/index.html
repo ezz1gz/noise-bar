@@ -228,7 +228,7 @@ html.phone .ocFix{display:none!important}
 /* ── 정보카드 (Figma 정보카드): 사람마다 다른 실시간 그래프 · 밝은/어두운 배경 자동 · GLASS · 프린트 */
 #ui .card .bottom>i,#ui .card .bottom>b,#ui .card .bottom>img{display:none!important}
 #ui .card .bottom canvas{position:absolute;inset:0;width:100%;height:100%}
-#ui .card .gls{position:absolute;left:380px;top:352px;width:70px}
+#ui .card .gls{display:none!important;position:absolute;left:380px;top:352px;width:70px}
 #ui .card .gls .k{font-size:14px;line-height:1.3;letter-spacing:.7px;color:#7a7a7a;margin:0 0 6px}
 #ui .card .gls .it{font-size:14px;color:#333;display:flex;gap:6px;align-items:center}
 #ui .card .gls svg{flex:none}
@@ -676,7 +676,7 @@ function focus(m){
   const keys=['PINK','WHITE','BLUE','BROWN'];
   $('dStack').innerHTML=keys.map((k,i)=>m.b[i]?`<span style="width:${m.b[i]}%;background:${NOISE_HEX[k]}"></span>`:'').join('');
   $('dLegend').innerHTML=keys.map((k,i)=>m.b[i]?`<span><i style="background:${NOISE_HEX[k]}"></i>${({PINK:'핑크',WHITE:'화이트',BLUE:'블루',BROWN:'브라운'})[k]} ${m.b[i]}</span>`:'').join('');
-  $('dTags').innerHTML=`<span class="tg"><em>LIQUEUR</em>${m.lq}</span><span class="tg"><em>GARNISH</em>${m.gn}</span><span class="tg"><em>GLASS</em>${m.gl}</span>`;
+  $('dTags').innerHTML=`<span class="tg"><em>LIQUEUR</em>${m.lq}</span><span class="tg"><em>GARNISH</em>${m.gn}</span>`;
   playMix(m);
 }
 function unfocus(){
@@ -1025,7 +1025,7 @@ function garIcon(k,n){const c=document.createElement('canvas');c.width=c.height=
   g.fill();return c;}
 let cardM=null;
 function fillCard(m){cardM=m;window.cardM=m;const $c=id=>document.getElementById(id);$c('cTtl').textContent=phrase(m);
-  {const r=m.raw||{},GL={martini:'마티니',rocks:'락',coupe:'쿠페',highball:'하이볼',flute:'플루트'},g=GL[(r.gl||'').toLowerCase()]||m.gl||'';const w=$c('cGlsW');w.style.display=g?'':'none';$c('cGls').innerHTML='<svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M1.5 2h15L9 11zM9 11v8M4.5 20.5h9"/></svg><span></span>';$c('cGls').lastChild.textContent=g;}
+  {const r=m.raw||{},GL={martini:'마티니',rocks:'락',coupe:'쿠페',highball:'하이볼',flute:'플루트'},g=GL[(r.gl||'').toLowerCase()]||m.gl||'';const w=$c('cGlsW');w.style.display='none';/* 정보카드에서 GLASS 정보 뺌 */$c('cGls').innerHTML='<svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M1.5 2h15L9 11zM9 11v8M4.5 20.5h9"/></svg><span></span>';$c('cGls').lastChild.textContent=g;}
   const ks=['pink','white','blue','brown'],ord=ks.map((k,i)=>[k,m.b[i]||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,2);
   $c('cBase').innerHTML=ord.map(([k,v])=>`<span class="it"><span class="sw" style="background:${SWC[k]}"></span>${v}</span>`).join('');
   const lq=(m.live&&m.live.lk.length)?m.lq.split(' · ')[0]:(m.lq||'').split(' · ')[0];const lc=(m.hexCol&&m.hexCol[2])||'#8AFF9A';
