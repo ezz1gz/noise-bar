@@ -63,7 +63,7 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  const G=Math.max(1,Math.round(B.group||1)),gg=B.ggap||0,units=N+(Math.ceil(N/G)-1)*gg,uw=W/units,xOf=i=>R.x0+(i+Math.floor(i/G)*gg+.5)*uw;
  for(let i=0;i<N;i++){const x=xOf(i),h=Math.max(B.min,Math.max(0,lv[i]-lo)/(PEAK.base-lo)*R.bh*2*B.height);ctx.globalAlpha=x<=phx?1:B.future;ctx.fillStyle='#fff';
   if(B.round>0){ctx.beginPath();ctx.roundRect(x-B.width/2,R.cy-h/2,B.width,h,Math.min(B.width/2,h/2));ctx.fill();}else ctx.fillRect(x-B.width/2,R.cy-h/2,B.width,h);}
- ctx.globalAlpha=.5;ctx.fillRect(phx-1.8,R.cy-R.bh*2.4,3.6,R.bh*4.8);ctx.globalAlpha=1;
+ ctx.globalAlpha=1;
  // ── 리큐르: 각자 실제 크기 → 테마 모양
  let lqs=[];
  if(live){lqs=A.lives.map(d=>({th:d.th,S:srcOf(A.LG[d.k],AC)})).filter(o=>o.S);if(A.preview&&!A.lives.some(d=>d.k===A.preview)){const S=srcOf(A.LG[A.preview],AC);if(S)lqs.push({th:NBG.previewTheme||'flow',S});}}
