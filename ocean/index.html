@@ -1173,7 +1173,7 @@ addEventListener('storage',e=>{if(e.key===HKEY)location.reload();});
  const BANDS=[[60,250],[250,700],[700,1800],[1800,4500],[4500,9000],[9000,15000]];
  function band(lo,hi){if(!an||!fd)return 0;const n=fd.length,ny=AC.sampleRate/2;let a=0,c=0;for(let i=Math.floor(lo/ny*n);i<Math.min(n,Math.ceil(hi/ny*n));i++){a+=fd[i];c++;}return c?a/c/255:0;}
  // 어떤 테마의 점선인지
- function liqTheme(m){const r=m.raw||{};const lq=(r.lq||'').split(',')[0].split(':')[0];if(lq)return lq;const t=(m.lq||'');return /박자|키보드|시계|발/.test(t)?'beat':/파도|숨|빨래|세탁/.test(t)?'breath':/비|종이|카페|흩/.test(t)?'scatter':'flow';}
+ window.__liqTheme=m=>liqTheme(m);function liqTheme(m){try{const k=(liqKeys(m)[0]||[])[0],l=k&&LIVE.lby(k);if(l&&l.th)return l.th;}catch(_){}const t=(m.lq||'');return /박자|키보드|시계|발/.test(t)?'beat':/파도|숨|빨래|세탁/.test(t)?'breath':/비|종이|카페|흩/.test(t)?'scatter':'flow';}
  let lum=0,lumT=0;
  function frame(){requestAnimationFrame(frame);const m=window.cardM||null;if(!m||card.classList.contains('off'))return;
   const now=performance.now()/1000;getAn();if(an){try{an.getByteFrequencyData(fd);}catch(_){}}
