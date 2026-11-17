@@ -1247,6 +1247,7 @@ const cardCfg=()=>{let s={};try{s=JSON.parse(localStorage.getItem('nb-card-cfg')
   if(!s.__m1){if(s.qrMM)s.qrMM=Math.round(s.qrMM*1.5*10)/10;s.__m1=1;try{localStorage.setItem('nb-card-cfg',JSON.stringify(s));}catch(_){}}
   if(!s.__m2){if(s.qrMM)s.qrMM=Math.round(s.qrMM*1.5*10)/10;s.__m2=1;try{localStorage.setItem('nb-card-cfg',JSON.stringify(s));}catch(_){}} // 한 번 더 1.5배
   if(!s.__m3){if(s.qrMM)s.qrMM=Math.round(s.qrMM*.75*10)/10;s.__m3=1;try{localStorage.setItem('nb-card-cfg',JSON.stringify(s));}catch(_){}} // 너무 커서 3/4로
+  if(!s.__m4){s.qrMM=9.4;s.__m4=1;try{localStorage.setItem('nb-card-cfg',JSON.stringify(s));}catch(_){}} // 인쇄해 보니 작아서 9.4mm(칸 6px)로
   if(!s.__m3){if(s.qrMM)s.qrMM=Math.round(s.qrMM*.75*10)/10;s.__m3=1;try{localStorage.setItem('nb-card-cfg',JSON.stringify(s));}catch(_){}} // 너무 커서 3/4로
   return Object.assign({},CARD_DEF,s);};
 async function buildCard(m,graphCv,CC,cache){
@@ -1302,7 +1303,7 @@ async function buildCard(m,graphCv,CC,cache){
 window.NBPrintCard=async function(m,graphCv){
   const cache={};let CC=cardCfg();const png=await buildCard(m,graphCv,CC,cache);
   window.__nbCardRebuild=async c=>{CC=Object.assign({},CARD_DEF,c);return buildCard(m,graphCv,CC,cache);};
-  window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c,{__m1:1,__m2:1,__m3:1})));return true;}catch(_){return false;}};
+  window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c,{__m1:1,__m2:1,__m3:1,__m4:1})));return true;}catch(_){return false;}};
   window.__nbCardDef=()=>Object.assign({},CARD_DEF);
   const admin=document.documentElement.classList.contains('admin'),owner=admin&&(()=>{try{return localStorage.getItem('nb-owner')==='1';}catch(_){return false;}})(); // 조절 패널은 관리자 모드(?admin)에서만 — 전시 화면에서 사람들이 누르면 카드와 인쇄 버튼만
   // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 창이 뜨면 '이대로 인쇄'로 바로
