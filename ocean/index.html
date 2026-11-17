@@ -137,7 +137,13 @@ html:not(.admin) .admBadge{display:none}
 .alist .sp{font:700 9px 'Space Mono',monospace;padding:2px 5px;border-radius:4px;background:#e9e7ec;color:#666}
 .alist i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:0}
 /* ═══ Figma 32:10564 · Ocean UI (2560×1440 기준, 화면 폭에 맞춰 축소) ═══ */
-html.phone #ui{display:none!important}
+/* 폰: PC와 같은 정보카드를 화면 아래에 (무대 #ui에서 카드만 꺼내 보여줌 · 크기는 화면 폭에 맞춰) */
+html.phone #ui{transform:none!important;width:100vw!important;height:100vh!important;left:0!important;top:0!important;position:fixed!important;z-index:380}
+html.phone #ui>*:not(.card){display:none!important}
+html.phone #ui .card{position:fixed!important;left:50%!important;top:auto!important;bottom:calc(68px + env(safe-area-inset-bottom));transform:translateX(-50%) scale(var(--cs,.78));transform-origin:50% 100%}
+html.phone.listen #ui .card{bottom:calc(240px + env(safe-area-inset-bottom))}
+html.phone #ui .card #cPrt{display:none!important}
+html.phone .labels .m .rec{display:none!important}
 #ui{position:absolute;left:0;top:0;width:2560px;height:1440px;transform-origin:0 0;pointer-events:none;z-index:30;font-family:'Pretendard','Noto Sans KR',sans-serif}
 #ui .oc{position:absolute;left:100px;top:130px;width:422px;height:125px}
 #ui .btn{position:absolute;left:2419px;width:60px;height:60px;border-radius:50px;display:grid;place-items:center;pointer-events:auto;cursor:pointer;border:0;padding:0;background:transparent;box-shadow:0 4px 20px rgba(0,0,0,.25),inset 0 0 10px rgba(0,0,0,.05)}
@@ -1056,7 +1062,11 @@ function fillCard(m){cardM=m;window.cardM=m;const $c=id=>document.getElementById
   const gl=$c('cGar');gl.innerHTML='';const gs=m.live&&m.live.g.length?m.live.g:[{k:'blossom',n:4},{k:'blossom',n:5}];gs.slice(0,3).forEach(x=>gl.appendChild(garIcon(x.k,x.n)));}
 // 듣고 있는 믹스 = 가장 크게 들리는 믹스 (누르거나 새로 도착하면 그 믹스)
 const _plPhone=placeLabels;
-placeLabels=function(){if(document.documentElement.classList.contains('phone'))return _plPhone();const sc=uiScale(),Z=zv();let best=null,bh=.12;
+function phCard(){const card=document.getElementById('card');if(!card)return;let best=(focused&&focused.vis)?focused:(EAR.anchor&&EAR.anchor.vis?EAR.anchor:null);
+  if(!best){let bh=.35;MIXES.forEach(m=>{if(m.vis&&m.sp&&(m.hear||0)>bh){bh=m.hear;best=m;}});}
+  const LS=document.documentElement.classList.contains('listen');card.style.setProperty('--cs',String(Math.max(.4,Math.min(.86,(innerWidth-24)/455,(LS?innerHeight-480:innerHeight*.5)/555))));
+  if(!best){card.classList.add('off');return;}if(best!==cardM)fillCard(best);card.classList.remove('off');}
+placeLabels=function(){if(document.documentElement.classList.contains('phone')){const r=_plPhone();try{phCard();}catch(_){}return r;}const sc=uiScale(),Z=zv();let best=null,bh=.12;
   MIXES.forEach(m=>{relabel(m);if(m.vis&&m.sp&&(m.hear||0)>bh){bh=m.hear;best=m;}});if(EAR.anchor&&EAR.anchor.vis)best=EAR.anchor;
   MIXES.forEach(m=>{const el=m.el;if(!m.vis||!m.sp){el.style.visibility='hidden';return;}el.style.visibility='';el.classList.remove('r');el.classList.toggle('act',m===best);
     const r=(m===best?20:10)*sc/Z;el.style.transform=`translate(${m.sp[0]}px,${m.sp[1]}px) translate(-50%,${-r}px)`;el.style.zIndex=m===best?'50':'1';el.style.opacity='';});
