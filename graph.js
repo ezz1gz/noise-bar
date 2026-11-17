@@ -98,11 +98,12 @@ function draw(ctx,R,now,clock){const c=NBG.cfg,B=c.base,A=audio(),AC=A&&A.AC;con
  rows.forEach(({L,P,v},j)=>{let mean=0;for(const a of v)mean+=a;mean/=v.length;const lvl=Math.min(1,mean/PEAK.liq),ph=j*2.1+.7;
   const amp=R.lr*c.liq.range*(.32+.68*lvl)*(1-j*.12),env=x=>{const u=(x-X0)/(X1-X0);return Math.exp(-Math.pow((u-.5)*1.4,2));};
   // RS: 사인을 마루는 넓고 둥글게, 오르내리는 기울기는 좁게 (뾰족한 꼭짓점·늘어진 비탈 없애기)
-  const RS=s=>Math.sign(s)*Math.pow(Math.abs(s),.6);
+  // RS: 마루를 넓고 둥글게 — 거듭제곱(0점에서 꺾임) 대신 tanh로 매끈하게 (어디서도 툭 튀는 곳 없음)
+  const RS=s=>Math.tanh(1.6*s)/Math.tanh(1.6);
   const shp=(x,m)=>{const t=tOf(x),wob=(v[m]-mean)/PEAK.liq;
-   if(L.th==='breath')return RS(Math.sin(2*Math.PI*t/5.6+ph))*env(x)*(.92+.08*wob);
+   if(L.th==='breath')return RS(Math.sin(2*Math.PI*t/5.6+ph))*env(x);
    if(L.th==='beat'){const k=Math.floor(t/.62+ph);return (k%2?1:-1)*.55*(.6+.4*Math.sin(k*1.13+j*3.7));}
-   if(L.th==='scatter')return (Math.sin(t*9.3+ph)*.5+Math.sin(t*22.6-ph*2)*.3)*.8*taper(x)+.12*wob;
+   if(L.th==='scatter')return (Math.sin(t*2.3+ph)*.55+Math.sin(t*5.1-ph*2)*.25)*.8*taper(x); // 천천히 흐르는 점 물결 (소리 떨림으로 튀지 않게)
    return (RS(Math.sin(2*Math.PI*t/4.4+ph))*.6+RS(Math.sin(2*Math.PI*t/1.9-ph))*.22)*taper(x)+.06*wob;};
   const LW=c.liq.width,LA=c.liq.alpha;ctx.strokeStyle='#fff';ctx.fillStyle='#fff';ctx.lineWidth=LW;ctx.lineCap='round';ctx.lineJoin=L.th==='beat'?'miter':'round';ctx.globalAlpha=LA;
   if(L.th==='scatter'){for(let m=0;m<M;m++){const x=X0+m*STEP,y=shp(x,m);ctx.globalAlpha=LA;ctx.beginPath();ctx.arc(x,R.cy-y*amp,LW*P.dot*(.45+.5*Math.abs(y)),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;return;}
