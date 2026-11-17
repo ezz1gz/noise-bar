@@ -1307,13 +1307,17 @@ async function buildCard(m,graphCv,CC,cache){
     window.__lastQR={url,n};}catch(e){console.warn('QR',e);}
   return c.toDataURL('image/png');}
 window.NBPrintCard=async function(m,graphCv){
+  // 창은 누른 그 순간 바로 연다 — 카드를 다 그린 뒤 열면(몇 초 걸림) 브라우저가 팝업을 막아서 첫 클릭엔 안 뜨던 문제
+  let w=window.open('','nbprint','width=980,height=820');
+  if(w){try{w.document.open();w.document.write('<!doctype html><meta charset=utf8><title>NØISE BAR 카드</title><body style="margin:0;background:#1d1a20;color:#eee;font:15px Pretendard,sans-serif;display:grid;place-items:center;height:100vh">카드를 만드는 중이에요…</body>');w.document.close();}catch(_){}}
   const cache={};let CC=cardCfg();const png=await buildCard(m,graphCv,CC,cache);
   window.__nbCardRebuild=async c=>{CC=Object.assign({},CARD_DEF,c);return buildCard(m,graphCv,CC,cache);};
   window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c,{__m1:1,__m2:1,__m3:1,__m4:1})));return true;}catch(_){return false;}};
   window.__nbCardDef=()=>Object.assign({},CARD_DEF);
   const admin=document.documentElement.classList.contains('admin'),owner=admin&&(()=>{try{return localStorage.getItem('nb-owner')==='1';}catch(_){return false;}})(); // 조절 패널은 관리자 모드(?admin)에서만 — 전시 화면에서 사람들이 누르면 카드와 인쇄 버튼만
   // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 창이 뜨면 '이대로 인쇄'로 바로
-  const w=window.open('','nbprint','width=980,height=820');if(!w){const a=document.createElement('a');a.href=png;a.download='NOISEBAR-card.png';a.click();return;}
+  if(!w||w.closed)w=window.open('','nbprint','width=980,height=820');if(!w){const a=document.createElement('a');a.href=png;a.download='NOISEBAR-card.png';a.click();return;}
+  w.document.open();
   const SL=[['gstretch','그래프 위아래 크기 (가니쉬 비율 유지)',1,1.9,.05],['galpha','그래프 진하기',.2,1,.01],
     ['qrMM','QR 크기 (mm)',3,16,.1],['qrPad','QR 판 여백',0,40,1],['qrR','QR 판 모서리',0,40,1]];
   w.document.write(`<!doctype html><meta charset=utf8><title>NØISE BAR 카드</title><style>@page{size:54mm 86mm;margin:0}
