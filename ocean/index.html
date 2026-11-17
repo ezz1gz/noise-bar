@@ -1298,7 +1298,7 @@ async function buildCard(m,graphCv,CC,cache){
   lines.forEach((l,i)=>x.fillText(l,90,330+i*Math.round(fs*1.25)));x.shadowBlur=0;x.shadowColor='rgba(0,0,0,0)';
   // ④ 로고: 왼쪽 아래 (Figma 벡터 그대로)
   const BOT=96; // 로고·QR을 위로 (인쇄하면 맨 아래가 잘려서 · 바닥 여백 약 7.6mm)
-  const gMul=MODE==='blend'&&lightG;x.save();if(gMul)x.globalCompositeOperation='multiply';x.translate(96,1942-BOT);x.scale(2*1.1,2*1.1);x.translate(-48,-971); // 로고 1.1배 — 왼쪽 아래 모서리(여백) 고정x.fillStyle=gMul?'#B9B4BC':INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore(); // 로고 = 그래프와 같은 색
+  const gMul=MODE==='blend'&&lightG;x.save();if(gMul)x.globalCompositeOperation='multiply';x.translate(96,1942-BOT);x.scale(2*1.1,2*1.1);x.translate(-48,-971);/* 로고 1.1배 — 왼쪽 아래 모서리(여백) 고정 */x.fillStyle=gMul?'#B9B4BC':INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore(); // 로고 = 그래프와 같은 색
   // ⑤ QR: 오른쪽 아래 42×42 (Figma 크기) — 내 잔 듣기 · MP3 저장 화면
   const url=NB_BASE+'l#'+mixPayload(m);
   try{const q=qrcode(0,'L');q.addData(unescape(encodeURIComponent(url)));q.make();const n=q.getModuleCount(),cell=Math.max(2,Math.round(CC.qrMM*W/54/n)),S=cell*n,P=Math.max(CC.qrPad,cell*2),X0=W-96-P-S,Y0=1942-BOT-P-S; // 칸 크기를 정수 픽셀로 — 경계가 번지지 않고 또렷하게 // 흰 판 오른쪽 여백 = 로고 왼쪽 여백(96px) · 판 아래 = 로고 아래 — 크기가 바뀌어도 여백 그대로
