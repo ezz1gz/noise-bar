@@ -37,7 +37,7 @@ const bar=document.createElement('div');bar.className='g2bar';bar.setAttribute('
 const nx=document.createElement('button');nx.type='button';nx.className='g2next';nx.setAttribute('aria-label','서빙하기');nx.innerHTML='<img src="assets/l2-chev.svg" width="24" height="24" alt="">';
 // ── 시트
 const sh=document.createElement('section');sh.className='g2sheet';sh.setAttribute('aria-label','가니쉬 설정');
-sh.innerHTML='<button type="button" class="grab" id="g2sg" aria-label="닫기"><img src="assets/l2-grab.svg" width="33.5" height="1.5" alt=""></button><div class="g2tabs" id="g2tabs" role="tablist"></div><div class="g2fl"><span>빈도</span><b id="g2fv"></b></div><div class="g2freq" id="g2freq" role="group" aria-label="빈도"></div><div class="g2line"></div><div class="g2vol"><div class="g2pill" id="g2pill" role="slider" tabindex="0" aria-label="볼륨" aria-valuemin="0" aria-valuemax="100"><i class="g2fill"></i><span id="g2pn">볼륨</span><img class="g2tick" id="g2tk" src="assets/l2-tick.svg" width="1.5" height="13.5" alt=""></div><b id="g2vp"></b></div><button type="button" class="g2serve" id="g2serve"><span>서빙하기</span><img src="assets/l2-chevw.svg" width="24" height="24" alt=""></button>';
+sh.innerHTML='<button type="button" class="grab" id="g2sg" aria-label="닫기"><img src="assets/l2-grab.svg" width="33.5" height="1.5" alt=""></button><div class="g2tabs" id="g2tabs" role="tablist"></div><div class="g2fl"><span>빈도</span><b id="g2fv"></b></div><div class="g2freq" id="g2freq" role="group" aria-label="빈도"></div><div class="g2line"></div><div class="g2vol"><div class="g2pill" id="g2pill" role="slider" tabindex="0" aria-label="볼륨" aria-valuemin="0" aria-valuemax="100"><i class="g2fill"></i><span id="g2pn">볼륨</span><img class="g2tick" id="g2tk" src="assets/l2-tick.svg" width="1.5" height="13.5" alt=""></div><b id="g2vp"></b></div><button type="button" class="g2serve" id="g2serve"><span>이대로 올리기</span><img src="assets/l2-chevw.svg" width="24" height="24" alt=""></button>';
 [bar,nx,sh].forEach(e=>{e.dataset.band='bot';ph.appendChild(e);});sh.dataset.band='bot';
 let act=null;
 // 새로 넣은 가니쉬: 빈도나 볼륨을 한 번도 안 누르고 시트를 닫거나 다른 데로 가면 취소(잔에서 빠짐)
@@ -77,7 +77,8 @@ async function toFront(){const k=Q.get('gl')||'martini';
   w.style.transformOrigin=`${rx-GXL}px ${ry-GXT}px`;
   w.animate([{transform:`translate(${CC[0]-rx}px,${CC[1]-ry}px) scale(${2*CR/rw},.12)`,opacity:0},{opacity:.6,offset:.4},{transform:'none',opacity:1}],{duration:D,delay:250+D*.15,easing:ez,fill:'forwards'});
   await new Promise(r=>setTimeout(r,250+D*1.15+600));}
-nx.onclick=serve;$('g2serve').onclick=serve;
+nx.onclick=serve; // 서브는 오른쪽 아래 화살표 버튼에서만
+$('g2serve').onclick=()=>{confirmD(act);ph.classList.remove('g2open');render();}; // 시트의 검은 버튼: 이 가니쉬 설정(빈도·볼륨)을 마치고 잔에 올려둠
 function render(){const L=ITEMS();
   // 바: 계열 아이콘(넣은 계열은 채움) · n/3
   $('g2ics').innerHTML=ORDER.map(k=>{const d=L.find(x=>x.k===k);return `<span class="g2ic" title="${FAM[k].n}">${d?fillOf(d):BLANK[k]}</span>`;}).join('');

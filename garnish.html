@@ -451,7 +451,7 @@ function fr(){gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(uR,cv.width,cv.he
 document.getElementById('bk').onclick=()=>go('glass.html');
 document.getElementById('nx').onclick=()=>{if(window.__g2)return __g2.serve();const L=[...LOOP].filter(w=>w.isConnected).map(w=>{const d=w._loop.d;return d.k+'-'+d.n+'-'+d.sz;});const q=new URLSearchParams(location.search);q.set('g',L.join(','));location.href='name.html?'+q;};
 </script>
-<script src="garnish2.js"></script>
+<script src="garnish2.js?v=20261118a"></script>
 <script src="intro.js"></script>
 <script>addEventListener('load',()=>setTimeout(()=>nbIntro({key:'garnish',title:'auto',pages:[["가니쉬 Garnish", "가니쉬는 소리에 작은 반짝임을 더해요", "가니쉬를 탭하거나 끌어서 잔에 올려요", "세 개까지 올리고, 빼려면 잔 밖으로 끌어내요"]]}),250));</script>
 <script>addEventListener('load',()=>requestAnimationFrame(()=>requestAnimationFrame(()=>document.body.classList.add('nbReady'))));setTimeout(()=>document.body.classList.add('nbReady'),2500);</script>
