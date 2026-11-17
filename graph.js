@@ -14,12 +14,21 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 function merge(d,s){if(!s||typeof s!=='object')return d;for(const k in d){if(s[k]===undefined)continue;if(typeof d[k]==='object'&&d[k])merge(d[k],s[k]);else if(typeof s[k]===typeof d[k])d[k]=s[k];}return d;}
 // 공용 값(graph-cfg.js · 모든 폰·아이맥 같은 값) 위에 이 기기에서 저장한 값 — 공용 값 버전이 바뀌면 예전 기기 값은 버림
 const SH=window.NB_GRAPH_SHARED||{},SHV=SH.ver||0;
-function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}const d=merge(clone(DEF),SH.cfg||{});if(s&&(s.__v||0)===SHV)merge(d,s);return d;}
+// 관리자가 graph-tune에서 '모든 기기에 적용'한 값 (ntfy로 퍼짐 · 받은 값은 이 기기에 계속 기억)
+const RKEY='nb-gcfg-remote',RURL='https://ntfy.sh/noisebar-gcfg-k7q2x9m4vz';
+function remote(){try{const r=JSON.parse(localStorage.getItem(RKEY)||'null');return r&&r.cfg?r:null;}catch(_){return null;}}
+function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){}const d=merge(clone(DEF),SH.cfg||{});const r=remote();if(r&&(r.t||0)>(SH.t||0))merge(d,r.cfg);
+  if(s&&(s.__v||0)===SHV&&(!r||(s.__t||0)>=(r.t||0)))merge(d,s);return d;}
 const NBG={DEF,KEY,cfg:load(),
- save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign({},this.cfg,{__v:SHV})));return true;}catch(_){return false;}},
+ save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign({},this.cfg,{__v:SHV,__t:Date.now()})));return true;}catch(_){return false;}},
+ publish(){const t=Date.now(),cfg=JSON.parse(JSON.stringify(this.cfg));return fetch(RURL,{method:'POST',body:JSON.stringify({v:1,t,cfg})}).then(r=>{if(!r.ok)throw 0;try{localStorage.setItem(RKEY,JSON.stringify({t,cfg}));localStorage.removeItem(KEY);}catch(_){}return true;});},
  reload(){this.cfg=load();},reset(){this.cfg=merge(clone(DEF),SH.cfg||{});},saved(){try{return localStorage.getItem(KEY);}catch(_){return null;}},
  gar:()=>[]};   // play.html이 채움: 가니쉬 울림 목록 [{i,k,n,sz,t,lv}]
 window.NBG=NBG;
+// 다른 기기에서 적용한 최신 값 받아오기 (열 때 + 오래 켜두는 화면은 2분마다)
+NBG.pull=()=>fetch(RURL+'/json?poll=1&since=12h').then(r=>r.ok?r.text():'').then(tx=>{let best=null;tx.split('\n').forEach(l=>{try{const e=JSON.parse(l);if(e.event!=='message')return;const d=JSON.parse(e.message);if(d&&d.cfg&&(!best||d.t>best.t))best=d;}catch(_){}});
+  const cur=remote();if(best&&(!cur||best.t>cur.t)){try{localStorage.setItem(RKEY,JSON.stringify({t:best.t,cfg:best.cfg}));}catch(_){}NBG.cfg=load();}}).catch(()=>{});
+NBG.pull();setInterval(()=>{if(!document.hidden)NBG.pull();},120000);
 
 // ── 버퍼 → 20ms 단위 실제 크기(RMS) 표
 const ENV=new WeakMap(),PKE=new WeakMap(),HOP=.02;

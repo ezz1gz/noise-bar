@@ -31,8 +31,8 @@ canvas{display:block;border-radius:14px}
  <div class="pn" id="pn">
   <div class="sec">미리보기 리큐르</div><div class="th" id="th"></div>
   <div id="sl"></div>
-  <div class="bt"><button class="pr" id="sv">이 기기에 저장</button><button id="cp">값 복사</button><button id="df">기본값</button></div>
-  <p class="st" id="st">저장하면 이 기기의 플레이·오션·인쇄에 바로 적용돼요. 모든 폰과 아이맥에 같게 하려면 '값 복사'로 Claude에게 보내 주세요.</p>
+  <div class="bt"><button class="pr" id="pb">모든 기기에 적용</button><button id="sv">이 기기에만</button><button id="cp">값 복사</button><button id="df">기본값</button></div>
+  <p class="st" id="st">'모든 기기에 적용'을 누르면 전시 폰들과 아이맥(플레이·오션 정보카드·인쇄 카드)에 몇 초~2분 안에 똑같이 적용돼요.</p>
  </div>
 </div>
 <script src="graph-cfg.js"></script><script src="graph.js"></script>
@@ -55,7 +55,7 @@ const SL=[['막대',[
 const get=p=>p.split('.').reduce((o,k)=>o[k],NBG.cfg),set=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],NBG.cfg)[l]=v;};
 function ui(){document.getElementById('sl').innerHTML=SL.map(([h,rows])=>`<div class="sec">${h}</div>`+rows.map(([p,l,a,b,s])=>`<div class="row"><label for="${p}">${l}</label><input type="range" id="${p}" min="${a}" max="${b}" step="${s}" value="${get(p)}"><output>${+(+get(p)).toFixed(2)}</output></div>`).join('')).join('');
  document.querySelectorAll('#sl input').forEach(i=>i.oninput=()=>{set(i.id,+i.value);i.nextElementSibling.textContent=+(+i.value).toFixed(2);});}
-ui();
+ui();{const c0=NBG.cfg;setTimeout(()=>{if(NBG.cfg!==c0)ui();},2500);}
 // 미리보기용 소리: 실제처럼 크기가 오르내리는 노이즈 버퍼
 const SR=8000,mkBuf=(sec,f)=>{const b=new AudioBuffer({length:SR*sec,sampleRate:SR,numberOfChannels:1}),d=b.getChannelData(0);let lp=0;for(let i=0;i<d.length;i++){const t=i/SR;lp+=(Math.random()*2-1-lp)*.2;d[i]=lp*f(t);}return b;};
 const NG=[1,1.6,.7,2.3].map((r,j)=>({buf:mkBuf(6,t=>.4+.6*Math.pow(Math.abs(Math.sin(t*r+j)),2)),gain:{value:[.3,.25,.2,.25][j]},src:{playbackRate:{value:1}},off:0,t0:0}));
@@ -80,6 +80,7 @@ function paint(c,f,col){const x=c.getContext('2d');x.setTransform(1,0,0,1,0,0);x
  paint(K,x=>{const W=K.width,H=K.height,sc=W*(1096/1276)/342,gs=1.3;x.setTransform(sc,0,0,sc,W*90/1276-30*sc,H*1170/2032-437*sc);NBG.draw1(x,{x0:58,x1:344,cy:437,bh:44*gs,lr:150*gs},a,clk,ev);},'#EDEDED');
  requestAnimationFrame(loop);})(0);
 const st=document.getElementById('st');
+document.getElementById('pb').onclick=()=>{st.textContent='보내는 중…';NBG.publish().then(()=>{st.textContent='적용했어요 · 폰은 새로 열 때, 아이맥은 2분 안에 바뀌어요';}).catch(()=>{st.textContent='보내지 못했어요 · 인터넷 연결을 확인해 주세요';});};
 document.getElementById('sv').onclick=()=>{st.textContent=NBG.save()?'저장했어요 · 이 기기의 플레이·오션·인쇄에 적용돼요':'이 브라우저에선 저장이 막혀 있어요';};
 document.getElementById('df').onclick=()=>{NBG.reset();ui();st.textContent='공용 기본값이에요 · 저장해야 이 기기에 남아요';};
 document.getElementById('cp').onclick=async()=>{const t=JSON.stringify(NBG.cfg);try{await navigator.clipboard.writeText(t);st.textContent='복사했어요 · Claude에게 붙여넣으면 모든 기기 공용 값으로 넣어둘게요';}catch(_){prompt('이 값을 복사해 주세요',t);}};
