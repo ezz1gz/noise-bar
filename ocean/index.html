@@ -1294,9 +1294,9 @@ async function buildCard(m,graphCv,CC,cache){
   const gMul=MODE==='blend'&&lightG;x.save();if(gMul)x.globalCompositeOperation='multiply';x.translate(0,-BOT);x.scale(2,2);x.fillStyle=gMul?'#B9B4BC':INKB;NB_LOGO.forEach(d=>x.fill(new Path2D(d)));x.restore(); // 로고 = 그래프와 같은 색
   // ⑤ QR: 오른쪽 아래 42×42 (Figma 크기) — 내 잔 듣기 · MP3 저장 화면
   const url=NB_BASE+'l#'+mixPayload(m);
-  try{const q=qrcode(0,'L');q.addData(unescape(encodeURIComponent(url)));q.make();const n=q.getModuleCount(),S=Math.round(CC.qrMM*W/54),cell=S/n,P=Math.max(CC.qrPad,Math.round(cell*2)),X0=W-96-P-S,Y0=1942-BOT-P-S; // 흰 판 오른쪽 여백 = 로고 왼쪽 여백(96px) · 판 아래 = 로고 아래 — 크기가 바뀌어도 여백 그대로
+  try{const q=qrcode(0,'L');q.addData(unescape(encodeURIComponent(url)));q.make();const n=q.getModuleCount(),cell=Math.max(2,Math.round(CC.qrMM*W/54/n)),S=cell*n,P=Math.max(CC.qrPad,cell*2),X0=W-96-P-S,Y0=1942-BOT-P-S; // 칸 크기를 정수 픽셀로 — 경계가 번지지 않고 또렷하게 // 흰 판 오른쪽 여백 = 로고 왼쪽 여백(96px) · 판 아래 = 로고 아래 — 크기가 바뀌어도 여백 그대로
     x.fillStyle='#000';x.beginPath();x.roundRect?x.roundRect(X0-P,Y0-P,S+P*2,S+P*2,CC.qrR):x.rect(X0-P,Y0-P,S+P*2,S+P*2);x.fill(); // 검은 판(불투명) 위에 흰 QR
-    x.fillStyle='#fff';for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(X0+j*cell,Y0+i*cell,cell+.35,cell+.35);
+    x.fillStyle='#fff';for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(X0+j*cell,Y0+i*cell,cell,cell);
     window.__lastQR={url,n};}catch(e){console.warn('QR',e);}
   return c.toDataURL('image/png');}
 window.NBPrintCard=async function(m,graphCv){
@@ -1312,7 +1312,7 @@ window.NBPrintCard=async function(m,graphCv){
   w.document.write(`<!doctype html><meta charset=utf8><title>NØISE BAR 카드</title><style>@page{size:54mm 86mm;margin:0}
    html,body{margin:0;background:#1d1a20;color:#eee;font:13px Pretendard,'Apple SD Gothic Neo',sans-serif}
    .wrap{display:flex;gap:22px;align-items:flex-start;justify-content:center;padding:18px}
-   #card{display:block;height:calc(100vh - 36px);aspect-ratio:54/86;width:auto;border-radius:6px;box-shadow:0 6px 30px rgba(0,0,0,.45)}
+   #card{display:block;image-rendering:-webkit-optimize-contrast;height:calc(100vh - 36px);aspect-ratio:54/86;width:auto;border-radius:6px;box-shadow:0 6px 30px rgba(0,0,0,.45)}
    .pn{width:290px;background:#2a2630;border-radius:16px;padding:16px 16px 12px}.pn h2{margin:0 0 4px;font-size:15px}.pn .sub{margin:0 0 12px;opacity:.6;font-size:12px}
    .row{display:grid;grid-template-columns:1fr 52px;gap:4px 8px;align-items:center;margin:0 0 10px}.row label{grid-column:1/3;opacity:.85}.row input[type=range]{width:100%}.row output{text-align:right;font-variant-numeric:tabular-nums;opacity:.8}
    .bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.bt button,.bt a{flex:1 1 40%;color:#fff;background:#444;border:0;border-radius:14px;padding:8px 10px;text-decoration:none;cursor:pointer;text-align:center;font:inherit}
