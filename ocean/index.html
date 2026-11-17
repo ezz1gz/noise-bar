@@ -970,6 +970,12 @@ async function renderSolo(m,SEC){if(!AC)return null;const sr=AC.sampleRate,O=new
   const buf=await O.startRendering(),ch=buf.getChannelData(0);let pk=0;for(let i=0;i<ch.length;i++){const a=Math.abs(ch[i]);if(a>pk)pk=a;}
   const k=pk>0?.89/pk:1;for(let i=0;i<ch.length;i++)ch[i]*=k;return{data:ch,sr};}
 window.__nbRenderSolo=renderSolo;
+// 그 잔의 플레이 화면 주소 (인쇄 카드 배경을 플레이와 똑같이 그리려고)
+window.__nbPlayQ=function(m){const r=m.raw||{};const q=new URLSearchParams();
+  if(r.pk){q.set('pk',r.pk);q.set('s',r.s||'');if(r.lk)q.set('lk',r.lk);if(r.lq)q.set('lq',r.lq);if(r.lt)q.set('lt',r.lt);}
+  else{q.set('pk','pink,white,blue,brown');q.set('s',m.b.map(v=>v/100).join(','));const L=liqKeys(m).filter(([k])=>LBY[k]);
+    if(L.length){q.set('lk',L.map(x=>x[0]).join(','));q.set('lq',L.map(([k,v])=>(LBY[k].th||'flow')+':'+Math.round(v*100)).join(','));q.set('lt',L.map(([k])=>(LBY[k].c||'#888888').replace('#','')).join(','));}}
+  if(r.g)q.set('g',r.g);return q;};
 // 플레이 화면 그래프(graph.js)에 넘길 소리 구성: 그 잔의 실제 버퍼들 (play의 __nbAudio와 같은 모양)
 window.__nbGraphA=async function(m){if(!AC)initAudio();if(!AC)return null;const T=20+((m.id||m.n||'').length*7.3)%30;
   const mk=(buf,v,rate)=>({buf,gain:{value:v},src:{playbackRate:{value:rate||1}},off:0,t0:0});
@@ -1241,11 +1247,18 @@ async function buildCard(m,graphCv,CC,cache){
   const W=1276,H=2032,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
   // ① 배경: 지금 화면에서 그 잔 주변 메타볼을 잘라 카드 비율로 (다음 프레임에 찍음)
   // 폰 플레이 화면의 메타볼(폰이 보낸 작은 그림)이 있으면 그걸, 없으면 바다 화면에서 그 잔 주변을 잘라 씀
-  const thumbBg=cache.thumb!==undefined?cache.thumb:(cache.thumb=await new Promise(res=>{const u=m.raw&&m.raw.img;if(!u)return res(null);const im=new Image();im.onload=()=>{const t=document.createElement('canvas');t.width=im.width;t.height=im.height;t.getContext('2d').drawImage(im,0,0);res(t);};im.onerror=()=>res(null);im.src='data:image/jpeg;base64,'+u;}));
+  const playBg=()=>new Promise(res=>{if(!window.__nbPlayQ)return res(null);const id='c'+Math.random().toString(36).slice(2,8),q=__nbPlayQ(m);q.set('cap',id);
+    const f=document.createElement('iframe');f.setAttribute('allow',"autoplay 'none'");f.style.cssText='position:fixed;left:0;top:0;width:402px;height:874px;opacity:0;pointer-events:none;z-index:-1;border:0';
+    let done=false;const fin=v=>{if(done)return;done=true;removeEventListener('message',on);f.remove();if(!v)return res(null);const im=new Image();im.onload=()=>{const t=document.createElement('canvas');t.width=im.width;t.height=im.height;t.getContext('2d').drawImage(im,0,0);t.full=1;res(t);};im.onerror=()=>res(null);im.src=v;};
+    const on=e=>{if(e.data&&e.data.nbcap===id)fin(e.data.img);};addEventListener('message',on);setTimeout(()=>fin(null),9000);f.src='../play.html?'+q.toString();document.body.appendChild(f);});
+  const thumbBg=cache.thumb!==undefined?cache.thumb:(cache.thumb=await new Promise(res=>{const u=m.raw&&m.raw.img;if(!u)return playBg().then(res);const im=new Image();im.onload=()=>{const t=document.createElement('canvas');t.width=im.width;t.height=im.height;t.getContext('2d').drawImage(im,0,0);t.full=im.height/im.width>1.8?1:0;res(t);};im.onerror=()=>playBg().then(res);im.src='data:image/jpeg;base64,'+u;}));
   const bg=thumbBg||cache.bg||(cache.bg=await new Promise(res=>{window.__shotReq=(gc,dp)=>{let ch=gc.height*.8,cw=ch*W/H;if(cw>gc.width){cw=gc.width;ch=cw*H/W;}const cx=Math.max(0,Math.min(gc.width-cw,m.sp[0]*dp-cw/2)),cy=Math.max(0,Math.min(gc.height-ch,m.sp[1]*dp-ch*.55));const t=document.createElement('canvas');t.width=Math.round(cw);t.height=Math.round(ch);
     t.getContext('2d').drawImage(gc,cx,cy,cw,ch,0,0,cw,ch);res(t);};setTimeout(()=>res(null),800);}));
   x.fillStyle='#b65cff';x.fillRect(0,0,W,H);
-  if(bg){x.imageSmoothingQuality='high';x.filter=thumbBg?'blur(46px) saturate(1.08)':'blur(10px) saturate(1.12)';const o=thumbBg?140:40;x.drawImage(bg,-o,-o,W+o*2,H+o*2);x.filter='none';}
+  // 플레이 화면 전체 그림이면 카드에 꽉 채워(위아래 색 그대로) · 플레이처럼 살짝만 흐리게
+  if(bg){x.imageSmoothingQuality='high';if(thumbBg&&thumbBg.full){x.filter='blur(26px)';const o=60;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}
+    else if(thumbBg){x.filter='blur(40px)';const o=120,w=bg.width,h=bg.height;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}
+    else{x.filter='blur(10px) saturate(1.12)';const o=40;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}x.filter='none';}
   const MODE=window.NB_CARD_MODE||'blend'; // dim: 배경 전체를 살짝 어둡게 · blend: 밝은 자리에서만 그래프를 배경에 묻히게(곱하기)
   if(MODE==='dim'){x.fillStyle='rgba(20,10,30,.14)';x.fillRect(0,0,W,H);}
   // 밝은 메타볼이면 Figma 103:6286(검정 글자·회색 그래프), 진하면 96:6094(흰 글자)
@@ -1257,7 +1270,7 @@ async function buildCard(m,graphCv,CC,cache){
   // ② 그래프 = 폰 플레이 화면 그래프(graph.js)를 그 잔 레시피로 그대로 그림
   let pg=null;try{if(window.NBG&&NBG.snap&&window.__nbGraphA){const G=await __nbGraphA(m);if(G){const c2=document.createElement('canvas');c2.width=804;c2.height=1748;const g2=c2.getContext('2d');g2.setTransform(2,0,0,2,0,0);
     const keep=NBG.cfg;NBG.cfg=JSON.parse(JSON.stringify(keep));
-    try{const gs=CC.gstretch;NBG.snap(g2,{x0:58,x1:344,cy:437,bh:44*gs,lr:150*gs},G.A,G.T,G.gar);}finally{NBG.cfg=keep;}const ch=Math.min(1748,Math.round(880*gs)),cr=document.createElement('canvas');cr.width=684;cr.height=ch;cr.getContext('2d').drawImage(c2,60,874-ch/2,684,ch,0,0,684,ch);pg=cr;}}}catch(e){console.warn('graph',e);}
+    const gs=CC.gstretch;try{NBG.snap(g2,{x0:58,x1:344,cy:437,bh:44*gs,lr:150*gs},G.A,G.T,G.gar);}finally{NBG.cfg=keep;}const ch=Math.min(1748,Math.round(880*gs)),cr=document.createElement('canvas');cr.width=684;cr.height=ch;cr.getContext('2d').drawImage(c2,60,874-ch/2,684,ch,0,0,684,ch);pg=cr;}}}catch(e){console.warn('graph',e);}
   if(pg){const t=pg,tx=t.getContext('2d');tx.globalCompositeOperation='source-in';tx.fillStyle=(MODE==='blend'&&lightG)?'#B9B4BC':GR;tx.fillRect(0,0,t.width,t.height);
     const gw=W-180,gh=gw*t.height/t.width,gy=1170-gh/2;x.save();x.globalAlpha=CC.galpha;if(MODE==='blend'&&lightG)x.globalCompositeOperation='multiply';x.drawImage(t,90,gy,gw,gh);x.restore();}
   else if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
@@ -1284,7 +1297,7 @@ window.NBPrintCard=async function(m,graphCv){
   window.__nbCardRebuild=async c=>{CC=Object.assign({},CARD_DEF,c);return buildCard(m,graphCv,CC,cache);};
   window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c)));return true;}catch(_){return false;}};
   window.__nbCardDef=()=>Object.assign({},CARD_DEF);
-  const admin=document.documentElement.classList.contains('admin'),owner=(()=>{try{return localStorage.getItem('nb-owner')==='1';}catch(_){return false;}})();
+  const admin=document.documentElement.classList.contains('admin'),owner=admin&&(()=>{try{return localStorage.getItem('nb-owner')==='1';}catch(_){return false;}})(); // 조절 패널은 관리자 모드(?admin)에서만 — 전시 화면에서 사람들이 누르면 카드와 인쇄 버튼만
   // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 창이 뜨면 '이대로 인쇄'로 바로
   const w=window.open('','nbprint','width=980,height=820');if(!w){const a=document.createElement('a');a.href=png;a.download='NOISEBAR-card.png';a.click();return;}
   const SL=[['gstretch','그래프 위아래 크기 (가니쉬 비율 유지)',1,1.9,.05],['galpha','그래프 진하기',.2,1,.01],
@@ -1296,10 +1309,10 @@ window.NBPrintCard=async function(m,graphCv){
    .pn{width:290px;background:#2a2630;border-radius:16px;padding:16px 16px 12px}.pn h2{margin:0 0 4px;font-size:15px}.pn .sub{margin:0 0 12px;opacity:.6;font-size:12px}
    .row{display:grid;grid-template-columns:1fr 52px;gap:4px 8px;align-items:center;margin:0 0 10px}.row label{grid-column:1/3;opacity:.85}.row input[type=range]{width:100%}.row output{text-align:right;font-variant-numeric:tabular-nums;opacity:.8}
    .bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.bt button,.bt a{flex:1 1 40%;color:#fff;background:#444;border:0;border-radius:14px;padding:8px 10px;text-decoration:none;cursor:pointer;text-align:center;font:inherit}
-   .bt .pr{background:#fff;color:#1d1a20;font-weight:600;flex-basis:100%}.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}.pn[hidden]{display:none}.pn[data-owner="0"] #sl,.pn[data-owner="0"] #sv,.pn[data-owner="0"] #df,.pn[data-owner="0"] #cp,.pn[data-owner="0"] .sub{display:none}.pn[data-owner="0"] h2::after{content:''}#tg{position:fixed;right:14px;top:14px;color:#fff;background:#444;border:0;border-radius:14px;padding:7px 12px;cursor:pointer}
+   .bt .pr{background:#fff;color:#1d1a20;font-weight:600;flex-basis:100%}.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}.pn[hidden]{display:none}.pn[data-owner="0"] #sl,.pn[data-owner="0"] #sv,.pn[data-owner="0"] #df,.pn[data-owner="0"] #cp,.pn[data-owner="0"] .sub{display:none}.pn[data-owner="0"] h2,.pn[data-owner="0"] #dl,.pn[data-owner="0"] #st{display:none}.pn[data-owner="0"]{background:none;padding:0;width:220px}.pn[data-owner="0"] .bt{margin:0}.pn[data-owner="0"] .pr{height:52px;font-size:16px}#tg{position:fixed;right:14px;top:14px;color:#fff;background:#444;border:0;border-radius:14px;padding:7px 12px;cursor:pointer}
    @media print{html,body{background:none}.pn,#tg{display:none!important}.wrap{display:block;padding:0}#card{width:54mm;height:86mm;border-radius:0;box-shadow:none}}</style>
    <div class="wrap"><img id="card" src="${png}" alt="NØISE BAR 카드"><div class="pn" id="pn" data-owner="${owner?1:0}"><h2>${owner?'카드 조절':'카드 인쇄'}</h2><p class="sub">바꾸면 바로 보여요 · 저장하면 다음 카드부터 이 값으로 뽑혀요</p><div id="sl"></div>
-   <div class="bt"><button class="pr" onclick="print()">이대로 인쇄</button><button id="sv">저장</button><button id="df">기본값</button><a id="dl" href="${png}" download="NOISEBAR-card.png">이미지 저장</a><button id="cp">값 복사</button></div><p class="st" id="st"></p></div></div>
+   <div class="bt"><button class="pr" onclick="print()">${owner?'이대로 인쇄':'인쇄하기'}</button><button id="sv">저장</button><button id="df">기본값</button><a id="dl" href="${png}" download="NOISEBAR-card.png">이미지 저장</a><button id="cp">값 복사</button></div><p class="st" id="st"></p></div></div>
    <script>const O=opener,SL=${JSON.stringify(SL)};let C=${JSON.stringify(CC)},busy=false,again=false;
    const sl=document.getElementById('sl'),img=document.getElementById('card'),st=document.getElementById('st');
    function ui(){sl.innerHTML=SL.map(([k,l,a,b,s])=>'<div class="row"><label for="i_'+k+'">'+l+'</label><input type="range" id="i_'+k+'" min="'+a+'" max="'+b+'" step="'+s+'" value="'+C[k]+'"><output id="o_'+k+'">'+C[k]+'</output></div>').join('');

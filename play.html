@@ -713,18 +713,19 @@ addEventListener('keydown',e=>{if(e.key==='g'&&!e.target.closest('input'))$$('gt
 document.getElementById('ocn').onclick=()=>{toast('소리의 바다는 잠시 막아뒀어요');};
 // ── 새로 만든 노이즈를 '소리의 바다'(PC 화면)로 보냄 — 같은 믹스는 한 번만
 (()=>{
-try{const Q=new URLSearchParams(location.search);if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
+try{const Q=new URLSearchParams(location.search);if(Q.get('cap'))return;if(!Q.get('g'))return;const key='nb-sent:'+location.search;if(sessionStorage.getItem(key))return;
 const d={v:1,id:Math.random().toString(36).slice(2,10)+Date.now().toString(36),t:Date.now(),pk:Q.get('pk'),s:Q.get('s'),lk:Q.get('lk'),lq:Q.get('lq'),lt:Q.get('lt'),g:Q.get('g'),name:Q.get('nm')||undefined,who:Q.get('mk')||undefined};
 // 플레이 화면 메타볼을 아주 작게 같이 보냄(카드 인쇄 배경용 · 흐리게 키워 쓰니 작아도 같음 · ntfy 4KB 안)
 const thumb=()=>new Promise(res=>{let u=null;try{u=typeof getMixShot==='function'&&getMixShot();}catch(_){}
   const live=window.NBMixLive&&NBMixLive.has&&NBMixLive.has()&&NBMixLive.start&&NBMixLive.start();
-  const put=src=>{try{const c=document.createElement('canvas');c.width=30;c.height=48;const x=c.getContext('2d');const w=src.width||src.naturalWidth,h=src.height||src.naturalHeight,cw=Math.min(w,h*30/48),ch=cw*48/30;
-    x.drawImage(src,(w-cw)/2,(h-ch)/2,cw,ch,0,0,30,48);let q=.72,o=c.toDataURL('image/jpeg',q);while(o.length>2400&&q>.3){q-=.12;o=c.toDataURL('image/jpeg',q);}res(o.length<2600?o.slice(23):null);}catch(_){res(null);}};
+  const TW=24,TH=52; // 플레이 화면 전체(402×874 비율) 그대로 — 가운데만 자르지 않음
+  const put=src=>{try{const c=document.createElement('canvas');c.width=TW;c.height=TH;const x=c.getContext('2d');const w=src.width||src.naturalWidth,h=src.height||src.naturalHeight;
+    x.drawImage(src,0,0,w,h,0,0,TW,TH);let q=.72,o=c.toDataURL('image/jpeg',q);while(o.length>2400&&q>.3){q-=.12;o=c.toDataURL('image/jpeg',q);}res(o.length<2600?o.slice(23):null);}catch(_){res(null);}};
   const fromShot=()=>{if(u){const im=new Image();im.onload=()=>put(im);im.onerror=()=>res(null);im.src=u;}else if(live&&live.canvas)put(live.canvas);else res(null);};
   // 먼저 지금 플레이 화면에 그려진 메타볼(#bgc)을 그대로 — 그리는 프레임 안에서 읽어야 해서 rAF에서, 비어 있으면 섞기 단계 사진으로
   const bgc=document.getElementById('bgc');let tries=0;
-  const grab=()=>{try{const c=document.createElement('canvas');c.width=30;c.height=48;const x=c.getContext('2d',{willReadFrequently:true});const w=bgc.width,h=bgc.height,cw=Math.min(w,h*30/48),ch=cw*48/30;x.drawImage(bgc,(w-cw)/2,(h-ch)/2,cw,ch,0,0,30,48);
-    const p=x.getImageData(0,0,30,48).data;let L=0,A=0;for(let i=0;i<p.length;i+=4){L+=p[i]+p[i+1]+p[i+2];A+=p[i+3];}
+  const grab=()=>{try{const c=document.createElement('canvas');c.width=TW;c.height=TH;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bgc,0,0,bgc.width,bgc.height,0,0,TW,TH);
+    const p=x.getImageData(0,0,TW,TH).data;let L=0,A=0;for(let i=0;i<p.length;i+=4){L+=p[i]+p[i+1]+p[i+2];A+=p[i+3];}
     if(A/(p.length/4)>200&&L/(p.length/4)>30){let q=.72,o=c.toDataURL('image/jpeg',q);while(o.length>2400&&q>.3){q-=.12;o=c.toDataURL('image/jpeg',q);}if(o.length<2600)return res(o.slice(23));}}catch(_){}
     if(++tries<4)requestAnimationFrame(grab);else fromShot();};
   if(bgc)setTimeout(()=>requestAnimationFrame(grab),2500);else fromShot();setTimeout(()=>res(null),6000);});
@@ -786,6 +787,15 @@ addEventListener('DOMContentLoaded',()=>{const say=L=>{try{window.nbNotice&&nbNo
  // 아래 패널은 위쪽이 살짝 어두운 그라데이션이라 그만큼 덜 밝게 봄
  NBContrast({src:()=>document.body.classList.contains('listen')?null:(im&&im.complete&&im.naturalWidth?im:document.getElementById('bgc')),rect:()=>ph.getBoundingClientRect(),k:.82,
   items:'#nbNm,#nbMk,#nbRc,#nbui .ic'});})();</script>
+<script>
+// 오션 인쇄 카드용: ?cap=<id> 로 숨겨 띄우면 이 플레이 배경(메타볼)을 그려 부모 창에 그림으로 돌려줌 (바다로 보내지 않음)
+(()=>{const Q=new URLSearchParams(location.search),id=Q.get('cap');if(!id||parent===window)return;const bgc=document.getElementById('bgc');let n=0;
+ const grab=()=>{try{const c=document.createElement('canvas');c.width=72;c.height=156;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(bgc,0,0,bgc.width,bgc.height,0,0,72,156);
+   const d=x.getImageData(0,0,72,156).data;let L=0;for(let i=0;i<d.length;i+=4)L+=d[i]+d[i+1]+d[i+2];
+   if(L/(d.length/4)>30){parent.postMessage({nbcap:id,img:c.toDataURL('image/png')},'*');return;}}catch(_){}
+  if(++n<40)setTimeout(()=>requestAnimationFrame(grab),150);};
+ setTimeout(()=>requestAnimationFrame(grab),1400);})();
+</script>
 </body></html><style id="nb-play-info">
 /* 임시: 믹스 정보(노이즈 비율·리큐르·가니시) + 재생/일시정지 아이콘 전환 */
 #nbInfo{position:absolute;left:17px;top:716px;width:368px;font:400 11.5px/1.42 Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;color:rgba(255,255,255,.78);letter-spacing:-.01em;pointer-events:none}
