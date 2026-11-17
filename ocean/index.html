@@ -1284,7 +1284,7 @@ window.NBPrintCard=async function(m,graphCv){
   window.__nbCardRebuild=async c=>{CC=Object.assign({},CARD_DEF,c);return buildCard(m,graphCv,CC,cache);};
   window.__nbCardSave=c=>{try{localStorage.setItem('nb-card-cfg',JSON.stringify(Object.assign({},CARD_DEF,c)));return true;}catch(_){return false;}};
   window.__nbCardDef=()=>Object.assign({},CARD_DEF);
-  const admin=document.documentElement.classList.contains('admin');
+  const admin=document.documentElement.classList.contains('admin'),owner=(()=>{try{return localStorage.getItem('nb-owner')==='1';}catch(_){return false;}})();
   // 인쇄: 54×86mm 한 장, 여백 0 · 화면에서는 크게 보여줌(인쇄는 실제 크기) · 창이 뜨면 '이대로 인쇄'로 바로
   const w=window.open('','nbprint','width=980,height=820');if(!w){const a=document.createElement('a');a.href=png;a.download='NOISEBAR-card.png';a.click();return;}
   const SL=[['gstretch','그래프 위아래 크기 (가니쉬 비율 유지)',1,1.9,.05],['galpha','그래프 진하기',.2,1,.01],
@@ -1296,9 +1296,9 @@ window.NBPrintCard=async function(m,graphCv){
    .pn{width:290px;background:#2a2630;border-radius:16px;padding:16px 16px 12px}.pn h2{margin:0 0 4px;font-size:15px}.pn .sub{margin:0 0 12px;opacity:.6;font-size:12px}
    .row{display:grid;grid-template-columns:1fr 52px;gap:4px 8px;align-items:center;margin:0 0 10px}.row label{grid-column:1/3;opacity:.85}.row input[type=range]{width:100%}.row output{text-align:right;font-variant-numeric:tabular-nums;opacity:.8}
    .bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.bt button,.bt a{flex:1 1 40%;color:#fff;background:#444;border:0;border-radius:14px;padding:8px 10px;text-decoration:none;cursor:pointer;text-align:center;font:inherit}
-   .bt .pr{background:#fff;color:#1d1a20;font-weight:600;flex-basis:100%}.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}.pn[hidden]{display:none}#tg{position:fixed;right:14px;top:14px;color:#fff;background:#444;border:0;border-radius:14px;padding:7px 12px;cursor:pointer}
+   .bt .pr{background:#fff;color:#1d1a20;font-weight:600;flex-basis:100%}.st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}.pn[hidden]{display:none}.pn[data-owner="0"] #sl,.pn[data-owner="0"] #sv,.pn[data-owner="0"] #df,.pn[data-owner="0"] #cp,.pn[data-owner="0"] .sub{display:none}.pn[data-owner="0"] h2::after{content:''}#tg{position:fixed;right:14px;top:14px;color:#fff;background:#444;border:0;border-radius:14px;padding:7px 12px;cursor:pointer}
    @media print{html,body{background:none}.pn,#tg{display:none!important}.wrap{display:block;padding:0}#card{width:54mm;height:86mm;border-radius:0;box-shadow:none}}</style>
-   <div class="wrap"><img id="card" src="${png}" alt="NØISE BAR 카드"><div class="pn" id="pn"><h2>카드 조절</h2><p class="sub">바꾸면 바로 보여요 · 저장하면 다음 카드부터 이 값으로 뽑혀요</p><div id="sl"></div>
+   <div class="wrap"><img id="card" src="${png}" alt="NØISE BAR 카드"><div class="pn" id="pn" data-owner="${owner?1:0}"><h2>${owner?'카드 조절':'카드 인쇄'}</h2><p class="sub">바꾸면 바로 보여요 · 저장하면 다음 카드부터 이 값으로 뽑혀요</p><div id="sl"></div>
    <div class="bt"><button class="pr" onclick="print()">이대로 인쇄</button><button id="sv">저장</button><button id="df">기본값</button><a id="dl" href="${png}" download="NOISEBAR-card.png">이미지 저장</a><button id="cp">값 복사</button></div><p class="st" id="st"></p></div></div>
    <script>const O=opener,SL=${JSON.stringify(SL)};let C=${JSON.stringify(CC)},busy=false,again=false;
    const sl=document.getElementById('sl'),img=document.getElementById('card'),st=document.getElementById('st');

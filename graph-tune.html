@@ -18,6 +18,9 @@ canvas{display:block;border-radius:14px}
 .bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.bt button{flex:1 1 30%}.bt .pr{background:#fff;color:#141117;font-weight:600}
 .st{min-height:18px;margin:8px 2px 0;font-size:12px;opacity:.75}
 </style></head><body>
+<div id="gate" style="position:fixed;inset:0;z-index:50;background:#141117;display:grid;place-items:center"><form id="gf" style="display:flex;flex-direction:column;gap:10px;width:260px">
+ <b style="font-size:16px">그래프 조절 · 관리자만</b><input id="gp" type="password" placeholder="비밀번호" autocomplete="current-password" style="height:40px;border-radius:12px;border:0;padding:0 12px;font:inherit">
+ <button style="height:40px;border-radius:20px;border:0;background:#fff;color:#141117;font:600 14px inherit;cursor:pointer">들어가기</button><p id="gm" style="margin:0;min-height:18px;opacity:.7;font-size:12px"></p></form></div>
 <div class="top"><h1>그래프 조절</h1><p>폰 플레이 · 오션 정보카드 · 인쇄 카드가 모두 이 값으로 그려져요</p></div>
 <div class="wrap">
  <div class="pv">
@@ -33,6 +36,14 @@ canvas{display:block;border-radius:14px}
  </div>
 </div>
 <script src="graph-cfg.js"></script><script src="graph.js"></script>
+<script>
+// 관리자만: 비밀번호가 맞으면 이 기기를 '관리자 기기'로 기억 (플레이 화면의 그래프 조절 버튼·인쇄 창 조절 패널도 이 기기에서만 보임)
+(()=>{const G=document.getElementById('gate'),HASH='687465d10dbd0b8244c5c4961f3b63665c76c8cc441b66a81b4f9d955585df28';
+ const ok=()=>{G.remove();};if(localStorage.getItem('nb-owner')==='1')return ok();
+ document.getElementById('gf').onsubmit=async e=>{e.preventDefault();const v=document.getElementById('gp').value;
+  const h=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(h===HASH){try{localStorage.setItem('nb-owner','1');}catch(_){}ok();}else document.getElementById('gm').textContent='비밀번호가 달라요';};})();
+</script>
 <script>
 const C=NBG.cfg;
 const SL=[['막대',[

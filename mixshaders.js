@@ -43,7 +43,7 @@ const DISP=`#version 300 es
 precision highp float;
 uniform sampler2D uMap;uniform vec2 uRes;
 uniform float uTime,uMix,uScale,uSoft,uAsp,uCock,uWhite,uPaint;
-uniform vec2 uSeed;uniform sampler2D uSnap;uniform float uHasSnap;uniform vec4 uMood;uniform vec3 uPal[4];uniform vec3 uPal2[4];uniform vec3 uPal3[4];uniform vec3 uCuts;uniform vec4 uShare;uniform vec4 uGa,uGb,uDrop;uniform vec2 uTa,uTb;uniform vec4 uDomW;uniform float uDomK;
+uniform vec2 uSeed;uniform sampler2D uSnap;uniform float uHasSnap;uniform vec4 uMood;uniform vec3 uPal[4];uniform vec3 uPal2[4];uniform vec3 uPal3[4];uniform vec3 uCuts;uniform vec4 uShare;uniform vec4 uGa,uGb,uDrop;uniform vec2 uTa,uTb;uniform vec4 uDomW;uniform float uDomK;uniform float uAreaK;
 out vec4 o;
 ${NOISE}
 // ── OKLab: 사람 눈 기준 색 공간 — 섞어도 탁해지지 않음
@@ -80,7 +80,9 @@ void main(){
   float s3=smoothstep(uCuts.z-e,uCuts.z+e,t);
   vec4 wt=vec4(1.-s1,max(s1-s2,0.),max(s2-s3,0.),s3);
   vec3 col=uPal[0]*wt.x+uPal[1]*wt.y+uPal[2]*wt.z+uPal[3]*wt.w;
-  if(uMix>.001){vec4 w2=wt*clamp(uShare*25.,0.,1.);float sw=dot(w2,vec4(1.));if(sw>1e-4)wt=w2/sw;}   // 0%인 색은 섞임에 끼지 않게
+  if(uMix>.001){vec4 w2=wt*clamp(uShare*25.,0.,1.);float sw=dot(w2,vec4(1.));if(sw>1e-4)wt=w2/sw;}
+  // (방법2) 비율이 큰 색이 섞이는 자리에서 더 많이 차지하게: 비율의 거듭제곱만큼 무게를 더 줌
+  if(uAreaK>.001&&uMix>.001){vec4 w3=wt*pow(max(uShare*4.,vec4(1e-3)),vec4(2.2*uAreaK));float s3=dot(w3,vec4(1.));if(s3>1e-4)wt=w3/s3;}   // 0%인 색은 섞임에 끼지 않게
   if(k>.001){
     // 재료 색 → 칵테일 색, OKLab에서 섞고 채도는 재료들의 채도를 유지(+살짝 올림)
     vec3 L=vec3(0.);float C=0.;vec2 dom=vec2(0.);float wm=-1.;
@@ -93,7 +95,7 @@ void main(){
     float hs=(fn-.5)*.9*k,cs=cos(hs),sn=sin(hs);L.yz=mat2(cs,sn,-sn,cs)*L.yz;L.x+=(r.y-.5)*.08*k;
     // (방법1) 비율이 가장 큰 색은 다른 색과 섞여도 그 색이 남게: 그 색이 들어간 만큼 색 방향을 그 색 쪽으로 당기고 채도를 올림
     if(uDomK>.001){float dw=dot(wt,uDomW);vec3 dc=oklab(uPal2[0]*uDomW.x+uPal2[1]*uDomW.y+uPal2[2]*uDomW.z+uPal2[3]*uDomW.w);float cl=length(L.yz);
-      if(cl>1e-4&&length(dc.yz)>.02){vec2 d2=normalize(mix(L.yz/cl,normalize(dc.yz),clamp(.75*dw*uDomK,0.,.9)));L.yz=d2*cl*(1.+.3*dw*uDomK);}}
+      if(cl>1e-4&&length(dc.yz)>.02){vec2 d2=normalize(mix(L.yz/cl,normalize(dc.yz),clamp(1.1*dw*uDomK,0.,.92)));L.yz=d2*cl*(1.+.45*dw*uDomK);}}
     // ② 비율 → 분위기: 화이트=밝고 파스텔 · 브라운=어둡고 따뜻 · 블루=깊고 차갑게 · 핑크=화사하게
     vec4 sh=uMood;
     L.x+=( .17*sh.w-.11*sh.x-.07*sh.y)*k;
