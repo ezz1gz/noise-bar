@@ -110,7 +110,12 @@ html.phone .feed{position:fixed;left:12px;right:12px;bottom:calc(66px + env(safe
 html.phone .feed h3{display:none}html.phone .feed .fl button:not(:first-child){display:none}html.phone .feed:not(.has){display:none}
 html.phone .idle .vol,html.phone .vol{opacity:1}
 /* ═══ 전시용(기본) / 관리자용(?admin) */
-html:not(.admin) .dev,html:not(.admin) .devT,html:not(.admin) .adm{display:none!important}
+html:not(.admin) .dev,html:not(.admin) .devT{display:none!important}
+/* 전시 화면에도 '모든 잔 보기' 리스트 — 숨기기·CSV 같은 관리 버튼만 관리자용 */
+html:not(.admin) .adm{left:44px}html:not(.admin) #alCsv,html:not(.admin) .alist [data-a=hide],html:not(.admin) .alist [data-a=unhide],html:not(.admin) .alist .hidRow{display:none!important}
+html.listen .adm,html.listen .alist{display:none!important}
+html.phone .adm{left:12px;bottom:calc(14px + env(safe-area-inset-bottom));height:32px;font-size:12px}
+html.phone .alist{left:8px;right:8px;width:auto;bottom:calc(56px + env(safe-area-inset-bottom));max-height:70vh}html.phone .alist th:nth-child(1),html.phone .alist td:nth-child(1),html.phone .alist th:nth-child(2),html.phone .alist td:nth-child(2),html.phone .alist th:nth-child(6),html.phone .alist td:nth-child(6){display:none}
 html.admin .devT{right:auto;left:44px;top:auto;bottom:24px}
 .adm{position:fixed;z-index:400;left:138px;bottom:24px;height:34px;padding:0 14px;border-radius:17px;border:0;background:#141117;color:#fff;font:600 12px 'Pretendard','Noto Sans KR',sans-serif;cursor:pointer}
 .adm[aria-pressed="true"]{background:#FF2D8A}
@@ -440,7 +445,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   <div class="grp"><b>저장</b><div class="act"><button type="button" class="pri" id="cfgSave">이 값으로 저장</button><button type="button" id="cfgRev">저장값으로</button><button type="button" id="cfgDef">기본값</button><button type="button" id="png2">PNG 저장</button></div><div class="st" id="cfgSt"></div></div>
   <div class="grp"><b>현재 값</b><pre id="cfgOut"></pre><div class="act"><button type="button" class="pri" id="cfgCopy">값 복사</button></div></div>
 </aside>
-<button type="button" class="devT" id="devT" aria-pressed="false">수치 · 수정</button><button type="button" class="adm" id="admL" aria-pressed="false">리스트 확인</button><div class="admBadge">ADMIN</div>
+<button type="button" class="devT" id="devT" aria-pressed="false">수치 · 수정</button><button type="button" class="adm" id="admL" aria-pressed="false">모든 잔 보기</button><div class="admBadge">ADMIN</div>
 <section class="alist" id="alist" hidden aria-label="잔 리스트"><header><b>잔 리스트 <span id="alN" style="color:#888;font-weight:500"></span></b><button type="button" id="alLive" aria-pressed="true">폰에서 만든 잔만</button><button type="button" id="alCsv">CSV 저장</button><button type="button" id="alX">닫기</button></header><div class="tw"><table><thead><tr><th>#</th><th>구분</th><th>이름</th><th>만든 사람</th><th>시간</th><th>레시피</th><th></th></tr></thead><tbody id="alB"></tbody></table></div></section>
 <div class="seaUI"><label class="sbox"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="sq" type="search" placeholder="잔 이름 · 닉네임 · 리큐르 찾기" aria-label="소리의 바다 검색" autocomplete="off"></label><div class="sres" id="sres"></div>
 <div class="feed" id="feed"><h3>실시간 <span id="fN">LIVE 0</span></h3><div class="fl" id="fl"></div></div>
@@ -1174,13 +1179,13 @@ const esc=t=>String(t==null?'':t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','
 let hiddenRows=[];
 const ARCH=()=>{try{return JSON.parse(localStorage.getItem('nb-sea-arch')||'[]');}catch(_){return[];}};
 function archMixes(){const on=new Set(MIXES.map(m=>m.id).filter(Boolean)),out=[];ARCH().forEach(d=>{if(on.has(d.id))return;try{const m=window.__nbToMix(d);m.id=d.id;m.raw=d;m.arch=true;out.push(m);}catch(_){}});return out;}
-function rows(){const live=MIXES.filter(m=>m.live).concat(archMixes());const all=liveOnly?live:MIXES.concat(archMixes());
+function rows(){const H=new Set(getH()),live=MIXES.filter(m=>m.live).concat(archMixes());const all=(liveOnly?live:MIXES.concat(archMixes())).filter(m=>!m.id||!H.has(m.id));
   return all.slice().sort((a,b)=>(+b.t||0)-(+a.t||0));}
 let ROWS=[];
-window.alDraw=function(){if(L.hidden)return;const R=rows(),H=getH();ROWS=R;const nA=R.filter(m=>m.arch).length;document.getElementById('alN').textContent='· 폰 '+(MIXES.filter(m=>m.live).length+archMixes().length)+(nA?' (지난 기록 '+nA+')':'')+' / 바다 '+MIXES.length+(H.length?' · 숨김 '+H.length:'');
+window.alDraw=function(){if(L.hidden)return;const R=rows(),H=getH();ROWS=R;const nA=R.filter(m=>m.arch).length;const ADM=document.documentElement.classList.contains('admin');document.getElementById('alN').textContent=ADM?'· 폰 '+(MIXES.filter(m=>m.live).length+archMixes().length)+(nA?' (지난 기록 '+nA+')':'')+' / 바다 '+MIXES.length+(H.length?' · 숨김 '+H.length:''):'· '+R.length+'잔';
   B.innerHTML=R.map((m,i)=>{const rec=(m.b||[]).map((v,j)=>v?`<i style="background:${HX[j]}"></i>${KR[j]} ${v}`:'').filter(Boolean).join(' ')+' · '+esc(m.lq)+' · '+esc(m.gn);
    return `<tr data-r="${i}"><td>${R.length-i}</td><td>${m.arch?'<span class="sp">지난 기록</span>':m.live?'<span class="lv">LIVE</span>':'<span class="sp">샘플</span>'}</td><td><b>${esc(m.n)}</b></td><td>${esc(m.by)}</td><td>${m.live?fmt(m.t):'—'}</td><td class="rc">${rec}</td><td><button type="button" data-a="go">보기</button> ${m.live?'<button type="button" data-a="hide">숨기기</button>':''}</td></tr>`;}).join('')||'<tr><td colspan="7" style="padding:20px;color:#888">아직 폰에서 들어온 잔이 없어요</td></tr>';
-  if(H.length)B.insertAdjacentHTML('beforeend',`<tr><td colspan="7" style="padding:10px;color:#888">숨긴 잔 ${H.length}개 <button type="button" data-a="unhide">모두 다시 보이기</button></td></tr>`);};
+  if(H.length)B.insertAdjacentHTML('beforeend',`<tr class="hidRow"><td colspan="7" style="padding:10px;color:#888">숨긴 잔 ${H.length}개 <button type="button" data-a="unhide">모두 다시 보이기</button></td></tr>`);};
 B.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const tr=b.closest('tr');let m=tr&&ROWS[+tr.dataset.r];
   if(b.dataset.a==='go'&&m){try{initAudio();}catch(_){}if(m.arch){window.__nbArrive(m.raw,false);m=MIXES.find(v=>v.id===m.id)||m;setTimeout(()=>alDraw(),50);}focus(m);}
   if(b.dataset.a==='hide'&&m&&m.id){if(!confirm(`'${m.n}' (${m.by})을 전시 화면에서 숨길까요?`))return;const H=getH();H.push(m.id);setH(H);location.reload();}
