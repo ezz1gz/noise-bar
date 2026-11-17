@@ -1279,9 +1279,9 @@ async function buildCard(m,graphCv,CC,cache){
     const keep=NBG.cfg;NBG.cfg=JSON.parse(JSON.stringify(keep));
     const gs=CC.gstretch;try{NBG.snap(g2,{x0:58,x1:344,cy:437,bh:44*gs,lr:150*gs},G.A,G.T,G.gar);}finally{NBG.cfg=keep;}const ch=Math.min(1748,Math.round(880*gs)),cr=document.createElement('canvas');cr.width=684;cr.height=ch;cr.getContext('2d').drawImage(c2,60,874-ch/2,684,ch,0,0,684,ch);pg=cr;}}}catch(e){console.warn('graph',e);}
   if(pg){const t=pg,tx=t.getContext('2d');tx.globalCompositeOperation='source-in';tx.fillStyle=(MODE==='blend'&&lightG)?'#B9B4BC':GR;tx.fillRect(0,0,t.width,t.height);
-    const gw=W-180,gh=gw*t.height/t.width,gy=1170-gh/2;x.save();x.globalAlpha=CC.galpha;if(MODE==='blend'&&lightG)x.globalCompositeOperation='multiply';x.drawImage(t,90,gy,gw,gh);x.restore();}
+    const gw=W-180,gh=gw*t.height/t.width,gy=1110-gh/2;x.save();x.globalAlpha=CC.galpha;if(MODE==='blend'&&lightG)x.globalCompositeOperation='multiply';x.drawImage(t,90,gy,gw,gh);x.restore();}
   else if(graphCv){const t=document.createElement('canvas');t.width=graphCv.width;t.height=graphCv.height;const tx=t.getContext('2d');tx.drawImage(graphCv,0,0);tx.globalCompositeOperation='source-in';tx.fillStyle=GR;tx.fillRect(0,0,t.width,t.height);
-    const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1170-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
+    const gh=(W-180)*graphCv.height/graphCv.width*1.75,gy=1110-gh/2;x.save();if(MODE==='blend'&&lightG){x.globalCompositeOperation='multiply';tx.globalCompositeOperation='source-in';tx.fillStyle='#B9B4BC';tx.fillRect(0,0,t.width,t.height);}x.drawImage(t,90,gy,W-180,gh);x.restore();}
   // ③ 글자: 닉네임의 · 잔 이름
   try{await Promise.all([document.fonts.load('300 100px Pretendard'),document.fonts.load('400 52px Pretendard')]);}catch(_){}
   const r=m.raw||{},who=(r.who||(m.by||'').replace(/^@/,'')||'guest'),nm=(r.name||m.n||'');
