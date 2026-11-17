@@ -1,6 +1,6 @@
 # 녹음 소리 분류 — 리큐르 · 가니쉬
 
-리큐르 90개 · 가니쉬 16자리 · 예비 가니쉬 44개. 파일은 `snd/`, 목록은 `snd/catalog.json`, 앱은 `snd/rec.js`로 읽어요.
+리큐르 90개 · 가니쉬 16자리 · 예비 가니쉬 87개. 파일은 `snd/`, 목록은 `snd/catalog.json`, 앱은 `snd/rec.js`로 읽어요.
 
 ## 나누는 기준
 
@@ -181,6 +181,49 @@
 | GP-43 | 심장 쿵 | MELT | -18.67 | 0.6초 | bigsoundbank #0243 @0.03s · BigSoundBank (CC0) |
 | GP-44 | 말 콧김 | MELT | -6.17 | 0.3초 | bigsoundbank #0285 @0.3s · BigSoundBank (CC0) |
 | GP-45 | 꼬르륵 | MELT | -10.18 | 0.35초 | bigsoundbank #1280 @0.74s · BigSoundBank (CC0) |
+| GP-46 | 얼음 달그락 | SPARK | 4.36 | 0.3초 | bigsoundbank #2123 @0.14s · BigSoundBank (CC0) |
+| GP-47 | 얼음 톡톡 | SPARK | 2.11 | 0.4초 | bigsoundbank #2127 @0.0s · BigSoundBank (CC0) |
+| GP-48 | 와인잔 짠 | SPARK | 3.4 | 0.35초 | bigsoundbank #1333 @0.02s · BigSoundBank (CC0) |
+| GP-49 | 작은 잔 짠 | SPARK | 4.23 | 0.3초 | bigsoundbank #1325 @0.0s · BigSoundBank (CC0) |
+| GP-50 | 유리잔 짠 | FIZZ | -0.6 | 0.3초 | bigsoundbank #1323 @0.01s · BigSoundBank (CC0) |
+| GP-51 | 플루트 잔 짠 | FIZZ | 0.21 | 0.3초 | bigsoundbank #1337 @0.01s · BigSoundBank (CC0) |
+| GP-52 | 잔 두드림 띵 | SPARK | 2.9 | 0.73초 | bigsoundbank #2888 @1.43s · BigSoundBank (CC0) |
+| GP-53 | 코르크 펑 | MELT | -4.51 | 0.3초 | bigsoundbank #0648 @0.24s · BigSoundBank (CC0) |
+| GP-54 | 와인 마개 뽁 | MELT | -8.87 | 0.32초 | bigsoundbank #0274 @0.01s · BigSoundBank (CC0) |
+| GP-55 | 와인 마개 쏙 | MELT | -4.85 | 0.3초 | bigsoundbank #1719 @0.95s · BigSoundBank (CC0) |
+| GP-56 | 사이다 마개 톡 | BLOSSOM | -4.07 | 0.3초 | bigsoundbank #0547 @0.04s · BigSoundBank (CC0) |
+| GP-57 | 사이다 마개 팝 | MELT | -7.4 | 0.3초 | bigsoundbank #1619 @0.0s · BigSoundBank (CC0) |
+| GP-58 | 맥주병 따기 | SPARK | 7.26 | 0.3초 | bigsoundbank #1931 @0.44s · BigSoundBank (CC0) |
+| GP-59 | 병 불기 부웅 | MELT | -7.71 | 0.71초 | bigsoundbank #1939 @0.09s · BigSoundBank (CC0) |
+| GP-60 | 병 불기 뿌우 | MELT | -7.09 | 2.23초 | bigsoundbank #1944 @0.1s · BigSoundBank (CC0) |
+| GP-61 | 병 부딪힘 짤 | SPARK | 3.79 | 0.3초 | bigsoundbank #1938 @0.03s · BigSoundBank (CC0) |
+| GP-62 | 컵 속 동전 | BLOSSOM | -2.18 | 0.39초 | bigsoundbank #0340 @0.07s · BigSoundBank (CC0) |
+| GP-63 | 계산대 삑 | MELT | -4.85 | 0.11초 | bigsoundbank #1417 @0.09s · BigSoundBank (CC0) |
+| GP-64 | 알림 띠링 | FIZZ | -0.34 | 0.16초 | bigsoundbank #2066 @0.24s · BigSoundBank (CC0) |
+| GP-65 | 알림 띠로롱 | BLOSSOM | -3.07 | 0.3초 | bigsoundbank #2059 @0.0s · BigSoundBank (CC0) |
+| GP-66 | 자전거 벨 따릉 | SPARK | 5.67 | 0.99초 | bigsoundbank #0275 @0.02s · BigSoundBank (CC0) |
+| GP-67 | 작은 종 딸랑 | SPARK | 5.0 | 2.15초 | bigsoundbank #0292 @0.04s · BigSoundBank (CC0) |
+| GP-68 | 종 땡 | SPARK | 4.81 | 2.23초 | bigsoundbank #2115 @0.03s · BigSoundBank (CC0) |
+| GP-69 | 타자기 종 띵 | FIZZ | 0.35 | 1.49초 | bigsoundbank #2844 @0.1s · BigSoundBank (CC0) |
+| GP-70 | 풍경 차르르 | SPARK | 11.36 | 1.39초 | bigsoundbank #2079 @0.59s · BigSoundBank (CC0) |
+| GP-71 | 나비 풍경 | SPARK | 12.3 | 0.37초 | bigsoundbank #2087 @1.54s · BigSoundBank (CC0) |
+| GP-72 | 만화 뾰잉 | MELT | -5.01 | 1.06초 | bigsoundbank #2277 @0.14s · BigSoundBank (CC0) |
+| GP-73 | 만화 뾰용 | MELT | -5.33 | 0.81초 | bigsoundbank #2283 @0.15s · BigSoundBank (CC0) |
+| GP-74 | 탁구공 똑 | BLOSSOM | -2.43 | 0.3초 | bigsoundbank #2236 @0.09s · BigSoundBank (CC0) |
+| GP-75 | 유리구슬 통 | SPARK | 6.07 | 0.3초 | bigsoundbank #2240 @0.1s · BigSoundBank (CC0) |
+| GP-76 | 쇠구슬 팅 | SPARK | 2.0 | 0.3초 | bigsoundbank #2242 @0.08s · BigSoundBank (CC0) |
+| GP-77 | 온도조절기 딸깍 | SPARK | 4.81 | 0.1초 | bigsoundbank #2191 @0.04s · BigSoundBank (CC0) |
+| GP-78 | 카메라 찰칵 | FIZZ | 1.13 | 0.3초 | bigsoundbank #2821 @0.11s · BigSoundBank (CC0) |
+| GP-79 | 옛 셔터 철컥 | SPARK | 2.37 | 0.3초 | bigsoundbank #2544 @0.12s · BigSoundBank (CC0) |
+| GP-80 | 얼음 쩍 | SPARK | 2.09 | 0.3초 | bigsoundbank #2205 @0.68s · BigSoundBank (CC0) |
+| GP-81 | 셀러리 똑 | BLOSSOM | -1.63 | 0.3초 | bigsoundbank #1408 @0.24s · BigSoundBank (CC0) |
+| GP-82 | 공 퉁 | MELT | -5.76 | 0.3초 | bigsoundbank #1825 @0.05s · BigSoundBank (CC0) |
+| GP-83 | 아고고 톡 | SPARK | 2.11 | 0.3초 | bigsoundbank #2262 @0.21s · BigSoundBank (CC0) |
+| GP-84 | 마룻바닥 삐걱 | FIZZ | 0.85 | 0.59초 | bigsoundbank #3055 @0.32s · BigSoundBank (CC0) |
+| GP-85 | 초인종 딩동 | BLOSSOM | -3.67 | 2.23초 | bigsoundbank #0161 @0.01s · BigSoundBank (CC0) |
+| GP-86 | 작은 첨벙 | MELT | -6.33 | 0.3초 | bigsoundbank #1531 @0.08s · BigSoundBank (CC0) |
+| GP-87 | 펀치 퍽 | BLOSSOM | -1.65 | 0.3초 | bigsoundbank #2460 @0.11s · BigSoundBank (CC0) |
+| GP-88 | 통신 삑 | FIZZ | -0.79 | 0.28초 | bigsoundbank #2380 @0.03s · BigSoundBank (CC0) |
 
 ## 정한 것
 
