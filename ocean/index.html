@@ -156,9 +156,9 @@ html.phone .labels .m .rec{display:none!important}
 #ui .card .ttl{width:151px;font-weight:200;font-size:36px;line-height:1.3;letter-spacing:1.8px;color:#000;margin:0;word-break:keep-all}
 #ui .card .meta{width:113px;display:flex;flex-direction:column;gap:20px}
 #ui .card .meta .k{font-size:14px;line-height:1.3;letter-spacing:.7px;color:#7a7a7a;margin:0 0 6px}
-#ui .card .row{display:flex;gap:14px;align-items:center}
+#ui .card .row{display:flex;gap:14px;align-items:center}#ui .card #cBase{display:grid;grid-template-columns:repeat(2,auto);justify-content:start;gap:8px 14px}
 #ui .card .it{display:flex;gap:6px;align-items:center;font-size:14px;line-height:1.3;letter-spacing:.7px;color:#333;white-space:nowrap}
-#ui .card .sw{width:24px;height:24px;flex:none}
+#ui .card .sw{width:24px;height:24px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.14)}
 #ui .card .ld{width:24px;height:24px;border-radius:50%;flex:none}
 #ui .card .gar{display:flex;gap:6px;align-items:center}
 #ui .card .gar canvas{width:24px;height:24px;display:block}
@@ -1055,7 +1055,7 @@ function garIcon(k,n){const c=document.createElement('canvas');c.width=c.height=
 let cardM=null;
 function fillCard(m){cardM=m;window.cardM=m;const $c=id=>document.getElementById(id);$c('cTtl').textContent=phrase(m);
   {const r=m.raw||{},GL={martini:'마티니',rocks:'락',coupe:'쿠페',highball:'하이볼',flute:'플루트'},g=GL[(r.gl||'').toLowerCase()]||m.gl||'';const w=$c('cGlsW');w.style.display='none';/* 정보카드에서 GLASS 정보 뺌 */$c('cGls').innerHTML='<svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M1.5 2h15L9 11zM9 11v8M4.5 20.5h9"/></svg><span></span>';$c('cGls').lastChild.textContent=g;}
-  const ks=['pink','white','blue','brown'],ord=ks.map((k,i)=>[k,m.b[i]||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,2);
+  const ks=['pink','white','blue','brown'],ord=ks.map((k,i)=>[k,m.b[i]||0]).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]); // 들어간 베이스 전부 (2칸씩 2줄)
   $c('cBase').innerHTML=ord.map(([k,v])=>`<span class="it"><span class="sw" style="background:${SWC[k]}"></span>${v}</span>`).join('');
   const lq=(m.live&&m.live.lk.length)?m.lq.split(' · ')[0]:(m.lq||'').split(' · ')[0];const lc=(m.hexCol&&m.hexCol[2])||'#8AFF9A';
   $c('cLiq').innerHTML=`<span class="ld" style="background:radial-gradient(circle,${lc} 0%,${lc}83 58%,${lc}00 100%)"></span><span></span>`;$c('cLiq').lastChild.textContent=lq||'—';
