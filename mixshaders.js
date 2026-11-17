@@ -43,7 +43,7 @@ const DISP=`#version 300 es
 precision highp float;
 uniform sampler2D uMap;uniform vec2 uRes;
 uniform float uTime,uMix,uScale,uSoft,uAsp,uCock,uWhite,uPaint;
-uniform vec2 uSeed;uniform sampler2D uSnap;uniform float uHasSnap;uniform vec4 uMood;uniform vec3 uPal[4];uniform vec3 uPal2[4];uniform vec3 uPal3[4];uniform vec3 uCuts;uniform vec4 uShare;uniform vec4 uGa,uGb,uDrop;uniform vec2 uTa,uTb;
+uniform vec2 uSeed;uniform sampler2D uSnap;uniform float uHasSnap;uniform vec4 uMood;uniform vec3 uPal[4];uniform vec3 uPal2[4];uniform vec3 uPal3[4];uniform vec3 uCuts;uniform vec4 uShare;uniform vec4 uGa,uGb,uDrop;uniform vec2 uTa,uTb;uniform vec4 uDomW;uniform float uDomK;
 out vec4 o;
 ${NOISE}
 // ── OKLab: 사람 눈 기준 색 공간 — 섞어도 탁해지지 않음
@@ -91,6 +91,9 @@ void main(){
      float tgt=mix(cl,min(C*1.04,cl*2.2+.02),.85);L.yz=dir*tgt;}
     // 같은 색 안에서도 흐름 따라 색조·밝기가 살짝 출렁이게
     float hs=(fn-.5)*.9*k,cs=cos(hs),sn=sin(hs);L.yz=mat2(cs,sn,-sn,cs)*L.yz;L.x+=(r.y-.5)*.08*k;
+    // (방법1) 비율이 가장 큰 색은 다른 색과 섞여도 그 색이 남게: 그 색이 들어간 만큼 색 방향을 그 색 쪽으로 당기고 채도를 올림
+    if(uDomK>.001){float dw=dot(wt,uDomW);vec3 dc=oklab(uPal2[0]*uDomW.x+uPal2[1]*uDomW.y+uPal2[2]*uDomW.z+uPal2[3]*uDomW.w);float cl=length(L.yz);
+      if(cl>1e-4&&length(dc.yz)>.02){vec2 d2=normalize(mix(L.yz/cl,normalize(dc.yz),clamp(.75*dw*uDomK,0.,.9)));L.yz=d2*cl*(1.+.3*dw*uDomK);}}
     // ② 비율 → 분위기: 화이트=밝고 파스텔 · 브라운=어둡고 따뜻 · 블루=깊고 차갑게 · 핑크=화사하게
     vec4 sh=uMood;
     L.x+=( .17*sh.w-.11*sh.x-.07*sh.y)*k;

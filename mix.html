@@ -53,7 +53,7 @@ const {VS,NOISE,SIM,DISP}=NBMIXSH;
 const sh=(t,s)=>{const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))console.error(gl.getShaderInfoLog(x));return x;};
 function program(fs,names){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,VS));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.bindAttribLocation(p,0,'a');gl.linkProgram(p);const u={};names.forEach(n=>u[n]=gl.getUniformLocation(p,n));return{p,u};}
 const sim=program(SIM,['uSeed','uPrev','uSimRes','uTime','uDt','uFlow','uScale','uAsp','uRelax','uPtrOn','uPtrR','uPtr']);
-const disp=program(DISP,['uSeed','uSnap','uHasSnap','uMap','uRes','uTime','uMix','uScale','uSoft','uAsp','uPal','uPal2','uPal3','uCuts','uCock','uWhite','uPaint','uShare','uMood','uGa','uGb','uTa','uTb','uDrop']);
+const disp=program(DISP,['uDomW','uDomK','uSeed','uSnap','uHasSnap','uMap','uRes','uTime','uMix','uScale','uSoft','uAsp','uPal','uPal2','uPal3','uCuts','uCock','uWhite','uPaint','uShare','uMood','uGa','uGb','uTa','uTb','uDrop']);
 const vb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
 const hasFloat=!!(gl.getExtension('EXT_color_buffer_float')||gl.getExtension('EXT_color_buffer_half_float'));let FMT=hasFloat?{i:gl.RGBA16F,t:gl.HALF_FLOAT}:{i:gl.RGBA8,t:gl.UNSIGNED_BYTE};
 function tgt(w,h){const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texImage2D(gl.TEXTURE_2D,0,FMT.i,w,h,0,gl.RGBA,FMT.t,null);[gl.TEXTURE_MIN_FILTER,gl.TEXTURE_MAG_FILTER].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.LINEAR));[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
@@ -62,7 +62,10 @@ const W=393,H=852,dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.round(W*dpr)
 const simW=180,simH=Math.round(180*H/W);let A=tgt(simW,simH),B=tgt(simW,simH);if(!A.ok&&FMT.i!==gl.RGBA8){FMT={i:gl.RGBA8,t:gl.UNSIGNED_BYTE};A=tgt(simW,simH);B=tgt(simW,simH);}
 // 값: 앞 단계에서 만든 베이스(위→아래)·비율·리큐르
 const PAL=PC.map(hexRGB),PAL2=PK.map((k,i)=>hexRGB(COCK[k]||PC[i]));
-const tot=SH.reduce((a,b)=>a+b,0)||1,share=SH.map(v=>v/tot);let acc=0;const cutsT=[0,1,2].map(i=>(acc+=share[i]));const q=share.map(Math.sqrt),qt=q.reduce((a,b)=>a+b,0);acc=0;const cutsS=[0,1,2].map(i=>(acc+=q[i])/qt);
+// 색 보여주기 방법(비교용 ?cv=1 · ?cv=2): 1 = 큰 비율 색이 섞여도 남게 · 2 = 큰 비율 색이 화면을 더 차지
+const CV=+(Q.get('cv')||0);
+const tot=SH.reduce((a,b)=>a+b,0)||1,share=(()=>{let s=SH.map(v=>v/tot);if(CV===2){const p=s.map(v=>Math.pow(v,2.2)),t=p.reduce((a,b)=>a+b,0)||1;s=p.map(v=>v/t);}return s;})();
+const DOMW=(()=>{const w=[0,0,0,0];let mi=0;SH.forEach((v,i)=>{if(v>SH[mi])mi=i;});w[mi]=1;return w;})();let acc=0;const cutsT=[0,1,2].map(i=>(acc+=share[i]));const q=share.map(Math.sqrt),qt=q.reduce((a,b)=>a+b,0);acc=0;const cutsS=[0,1,2].map(i=>(acc+=q[i])/qt);
 const [GR,TN]=liqGrade(),drop={x:+(Q.get('dx')||.5),y:+(Q.get('dy')||.45),seed:Math.random()*50};
 const P={stir:STIR,scale:.4,purity:.3};const SEED=new Float32Array(mixSeed());
 const ptr={down:false,x:0,y:0,vx:0,vy:0,t:0};const splat={on:false,x:0,y:0,vx:0,vy:0,r:.14};
@@ -80,6 +83,7 @@ function draw(){gl.useProgram(disp.p);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl
   gl.uniform4fv(u.uShare,new Float32Array(share));gl.uniform4fv(u.uMood,new Float32Array(moodVec()));gl.uniform1f(u.uWhite,0);
   // 리큐르 한 방울: 섞이는 만큼 그 자리부터 번지며 톤이 바뀜
   gl.uniform4f(u.uGa,0,0,1,0);gl.uniform2f(u.uTa,0,0);gl.uniform4fv(u.uGb,new Float32Array(GR));gl.uniform2fv(u.uTb,new Float32Array(TN));gl.uniform4f(u.uDrop,drop.x,1-drop.y,LT.length?Math.min(3,mixAmt*3.2):0,drop.seed);
+  gl.uniform4fv(u.uDomW,new Float32Array(DOMW));gl.uniform1f(u.uDomK,CV===1?1:0);
   const kk=mixAmt*mixAmt*(3-2*mixAmt)*.3;   // 비율 그대로에 가깝게 (작은 비율도 보이게 살짝만 넓힘)
   gl.uniform3f(u.uCuts,cuts[0]+(cutsS[0]-cuts[0])*kk,cuts[1]+(cutsS[1]-cuts[1])*kk,cuts[2]+(cutsS[2]-cuts[2])*kk);gl.drawArrays(gl.TRIANGLES,0,3);}
 simStep(1,0,1e6);
