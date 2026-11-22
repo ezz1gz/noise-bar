@@ -1335,6 +1335,7 @@ async function buildCard(m,graphCv,CC,cache){
     x.fillStyle='#fff';for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(X0+j*cell,Y0+i*cell,cell,cell);
     window.__lastQR={url,n};}catch(e){console.warn('QR',e);}
   return c.toDataURL('image/png');}
+window.__nbCardPNG=m=>buildCard(m,document.getElementById('cGraph'),cardCfg(),{});
 window.NBPrintCard=async function(m,graphCv){
   // 창은 누른 그 순간 바로 연다 — 카드를 다 그린 뒤 열면(몇 초 걸림) 브라우저가 팝업을 막아서 첫 클릭엔 안 뜨던 문제
   let w=window.open('','nbprint','width=980,height=820');
@@ -1376,6 +1377,54 @@ window.NBPrintCard=async function(m,graphCv){
    document.getElementById('df').onclick=()=>{C=O.__nbCardDef();ui();go();st.textContent='기본값이에요 · 저장해야 남아요';};
    ui();<\/script>`);w.document.close();};
 window.__nbMixes=()=>MIXES;
+// ── 폰: 고른 잔으로 바로 — ▶ 듣기 · MP3 저장(2분) · 카드 이미지 저장(인쇄용 54×86mm) — 일반 소리의 바다와 QR 화면(남의 잔) 둘 다
+(()=>{const H=document.documentElement;if(!H.classList.contains('phone'))return;
+ const UA=navigator.userAgent,IOS=/iP(hone|ad|od)/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1),AND=/Android/i.test(UA),INAPP=/KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(UA);
+ const st=document.createElement('style');st.textContent=`.pAct{position:fixed;z-index:502;left:12px;right:12px;bottom:calc(66px + env(safe-area-inset-bottom));max-width:460px;margin:0 auto;display:none}
+  html.pSel .pAct{display:block}.pAct .pb{display:flex;gap:6px}.pAct button{flex:1;height:44px;border-radius:22px;border:0;font:600 13.5px Pretendard,'Apple SD Gothic Neo',sans-serif;cursor:pointer;color:#fff;background:rgba(20,17,23,.72);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);white-space:nowrap;padding:0 6px}
+  .pAct .pPlay{background:rgba(255,255,255,.94);color:#141117}.pAct button.rdy{background:linear-gradient(135deg,#7b5cff,#e85aa8)!important;color:#fff}.pAct .pBack{flex:0 0 auto;padding:0 14px}
+  .pAct .ps{margin:6px 4px 0;font:12px/1.5 Pretendard,sans-serif;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.55);min-height:0}
+  html.phone.pSel #ui .card{bottom:calc(128px + env(safe-area-inset-bottom))}
+  .lsn .lb button.lImg{flex:0 0 auto;padding:0 14px;background:rgba(255,255,255,.16);color:#fff}`;document.head.appendChild(st);
+ const bar=document.createElement('div');bar.className='pAct';bar.innerHTML='<div class="pb"><button type="button" class="pBack">← 내 잔</button><button type="button" class="pPlay">▶ 듣기</button><button type="button" class="pMp3">MP3 저장</button><button type="button" class="pImg">카드 이미지</button></div><p class="ps"></p>';document.body.appendChild(bar);
+ const $=s=>bar.querySelector(s),S=$('.ps'),LS=location.search.includes('listen')&&location.hash.length>2;
+ const myId=(()=>{if(!LS)return null;try{let h=0;for(const c of location.hash.slice(1))h=(h*31+c.charCodeAt(0))>>>0;return 'L'+h.toString(36);}catch(_){return null;}})();
+ const mine=()=>myId&&MIXES.find(v=>v.id===myId);if(!LS)$('.pBack').remove();
+ const cur=()=>{const f=focused;if(!f)return null;if(LS&&f===mine())return null;return f;};
+ const CACHE={};let shown=null;
+ setInterval(()=>{const m=cur();H.classList.toggle('pSel',!!m);if(m!==shown){shown=m;S.textContent='';['.pMp3','.pImg'].forEach(k=>{const b=$(k);if(!b)return;const r=m&&CACHE[m.id+k];b.classList.toggle('rdy',!!(r&&IOS));b.textContent=r&&IOS?'저장하기':(k==='.pMp3'?'MP3 저장':'카드 이미지');b.disabled=false;});}},200);
+ const saveBlob=(blob,fn,stEl,btn,done)=>{const file=new File([blob],fn,{type:blob.type});
+  const dl=()=>{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fn;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1500);setTimeout(()=>URL.revokeObjectURL(u),60000);};
+  if(IOS&&navigator.canShare&&navigator.canShare({files:[file]})){navigator.share({files:[file],title:fn}).then(()=>{stEl.textContent=done;}).catch(e=>{if(e&&e.name==='AbortError')return;dl();});}
+  else{try{dl();stEl.textContent=AND?'저장했어요 · 알림창이나 \'내 파일 > 다운로드\'에서 찾을 수 있어요':'저장했어요 · 다운로드 폴더에서 찾을 수 있어요';}catch(_){window.open(URL.createObjectURL(blob),'_blank');}}
+  if(INAPP)stEl.textContent='카카오톡·인스타 안에서는 저장이 막힐 수 있어요 · 메뉴에서 \'다른 브라우저로 열기\'를 눌러 주세요';
+  btn.classList.remove('rdy');};
+ async function mp3Blob(m,prog){initAudio();const R=await window.__nbRenderSolo(m,120);if(!R)throw 0;
+  if(!window.lamejs){await new Promise((ok,no)=>{const s=document.createElement('script');s.src='../lib/lame.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
+  const e=new lamejs.Mp3Encoder(1,R.sr,128),out=[],P=new Int16Array(R.data.length);for(let i=0;i<P.length;i++){const v=Math.max(-1,Math.min(1,R.data[i]));P[i]=v<0?v*32768:v*32767;}
+  for(let i=0,c=0;i<P.length;i+=1152*8,c++){const b=e.encodeBuffer(P.subarray(i,i+1152*8));if(b.length)out.push(b);if(c%20===0){prog(Math.round(i/P.length*100));await new Promise(r=>setTimeout(r,0));}}
+  const f=e.flush();if(f.length)out.push(f);return new Blob(out,{type:'audio/mpeg'});}
+ async function imgBlob(m){const u=await window.__nbCardPNG(m);return await (await fetch(u)).blob();}
+ const nmOf=m=>((m.raw&&m.raw.name)||m.n||'cocktail').replace(/[\\/:*?"<>|]/g,'');
+ async function act(k,btn){const m=cur();if(!m||btn.disabled)return;const key=m.id+k,nm=nmOf(m);
+  const fn=k==='.pMp3'?`NOISEBAR-${nm}.mp3`:`NOISEBAR-${nm}-card.png`,done=k==='.pMp3'?'저장했어요 · 파일 앱에서 찾을 수 있어요':'저장했어요 · 사진이나 파일 앱에서 찾을 수 있어요 · 54×86mm 카드 크기로 인쇄하면 돼요';
+  if(CACHE[key]){saveBlob(CACHE[key],fn,S,btn,done);btn.textContent=k==='.pMp3'?'MP3 다시 저장':'이미지 다시 저장';return;}
+  btn.disabled=true;btn.textContent=k==='.pMp3'?'MP3 만드는 중…':'카드 만드는 중…';
+  try{const b=k==='.pMp3'?await mp3Blob(m,p=>{btn.textContent=`MP3 ${p}%`;}):await imgBlob(m);CACHE[key]=b;btn.disabled=false;
+   if(IOS){btn.textContent='저장하기';btn.classList.add('rdy');S.textContent='다 만들었어요 · 한 번 더 누르면 저장 창이 떠요'+(k==='.pImg'?' (이미지 저장 / 파일에 저장)':' (파일에 저장)');}
+   else{saveBlob(b,fn,S,btn,done);btn.textContent=k==='.pMp3'?'MP3 다시 저장':'이미지 다시 저장';}}
+  catch(e){console.warn(e);btn.disabled=false;btn.textContent='다시 시도';}}
+ $('.pMp3').onclick=function(){act('.pMp3',this);};$('.pImg').onclick=function(){act('.pImg',this);};
+ $('.pPlay').onclick=()=>{const m=cur();if(!m)return;initAudio();try{AC.resume&&AC.resume();}catch(_){}focus(m);playMix(m);S.textContent='듣는 중 · 이 잔 소리만 들려요 · 안 들리면 무음 모드를 꺼 주세요';};
+ if(LS){$('.pBack').onclick=()=>{const m=mine();if(m){focus(m);playMix(m);}};
+  // QR 화면의 내 잔 칸에도 '카드 이미지'
+  const t=setInterval(()=>{const lb=document.querySelector('.lsn .lb');if(!lb)return;clearInterval(t);const b=document.createElement('button');b.type='button';b.className='lImg';b.textContent='카드 이미지';lb.appendChild(b);
+   const ls=document.getElementById('lSt');let blob=null;
+   b.onclick=async()=>{const m=mine();if(!m||b.disabled)return;const fn=`NOISEBAR-${nmOf(m)}-card.png`,done='저장했어요 · 사진이나 파일 앱에서 찾을 수 있어요';
+    if(blob){saveBlob(blob,fn,ls,b,done);b.textContent='카드 이미지';return;}b.disabled=true;b.textContent='만드는 중…';
+    try{blob=await imgBlob(m);b.disabled=false;if(IOS){b.textContent='저장하기';b.classList.add('rdy');ls.textContent='카드 이미지를 만들었어요 · 한 번 더 누르면 저장 창이 떠요';}else{saveBlob(blob,fn,ls,b,done);b.textContent='카드 이미지';}}
+    catch(e){console.warn(e);b.disabled=false;b.textContent='다시 시도';}};},300);}
+})();
 // ── 기록 이어 받기: ntfy는 12시간만 남기니, 소리의 바다를 연 기기들이 서로 가진 기록을 6시간마다 다시 올려 둠
 //    (어느 기기든 12시간 안에 한 번만 열리면 기록이 계속 이어짐 · 소리 그림(img)은 빼고 레시피만)
 (()=>{const AURL='https://ntfy.sh/noisebar-arch-k7q2x9m4vz',K='nb-sea-arch',H6=6*36e5;
@@ -1410,7 +1459,7 @@ window.__nbMixes=()=>MIXES;
  st.textContent+=`.lOth{position:fixed;z-index:501;left:12px;right:12px;bottom:calc(66px + env(safe-area-inset-bottom));max-width:460px;margin:0 auto;display:none}
   .lOb{display:flex;gap:8px}.lOb button{flex:1;height:46px;border-radius:23px;border:0;font:600 14px Pretendard,'Apple SD Gothic Neo',sans-serif;cursor:pointer;color:#fff;background:rgba(20,17,23,.72);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
   #oRec{background:rgba(255,255,255,.92);color:#141117}#oRec.rdy{background:linear-gradient(135deg,#7b5cff,#e85aa8);color:#fff}.lOs{margin:6px 4px 0;font:12px/1.5 Pretendard,sans-serif;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5);min-height:0}
-  html.lOther .lsn{display:none}html.lOther .lOth{display:block}html.listen.lOther #ui .card{bottom:calc(136px + env(safe-area-inset-bottom))}html.listen .feed{display:none!important}`;
+  html.lOther .lsn{display:none}html.listen.lOther #ui .card{bottom:calc(136px + env(safe-area-inset-bottom))}html.listen .feed{display:none!important}`;
  const mine=()=>MIXES.find(v=>v.id===d.id);let lastOther=null;
  setInterval(()=>{const o=focused&&focused!==mine()?focused:null;document.documentElement.classList.toggle('lOther',!!o);
    if(o!==lastOther){lastOther=o;const b=document.getElementById('oRec');if(o){const r=READY[o.id];b.textContent=r&&IOS?'MP3 저장하기':'이 잔 MP3로 저장';b.classList.toggle('rdy',!!(r&&IOS));document.getElementById('oSt').textContent='';}}},200);
