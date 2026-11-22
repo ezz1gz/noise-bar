@@ -1388,6 +1388,9 @@ window.__nbMixes=()=>MIXES;
   for(const b of out){try{await fetch(AURL,{method:'POST',body:JSON.stringify({v:1,bundle:b})});}catch(_){}await new Promise(r=>setTimeout(r,1200));}}
  async function sync(){const r=await poll();if(!r)return;if(r.n&&window.__nbOnArch)try{__nbOnArch();}catch(_){}
   if(Date.now()-r.last>H6&&load().length){await new Promise(z=>setTimeout(z,3000+Math.random()*30000));const r2=await poll();if(r2&&Date.now()-r2.last>H6)push();}}
+ // 저장소에 쌓인 전체 기록(GitHub가 1시간마다 모음 · 아무 기기도 안 켜져 있어도 남음)
+ async function repo(){for(const u of ['https://raw.githubusercontent.com/ezz1gz/noise-bar/main/data/cups.json?t='+Date.now(),'../data/cups.json?t='+Date.now()]){try{const r=await fetch(u,{cache:'no-store'});if(!r.ok)continue;const L=await r.json();if(Array.isArray(L)){const n=merge(L);if(n&&window.__nbOnArch)try{__nbOnArch();}catch(_){}return;}}catch(_){}}}
+ setTimeout(repo,1500);setInterval(repo,10*6e4);
  setTimeout(sync,4000);setInterval(sync,60*6e4);})();
 // 폰으로 소리의 바다에 들어오면: 무음 모드 안내 (QR 듣기 화면은 시트 안에 같은 안내가 있어서 제외)
 (()=>{if(!document.documentElement.classList.contains('phone')||location.search.includes('listen'))return;try{if(sessionStorage.getItem('nb-ocean-mute-tip'))return;sessionStorage.setItem('nb-ocean-mute-tip','1');}catch(_){}
@@ -1419,7 +1422,7 @@ window.__nbMixes=()=>MIXES;
  async function mp3For(m,btn,stEl){if(!m||btn.disabled)return;const nm=(m.raw&&m.raw.name)||m.n||'my-cocktail';
   if(READY[m.id]){deliver(READY[m.id],btn,stEl,nm);return;}
   initAudio();try{AC.resume&&AC.resume();}catch(_){}btn.disabled=true;btn.textContent='MP3 만드는 중…';
-  let R=null;try{R=await window.__nbRenderSolo(m,30);}catch(e){console.warn(e);}if(!R){btn.textContent='다시 시도해 주세요';btn.disabled=false;return;}
+  let R=null;try{R=await window.__nbRenderSolo(m,120);}catch(e){console.warn(e);}if(!R){btn.textContent='다시 시도해 주세요';btn.disabled=false;return;}
   if(!window.lamejs){await new Promise((ok,no)=>{const s=document.createElement('script');s.src='../lib/lame.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);});}
   const e=new lamejs.Mp3Encoder(1,R.sr,128),out=[],to16=a=>{const o=new Int16Array(a.length);for(let i=0;i<a.length;i++){const v=Math.max(-1,Math.min(1,a[i]));o[i]=v<0?v*32768:v*32767;}return o;};
   const P=to16(R.data);for(let i=0,c=0;i<P.length;i+=1152*8,c++){const b=e.encodeBuffer(P.subarray(i,i+1152*8));if(b.length)out.push(b);if(c%20===0){btn.textContent=`MP3 만드는 중 ${Math.round(i/P.length*100)}%`;await new Promise(r=>setTimeout(r,0));}}
