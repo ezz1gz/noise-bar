@@ -682,7 +682,7 @@ MIXES.forEach(m=>{const d=document.createElement('div');d.className='m';
 let focused=null;
 function focus(m){
   focused=m;stage.classList.add('focus');MIXES.forEach(v=>v.el.classList.toggle('on',v===m));
-  const[x,y]=wrapPos(m);cam.vx=cam.vy=0;anim={tx:cam.x+(x-W*(PHONE?.6:.5)),ty:cam.y+(y-H*(PHONE?.3:.5))};
+  const[x,y]=wrapPos(m);cam.vx=cam.vy=0;anim={tx:cam.x+(x-W*.5),ty:cam.y+(y-H*(PHONE?.3:.5))};
   
   $('sortbar').hidden=true;$('detail').hidden=false;$('rings').hidden=false;
   $('dTag').textContent=m.tag.split(' · ')[0]+' BASE · 리큐르 '+m.lq.split(' · ')[0];
@@ -1064,9 +1064,12 @@ function fillCard(m){cardM=m;window.cardM=m;const $c=id=>document.getElementById
 const _plPhone=placeLabels;
 function phCard(){const card=document.getElementById('card');if(!card)return;let best=(focused&&focused.vis)?focused:(EAR.anchor&&EAR.anchor.vis?EAR.anchor:null);
   if(!best){let bh=.35;MIXES.forEach(m=>{if(m.vis&&m.sp&&(m.hear||0)>bh){bh=m.hear;best=m;}});}
-  const LS=document.documentElement.classList.contains('listen');card.style.setProperty('--cs',String(Math.max(.4,Math.min(.86,(innerWidth-24)/455,(LS?innerHeight-480:innerHeight*.5)/555))));
+  const LS=document.documentElement.classList.contains('listen');card.style.setProperty('--cs',String(Math.max(.4,Math.min(.86,(innerWidth-24)/455,(LS?innerHeight-480:innerHeight*.4)/555))));
   if(!best){card.classList.add('off');return;}if(best!==cardM)fillCard(best);card.classList.remove('off');}
-placeLabels=function(){if(document.documentElement.classList.contains('phone')){const r=_plPhone();try{phCard();}catch(_){}return r;}const sc=uiScale(),Z=zv();let best=null,bh=.12;
+// 폰: 화면 가장자리에 걸린 잔 이름이 잘리지 않게 안쪽으로 밀어 넣음
+function clampLabels(){const Wv=innerWidth,M=8;MIXES.forEach(m=>{const el=m.el;if(!el||el.style.visibility==='hidden'||!m.vis)return;const t=el.style.transform||'';const base=t.replace(/ translateX\([^)]*\)$/,'');
+  el.style.transform=base;const rg=document.createRange();rg.selectNodeContents(el);const r=rg.getBoundingClientRect();let dx=0;if(r.width<Wv-2*M){if(r.left<M)dx=M-r.left;else if(r.right>Wv-M)dx=Wv-M-r.right;}if(dx){const f=(el.getBoundingClientRect().width/(el.offsetWidth||1))||1;el.style.transform=base+` translateX(${dx/f}px)`;}});}
+placeLabels=function(){if(document.documentElement.classList.contains('phone')){const r=_plPhone();try{clampLabels();phCard();}catch(_){}return r;}const sc=uiScale(),Z=zv();let best=null,bh=.12;
   MIXES.forEach(m=>{relabel(m);if(m.vis&&m.sp&&(m.hear||0)>bh){bh=m.hear;best=m;}});if(EAR.anchor&&EAR.anchor.vis)best=EAR.anchor;
   MIXES.forEach(m=>{const el=m.el;if(!m.vis||!m.sp){el.style.visibility='hidden';return;}el.style.visibility='';el.classList.remove('r');el.classList.toggle('act',m===best);
     const r=(m===best?20:10)*sc/Z;el.style.transform=`translate(${m.sp[0]}px,${m.sp[1]}px) translate(-50%,${-r}px)`;el.style.zIndex=m===best?'50':'1';el.style.opacity='';});
@@ -1292,7 +1295,7 @@ async function buildCard(m,graphCv,CC,cache){
     t.getContext('2d').drawImage(gc,cx,cy,cw,ch,0,0,cw,ch);res(t);};setTimeout(()=>res(null),800);}));
   x.fillStyle='#b65cff';x.fillRect(0,0,W,H);
   // 플레이 화면 전체 그림이면 카드에 꽉 채워(위아래 색 그대로) · 플레이처럼 살짝만 흐리게
-  if(bg){x.imageSmoothingQuality='high';if(thumbBg&&thumbBg.full){x.filter='blur(26px)';const o=60;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}
+  if(bg){x.imageSmoothingQuality='high';if(thumbBg&&thumbBg.full){x.filter=bg.width>=150?'blur(16px)':bg.width>=40?'blur(22px)':'blur(26px)'; /* 플레이 화면 흐림(6px)과 같은 비율 · 작은 그림만 조금 더 */const o=60;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}
     else if(thumbBg){x.filter='blur(40px)';const o=120,w=bg.width,h=bg.height;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}
     else{x.filter='blur(10px) saturate(1.12)';const o=40;x.drawImage(bg,-o,-o,W+o*2,H+o*2);}x.filter='none';}
   const MODE=window.NB_CARD_MODE||'blend'; // dim: 배경 전체를 살짝 어둡게 · blend: 밝은 자리에서만 그래프를 배경에 묻히게(곱하기)
